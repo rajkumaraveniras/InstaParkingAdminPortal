@@ -1,0 +1,64 @@
+﻿@{
+    ViewBag.Title = "Assign";
+    Layout = null;
+}
+<div class="page page-assign">
+    <div data-ng-controller="EmployeeCtrl">
+        <div class="row ui-section">
+            <div class="col-md-12">
+                <article class="article">
+                    <md-card class="no-margin-h">
+                        <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>Assigned List</span>
+                                <div flex></div>
+                                <div class="search-box visible-md visible-lg">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="material-icons">search</i></span>
+                                        <input type="text" class="form-control" ng-model="filterTable" placeholder="{{ 'SEARCH' | translate }}">
+                                        <span class="input-bar"></span>
+                                    </div>
+                                </div>
+                                <a href="#!/employee/create-assign" class="md-button md-raised btn-w-md" style="display: flex;">
+                                    <i class="material-icons">add</i> Create New Assign
+                                </a>
+                            </div>
+                        </md-toolbar>
+
+                        <md-table-container>
+                            <table md-table>
+                                <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
+                                    <tr md-row>
+                                        <th md-column><span>Actions</span></th>
+                                        <th md-column md-order-by="UserCode"><span>Employee Code</span></th>
+                                        <th md-column md-order-by="UserName"><span>Employee Name</span></th>
+                                        <th md-column md-order-by="LocationName"><span>Assigned Station</span></th>
+                                        <th md-column md-order-by="LotName"><span>Assigned Lot</span></th>
+                                        <th md-column md-order-by="IsActive"><span>Status</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody md-body>
+                                    <tr md-row md-select="assigndata" md-on-select="logItem" md-auto-select="options.autoSelect" ng-disabled="assigndata.calories.value > 400"
+                                        ng-repeat="assigndata in AssignListModel | filter: filterTable | orderBy: query.order:true | limitTo: query.limit : (query.page -1) * query.limit">
+                                        <td md-cell class="actions">
+                                            <a title="EDIT ASSIGN" id="ViewAssign" href="#!/employee/edit-assign/{{assigndata.UserLocationMapperID}}">
+                                                <md-icon>edit</md-icon>
+                                            </a>
+                                        </td>
+                                        <td md-cell>{{assigndata.UserCode}}</td>
+                                        <td md-cell>{{assigndata.UserName}}</td>
+                                        <td md-cell>{{assigndata.LocationName}}</td>
+                                        <td md-cell>{{assigndata.LotName}}</td>
+                                        <td md-cell><span class="label" ng-class="{'label-default': assigndata.IsActive=='Inactive' , 'label-success': assigndata.IsActive=='Active'}">{{assigndata.IsActive}}</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </md-table-container>
+                        <md-table-pagination ng-show="(AssignListModel|filter:filterTable).length>0" md-limit="query.limit" md-limit-options="limitOptions" md-page="query.page" md-total="{{(AssignListModel|filter:filterTable).length}}" md-page-select="options.pageSelect" md-boundary-links="options.boundaryLinks" md-on-paginate="logPagination"></md-table-pagination>
+                    </md-card>
+                </article>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Hidden("GetAssignList", Url.Action("GetAssignList", "Employee"))

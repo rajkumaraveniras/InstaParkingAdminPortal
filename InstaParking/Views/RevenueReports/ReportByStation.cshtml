@@ -1,0 +1,396 @@
+﻿@{
+    ViewBag.Title = "ReportByStation";
+    Layout = null;
+}
+<div class="page page-reports">
+    <div data-ng-controller="RevenuereportsCtrl">
+        <div class="row ui-section">
+            <div class="col-md-12">
+                <article class="article">
+                    <form name="formstationReport">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"><i class="fa fa-filter" aria-hidden="true"></i> Filters</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <md-input-container class="md-block">
+                                            <label>Company</label>
+                                            <input type="text" ng-model="ReportFilterModel['Company']" disabled>
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <md-input-container class="md-block">
+                                            <label>Station</label>
+                                            <md-select ng-model="ReportFilterModel['LocationID']" aria-label="select"
+                                                       name="LocationID" ng-change="GetActiveLots(ReportFilterModel.LocationID)" required>
+                                                @*ng-options="location.LocationName for location in ActiveLocationListModel track by location.LocationID">*@
+                                                <md-option ng-repeat="location in ActiveLocationListModel" value="{{location.LocationID}}"> {{location.LocationName}} </md-option>
+                                            </md-select>
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <md-input-container class="md-block">
+                                            <label>Parking Lot</label>
+                                            <md-select ng-model="ReportFilterModel['LocationParkingLotID']" aria-label="select"
+                                                       name="LotID" ng-change="GetSelectedLot(ReportFilterModel.LocationParkingLotID)">
+                                                <md-option ng-repeat="lot in ActiveLotListModel" value="{{lot.LocationParkingLotID}}"> {{lot.LocationParkingLotName}} </md-option>
+                                            </md-select>
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <md-input-container class="md-block">
+                                            <label>Channel</label>
+                                            <md-select ng-model="ReportFilterModel['ApplicationTypeID']" aria-label="select" name="Channel">
+                                                <md-option ng-repeat="channel in ActiveChannelsListModel" value="{{channel.ApplicationTypeID}}"> {{channel.ApplicationTypeName}} </md-option>
+                                            </md-select>
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        @*ActiveVehicleTypesListModel*@
+                                        <md-input-container class="md-block">
+                                            <label>Vehicle Type</label>
+                                            <md-select ng-model="ReportFilterModel['VehicleTypeID']" aria-label="select" name="VehicleTypeID" required ng-change="GetSelectedVehicleWithAll(ReportFilterModel.VehicleTypeID)">
+                                                <md-option ng-repeat="vehicle in ActiveVehicleTypesListModelWithAll" value="{{vehicle.VehicleTypeID}}"> {{vehicle.VehicleTypeName}} </md-option>
+                                            </md-select>
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <md-input-container class="md-block">
+                                            <label>Duration</label>
+                                            <md-select ng-model="ReportFilterModel['Duration']" aria-label="select" ng-change="AssignDates()">
+                                                <md-option ng-repeat="rbsduration in DurationListModel" value="{{rbsduration.value}}"> {{rbsduration.name}} </md-option>
+                                            </md-select>
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <md-input-container class="md-block">
+                                            <label style="visibility: hidden;">From Date</label>
+                                            <md-datepicker ng-model="ReportFilterModel['FromDate']" md-placeholder="From Date" name="FromDate"
+                                                           ng-disabled="disabled" ng-required="required"
+                                                           ng-change="ChangeToDate()" md-open-on-focus id="FromDate" required></md-datepicker>
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-md-3" ng-if="ReportFilterModel.Duration!=''">
+                                        <md-input-container class="md-block" ng-if="ReportFilterModel.Duration!=''">
+                                            <label style="visibility: hidden;">To Date</label>
+                                            <md-datepicker ng-model="ReportFilterModel['ToDate']" md-placeholder="To Date" name="ToDate"
+                                                           ng-disabled="disabled" ng-required="required"
+                                                           ng-change="AssignToDate()" id="ToDate"
+                                                           md-max-date="TomaxDate"></md-datepicker>
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-md-3" ng-if="ReportFilterModel.Duration==''">
+                                        <md-input-container class="md-block" ng-if="ReportFilterModel.Duration==''">
+                                            <label style="visibility: hidden;">To Date</label>
+                                            <md-datepicker ng-model="ReportFilterModel['ToDate']" md-placeholder="To Date" name="ToDate"
+                                                           ng-disabled="disabled" ng-required="required"
+                                                           md-min-date="ReportFilterModel.FromDate"
+                                                           ng-change="AssignToDate()" id="ToDate"
+                                                           md-max-date="TomaxDate"></md-datepicker>
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <md-input-container class="md-block">
+                                            <label>From Time</label>
+                                            <md-select ng-model="ReportFilterModel['FromTime']" aria-label="select" name="FromTime"
+                                                       style="width:120px;" ng-disabled="timepickerdisabled"
+                                                       ng-required="filterFromTime==todayDateVal || ReportFilterModel.Duration=='Today'">
+                                                <md-option ng-repeat="time in ReportTimeFilterModel" value="{{time.hour}}"> {{time.hour}} </md-option>
+                                            </md-select>
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <md-input-container class="md-block">
+                                            <label>Meridiem</label>
+                                            <md-select ng-model="ReportFilterModel['FromMeridiem']" aria-label="select" 
+                                                       style="width:100px;" name="FromMeridiem"  ng-disabled="timepickerdisabled"
+                                                       ng-required="filterFromTime==todayDateVal || ReportFilterModel.Duration=='Today'">
+                                                <md-option ng-repeat="mer in ReportTimeMeridiemModel" value="{{mer.meridiem}}"> {{mer.meridiem}} </md-option>
+                                            </md-select>
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <md-input-container class="md-block">
+                                            <label>To Time</label>
+                                            <md-select ng-model="ReportFilterModel['ToTime']" aria-label="select" name="ToTime" 
+                                                       style="width:100px;"  ng-disabled="timepickerdisabled"
+                                                       ng-required="filterFromTime==todayDateVal || ReportFilterModel.Duration=='Today'">
+                                                <md-option ng-repeat="time in ReportTimeFilterModel" value="{{time.hour}}"> {{time.hour}} </md-option>
+                                            </md-select>
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <md-input-container class="md-block">
+                                            <label>Meridiem</label>
+                                            <md-select ng-model="ReportFilterModel['ToMeridiem']" aria-label="select" name="ToMeridiem"
+                                                       style="width:100px;"   ng-disabled="timepickerdisabled"
+                                                       ng-required="filterFromTime==todayDateVal || ReportFilterModel.Duration=='Today'">
+                                                <md-option ng-repeat="mer in ReportTimeMeridiemModel" value="{{mer.meridiem}}"> {{mer.meridiem}} </md-option>
+                                            </md-select>
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-md-12" style="text-align:center;">
+                                        <md-button type="submit" class="md-button md-raised btn-w-md md-default custom-btn" style="min-width: 50px; margin:12px 0px;"
+                                                   [disabled]="formstationReport.$valid" data-ng-click="formstationReport.$valid && GetReportByStation()">Generate Report</md-button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <md-card class="no-margin-h">
+                        <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>Revenue Report By Station</span>
+                                <div flex></div>
+                                <div class="search-box visible-md visible-lg">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="material-icons">search</i></span>
+                                        <input type="text" class="form-control" ng-model="filterTable" placeholder="{{ 'SEARCH' | translate }}">
+                                        <span class="input-bar"></span>
+                                    </div>
+                                </div>
+                                <div class="icons-set">
+                                    <span><a ng-click="DownloadReportByStationPDF()"><img src="assets/images/pdf.png"></a></span>
+                                    <span><a ng-click="DownloadReportByStationExcel()"><img src="assets/images/xl.png"></a></span>
+                                    <span><a ng-click="ReportByStationPrint1('printcontent')" ng-disabled="ReportByStationListModel.length<0"><img src="assets/images/print.png"></a></span>
+
+
+                                </div>
+                            </div>
+                        </md-toolbar>
+
+                        <div class="col-sm-12 selected-filters">
+                            <div class="selected-filters-list">
+                                Added Filters:
+                                <span class="label label-default">{{SelectedItemModel.SelectedStation}}</span>
+                                <span class="label label-default">{{SelectedItemModel.SelectedLot}}</span>
+                                <span class="label label-default">{{SelectedItemModel.SelectedVehicle}}</span>
+                            </div>
+                        </div>
+
+
+
+                        <md-table-container>
+                            <table class="table-striped" md-table>
+                                <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
+                                    <tr md-row>
+                                        <th md-column md-order-by="Station"><span>Station</span></th>
+                                        @*<th md-column md-order-by="ParkingLot"><span>Lot Code</span></th>*@
+                                        <th md-column md-order-by="ParkingLot"><span>Parking Lot</span></th>
+                                        <th md-column md-order-by="OperatorIn"><span>Operator In</span></th>
+                                        <th md-column md-order-by="PassesIn"><span>Passes In</span></th>
+                                        <th md-column md-order-by="AppIn"><span>App In</span></th>
+                                        <th md-column md-order-by="CallIn"><span>Call In</span></th>
+                                        <th md-column md-order-by="Out"><span>Out</span></th>
+                                        <th md-column md-order-by="FOC"><span>FOC</span></th>
+                                        <th md-column md-order-by="Clamps"><span>Clamps</span></th>
+                                        <th md-column md-order-by="Cash" class="sort-none" style="text-align: right;"><span>Cash</span></th>
+                                        <th md-column md-order-by="EPay" class="sort-none" style="text-align: right;"><span>EPay</span></th>
+                                        @*<th md-column md-order-by="Paytm"><span>Paytm</span></th>*@
+                                        <th md-column md-order-by="Amount" class="sort-none" style="text-align: right;"><span>Amount</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody md-body>
+                                    <tr md-row md-select="rbsdata" md-on-select="logItem" md-auto-select="options.autoSelect"
+                                        ng-if="ReportByStationListModel.length>0"
+                                        ng-repeat="rbsdata in ReportByStationListModel | filter: filterTable | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit">
+                                        <td md-cell>{{rbsdata.Station}}</td>
+                                        <td md-cell>{{rbsdata.ParkingLot}}</td>
+                                        <td md-cell>{{rbsdata.OperatorIn}}</td>
+                                        <td md-cell>{{rbsdata.PassesIn}}</td>
+                                        <td md-cell>{{rbsdata.AppIn}}</td>
+                                        <td md-cell>{{rbsdata.CallIn}}</td>
+                                        <td md-cell>{{rbsdata.Out}}</td>
+                                        <td md-cell>{{rbsdata.FOC}}</td>
+                                        <td md-cell>{{rbsdata.Clamps}}</td>
+                                        <td md-cell style="text-align: right;">{{rbsdata.Cash}}</td>
+                                        <td md-cell style="text-align: right;">{{rbsdata.EPay}}</td>
+                                        @*<td md-cell>{{rbsdata.Paytm}}</td>*@
+                                        <td md-cell style="text-align: right;">{{rbsdata.Amount}}</td>
+                                    </tr>
+                                    <tr md-row class="total-row" ng-if="ReportByStationListModel.length>0">
+                                        @*<td md-cell colspan="8">Total</td>*@
+                                        <td md-cell></td>
+                                        <td md-cell style="text-align: left !important;">Total</td>
+                                        <td md-cell style="text-align: left !important;">{{ReportByStationListModel[0].TotalOperatorIn}}</td>
+                                        <td md-cell style="text-align: left !important;">{{ReportByStationListModel[0].TotalPassesIn}}</td>
+                                        <td md-cell style="text-align: left !important;">{{ReportByStationListModel[0].TotalAppIn}}</td>
+                                        <td md-cell style="text-align: left !important;">{{ReportByStationListModel[0].TotalCallIn}}</td>
+                                        <td md-cell style="text-align: left !important;">{{ReportByStationListModel[0].TotalOut}}</td>
+                                        <td md-cell style="text-align: left !important;">{{ReportByStationListModel[0].TotalFOC}}</td>
+                                        <td md-cell style="text-align: left !important;">{{ReportByStationListModel[0].TotalClamps}}</td>
+                                        <td md-cell>{{ReportByStationListModel[0].TotalCash}}</td>
+                                        <td md-cell>{{ReportByStationListModel[0].TotalEPay}}</td>
+                                        <td md-cell>{{GrandTotal}}</td>
+                                    </tr>
+                                    <tr md-row ng-if="ReportByStationListModel.length==0">
+                                        <td md-cell colspan="12" style="text-align: center;">No Data Available</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </md-table-container>
+                        <md-table-pagination ng-show="(ReportByStationListModel|filter:filterTable).length>0" md-limit="query.limit"
+                                             md-limit-options="limitOptions" md-page="query.page" md-total="{{(ReportByStationListModel|filter:filterTable).length}}"
+                                             md-page-select="options.pageSelect" md-boundary-links="options.boundaryLinks" md-on-paginate="logPagination">
+                        </md-table-pagination>
+                    </md-card>
+
+
+                    @*div for Print Start*@
+                    <div ng-show="isPrinting" id="printcontent">
+                        <div style="width: 100%; max-width: 595px; margin: 0 auto;">
+
+                            <!--header start-->
+                            <div>
+                                <div style="width: 48%; padding: 10px 1%; float: left;">
+                                    <img src="~/assets/images/Logo4.png" style="padding-top:15px;" alt="logo" />
+                                </div>
+                                <div style="width: 48%; padding: 10px 1%; float: left; text-align: left; color:#353535;">
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Unit #3A, Plot No:847, Pacific Towers,<br />
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    Madhapur, Hyderabad – 500081, TS<br />
+                                    <strong style="font-family: pnbold;">
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GSTIN:
+                                    </strong> 36AABCT3518Q1ZX<br />
+                                    <strong style="font-family: pnbold;">
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ph:
+                                    </strong> +91 8143143143 <br />
+                                    <strong style="font-family: pnbold;">
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Email:
+                                    </strong> support@hmrl.com<br />
+                                </div>
+                                <div style="clear:both;"></div>
+                            </div>
+                            <!--header close-->
+                            <!--Title start-->
+                            <div>
+                                <div style="padding: 6px; background-color:#f1f1f1;">
+                                    <h4 style="color:#000000; font-weight:bold; font-size:16px; text-align: center; padding:0px; margin:0px; text-transform: uppercase; font-family: pnbold;">REPORT BY STATION</h4>
+                                </div>
+                            </div>
+                            <!--Title close-->
+                            <!--filtered by start-->
+                            <div style="margin: 10px 0px; color:#353535;">
+                                <div style="display: inline;">
+                                    <strong style="margin-right: 6px; font-family: pnbold;">Filtered By&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;</strong>
+                                    <span>{{SelectedItemModel.SelectedStation}}, {{SelectedItemModel.SelectedLot}}, {{SelectedItemModel.SelectedVehicle}}</span>
+                                    @*<span style="padding: 2px 6px; -moz-border-radius:3px; -webkit-border-radius:3px; -o-border-radius:3px; -ms-border-radius:3px; border-radius:3px; border:1px solid #dbdbdb;">{{SelectedItemModel.SelectedStation}}</span>
+                                        <span style="padding: 2px 6px; -moz-border-radius:3px; -webkit-border-radius:3px; -o-border-radius:3px; -ms-border-radius:3px; border-radius:3px; border:1px solid #dbdbdb;">{{SelectedItemModel.SelectedLot}}</span>
+
+                                        <span style="padding: 2px 6px; -moz-border-radius:3px; -webkit-border-radius:3px; -o-border-radius:3px; -ms-border-radius:3px; border-radius:3px; border:1px solid #dbdbdb;">{{SelectedItemModel.SelectedVehicle}}</span>*@
+                                </div>
+                            </div>
+                            <!--filtered by close-->
+                            <!--from to generate dates start-->
+                            <div style="margin: 10px 0px;">
+                                <div style="display: inline;">
+                                    <strong style="margin-right: 6px; font-family: pnbold;">
+                                        Report From
+                                        &nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;
+                                    </strong>
+                                    <span>
+                                        {{printFromDate | date:"dd/MM/yyyy"}}
+                                        to
+                                        {{printToDate | date:"dd/MM/yyyy"}}
+                                    </span> &nbsp;&nbsp;&nbsp;&nbsp;
+                                    @*<span>
+                                            {{ReportFilterModel.FromDate | date:"dd/MM/yyyy"}}
+                                            to
+                                            {{ReportFilterModel.ToDate | date:"dd/MM/yyyy"}}
+                                        </span> &nbsp;&nbsp;&nbsp;&nbsp;*@
+
+                                </div>
+                                <div style="clear:both; margin-top: 7px;"></div>
+                            </div>
+
+                            <div style="margin: 10px 0px; border-bottom:2px solid #f1f1f1; color:#353535;">
+                                <div style="display: inline;">
+                                    <strong style="margin-right: 6px; font-family: pnbold;">Generated On&nbsp;&nbsp;&nbsp;:&nbsp;</strong>
+                                    <span>{{TodayDate | date:"dd/MM/yyyy  h:mma"}}</span>
+                                </div>
+                                <div style="clear:both; margin-top: 7px;"></div>
+                            </div>
+
+                            <!--from to generate dates close-->
+                            <!--table start-->
+                            <table style="width: 100%; text-align: left; border-collapse: collapse;">
+                                <tr style="font-size:13px; font-weight: bold; background-color: #f1f1f1; font-family: pnbold;">
+                                    <th style=" border: 1px solid #000000;">Station</th>
+                                    <th style=" border: 1px solid #000000;">Parking Lot</th>
+                                    @*<th style=" border: 1px solid #000000;">Lot Code</th>*@
+                                    <th style=" border: 1px solid #000000;">Operator In</th>
+                                    <th style=" border: 1px solid #000000;">Passes In</th>
+                                    <th style=" border: 1px solid #000000;">App In</th>
+                                    <th style=" border: 1px solid #000000;">Call In</th>
+                                    <th style=" border: 1px solid #000000;">Out</th>
+                                    <th style=" border: 1px solid #000000;">FOC</th>
+                                    <th style=" border: 1px solid #000000;">Clamps</th>
+                                    <th style=" border: 1px solid #000000; text-align: right;">Cash</th>
+                                    <th style=" border: 1px solid #000000; text-align: right;">EPay</th>
+                                    <th style=" border: 1px solid #000000; text-align: right;">Amount</th>
+                                </tr>
+                                <tr ng-repeat="item in ReportByStationListModel">
+                                    <td style=" border: 1px solid #000000;">{{item.Station}}</td>
+                                    <td style=" border: 1px solid #000000;">{{item.ParkingLot}}</td>
+                                    <td style=" border: 1px solid #000000;">{{item.OperatorIn}}</td>
+                                    <td style=" border: 1px solid #000000;">{{item.PassesIn}} </td>
+                                    <td style=" border: 1px solid #000000;">{{item.AppIn}}</td>
+                                    <td style=" border: 1px solid #000000;">{{item.CallIn}}</td>
+                                    <td style=" border: 1px solid #000000;">{{item.Out}}</td>
+                                    <td style=" border: 1px solid #000000;">{{item.FOC}}</td>
+                                    <td style=" border: 1px solid #000000;">{{item.Clamps}}</td>
+                                    <td style=" border: 1px solid #000000; text-align: right;">{{item.Cash}}</td>
+                                    <td style=" border: 1px solid #000000; text-align: right;">{{item.EPay}}</td>
+                                    <td style=" border: 1px solid #000000; text-align: right;">{{item.Amount}}</td>
+                                </tr>
+                                <tr style=" font-family: pnbold;">
+                                    <td style=" border: 1px solid #000000;">&nbsp;</td>
+                                    <td style=" border: 1px solid #000000; font-size: 13px; font-weight: bold; text-align: left !important;">TOTAL:</td>
+                                    <td style=" border: 1px solid #000000; font-size: 13px; font-weight: bold; text-align: left !important;">{{ReportByStationListModel[0].TotalOperatorIn}}</td>
+                                    <td style=" border: 1px solid #000000; font-size: 13px; font-weight: bold; text-align: left !important;">{{ReportByStationListModel[0].TotalPassesIn}}</td>
+                                    <td style=" border: 1px solid #000000; font-size: 13px; font-weight: bold; text-align: left !important;">{{ReportByStationListModel[0].TotalAppIn}}</td>
+                                    <td style=" border: 1px solid #000000; font-size: 13px; font-weight: bold; text-align: left !important;">{{ReportByStationListModel[0].TotalCallIn}}</td>
+                                    <td style=" border: 1px solid #000000; font-size: 13px; font-weight: bold; text-align: left !important;">{{ReportByStationListModel[0].TotalOut}}</td>
+                                    <td style=" border: 1px solid #000000; font-size: 13px; font-weight: bold; text-align: left !important;">{{ReportByStationListModel[0].TotalFOC}}</td>
+                                    <td style=" border: 1px solid #000000; font-size: 13px; font-weight: bold; text-align: left !important;">{{ReportByStationListModel[0].TotalClamps}}</td>
+                                    <td style=" border: 1px solid #000000; font-size: 13px; font-weight: bold; text-align: right;">{{ReportByStationListModel[0].TotalCash}}</td>
+                                    <td style=" border: 1px solid #000000; font-size: 13px; font-weight: bold; text-align: right;">{{ReportByStationListModel[0].TotalEPay}}</td>
+                                    <td style=" border: 1px solid #000000; font-size: 13px; font-weight: bold; text-align: right;">
+                                        {{GrandTotal}}
+                                    </td>
+                                </tr>
+                            </table>
+                            <!--table close-->
+
+                        </div>
+                    </div>
+                    @*div for Print End*@
+                </article>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Hidden("GetActiveLocationsList", Url.Action("GetActiveLocationsList", "Employee"))
+@Html.Hidden("GetActiveLotssList", Url.Action("GetActiveLotssList", "Employee"))
+@*@Html.Hidden("GetActiveVehicleTypesListWithoutAll", Url.Action("GetActiveVehicleTypesList", "Parking"))*@
+@Html.Hidden("GetActiveVehicleTypesList", Url.Action("GetActiveVehicleTypesList", "Parking"))
+@Html.Hidden("GetActiveChannelsList", Url.Action("GetActiveChannelsList", "RevenueReports"))
+
+@Html.Hidden("GetReportByStation", Url.Action("GetReportByStation", "RevenueReports"))
+@*@Html.Hidden("GeneratePDFforPrintStation", Url.Action("GeneratePDFforPrintStation", "RevenueReports"))*@
+

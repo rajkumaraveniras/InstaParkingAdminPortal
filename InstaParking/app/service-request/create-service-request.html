@@ -1,0 +1,63 @@
+<div class="page page-create-service-request">
+
+    <div data-ng-controller="ServicerequestCtrl">
+        <div class="row ui-section">
+            <div class="col-md-12">
+                <article class="article">
+
+                    <md-card class="no-margin-h">
+                        
+                        <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>Create Service Request</span>
+                                <div flex></div>
+                                <a href="#!/service-request" class="md-button md-raised btn-w-md" style="display: flex;">
+                                    <i class="material-icons">arrow_back</i> Back To Service Request
+                                </a>
+                            </div>
+                        </md-toolbar>
+                        
+                        <div>
+                            
+                            <div class="col-md-4">
+                                <md-input-container class="full-width">
+                                    <label class="md-required">Customer</label>
+                                    <md-select ng-model="customerddl.customername" aria-label="select">
+                                        <md-option ng-repeat="customer in customerddl.customer" value="{{customer.abbrev}}"> {{customer.abbrev}} </md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </div>
+
+                            <div class="col-md-4">
+                                <md-input-container class="full-width">
+                                    <label>Customer POC</label>
+                                    <md-select ng-model="customerpocddl.customerpocname" aria-label="select">
+                                        <md-option ng-repeat="customerpoc in customerpocddl.customerpoc" value="{{customerpoc.abbrev}}"> {{customerpoc.abbrev}} </md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </div>
+
+                            <div class="col-md-4">
+                                <md-input-container class="full-width">
+                                    <label>Carrier</label>
+                                    <md-select ng-model="carrierddl.carriername" aria-label="select">
+                                        <md-option ng-repeat="carrier in carrierddl.carrier" value="{{carrier.abbrev}}"> {{carrier.abbrev}} </md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </div>
+
+                            <div class="col-md-12 text-center" style="margin-bottom: 20px;">
+                                <button class="md-button md-raised btn-w-md md-default custom-btn">
+                                    Create Request
+                                </button>
+                            </div>
+
+                        </div>
+
+                    </md-card>
+                </article>
+            </div>
+        </div>
+    </div>
+
+</div>

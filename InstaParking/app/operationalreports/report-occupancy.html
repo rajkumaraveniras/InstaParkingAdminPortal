@@ -1,0 +1,101 @@
+<div class="page page-operatorreports">
+
+        <div data-ng-controller="OperationalreportsCtrl">
+            <div class="row ui-section">
+                <div class="col-md-12">
+                    <article class="article">
+    
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"><i class="fa fa-filter" aria-hidden="true"></i> Filters</h3>
+                            </div>
+                            <div class="panel-body">
+    
+                                <div class="row">
+                                
+                                <div class="col-md-3">
+                                    <md-input-container class="md-block">
+                                        <label>Station</label>
+                                        <md-select ng-model="rbslocationddl.rbslocationname" aria-label="select">
+                                            <md-option ng-repeat="(index,rbslocation) in rbslocationddl.rbslocation" value="{{rbslocation.abbrev}}"  ng-selected="index == 0"> {{rbslocation.abbrev}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <md-input-container class="md-block">
+                                        <label>Parking Lot</label>
+                                        <md-select ng-model="rbslotddl.rbslotname" aria-label="select">
+                                            <md-option ng-repeat="(index,rbslot) in rbslotddl.rbslot" value="{{rbslot.abbrev}}"  ng-selected="index == 0"> {{rbslot.abbrev}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+    
+                                <div class="col-md-3">
+                                    <md-input-container class="md-block">
+                                        <label>Vehicle Type</label>
+                                        <md-select ng-model="rbsvtypeddl.rbsvtypename" aria-label="select">
+                                            <md-option ng-repeat="(index,rbsvtype) in rbsvtypeddl.rbsvtype" value="{{rbsvtype.abbrev}}"  ng-selected="index == 0"> {{rbsvtype.abbrev}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+
+                                </div>
+    
+                            </div>
+                        </div>
+    
+                        <md-card class="no-margin-h">
+                            
+                            <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                                <div class="md-toolbar-tools">
+                                    <span>Occupancy Report</span>
+                                    <div flex></div>
+                                    <div class="search-box visible-md visible-lg">
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="material-icons">search</i></span>
+                                            <input type="text" class="form-control" placeholder="{{ 'SEARCH' | translate }}">
+                                            <span class="input-bar"></span>
+                                        </div>
+                                    </div>
+                                    <div class="icons-set">
+                                        <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+                                        <i class="fa fa-file-excel-o" aria-hidden="true"></i>
+                                        <i class="fa fa-print" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </md-toolbar>
+                            
+                            <md-table-container>
+                                    <table class="table-striped" md-table>
+                                        <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
+                                            <tr md-row>
+                                                <th md-column md-order-by="rboccustation"><span>Station</span></th>
+                                                <th md-column md-order-by="rboccuplot"><span>Parking Lot</span></th>
+                                                <th md-column md-order-by="rboccucapacity"><span>Capacity</span></th>                                        
+                                                <th md-column md-order-by="rboccucurrentparked"><span>Currently Parked</span></th>                                    
+                                                <th md-column md-order-by="rboccuoccupancy"><span>% Occupancy</span></th>                                                                               
+                                            </tr>
+                                        </thead>
+                                        <tbody md-body>
+                                            <tr md-row md-select="rboccudata" md-on-select="logItem" md-auto-select="options.autoSelect" ng-disabled="rboccudata.calories.value > 400" ng-repeat="rboccudata in rboccudatas.data | filter: filter.search | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit">                                        
+                                                <td md-cell>{{rboccudata.rboccustation}}</td>
+                                                <td md-cell>{{rboccudata.rboccuplot}}</td>
+                                                <td md-cell>{{rboccudata.rboccucapacity}}</td>
+                                                <td md-cell>{{rboccudata.rboccucurrentparked}}</td>
+                                                <td md-cell>{{rboccudata.rboccuoccupancy}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </md-table-container>
+        
+                            <md-table-pagination md-limit="query.limit" md-limit-options="limitOptions" md-page="query.page" md-total="{{rbodatas.count}}" md-page-select="options.pageSelect" md-boundary-links="options.boundaryLinks" md-on-paginate="logPagination"></md-table-pagination>
+                        </md-card>
+    
+                    </article>
+                </div>
+            </div>
+    
+        </div>
+    
+    </div>

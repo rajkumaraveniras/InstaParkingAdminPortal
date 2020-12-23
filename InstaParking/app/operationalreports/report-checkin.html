@@ -1,0 +1,149 @@
+<div class="page page-operatorreports">
+
+        <div data-ng-controller="OperationalreportsCtrl">
+            <div class="row ui-section">
+                <div class="col-md-12">
+                    <article class="article">
+    
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"><i class="fa fa-filter" aria-hidden="true"></i> Filters</h3>
+                            </div>
+                            <div class="panel-body">
+    
+                                <div class="row">
+                                <!--
+                                <div class="col-md-3">
+                                    <md-input-container class="md-block">
+                                        <label>Company</label>
+                                        <md-select ng-model="rbscompanyddl.rbscompanyname" aria-label="select">
+                                            <md-option ng-repeat="rbscompany in rbscompanyddl.rbscompany" value="{{rbscompany.abbrev}}"> {{rbscompany.abbrev}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+                                -->
+
+                                <div class="col-md-3">
+                                    <md-input-container class="md-block">
+                                        <label>Company</label>
+                                        <input type="text" value="HMRL" disabled>
+                                    </md-input-container>
+                                </div>
+    
+                                <div class="col-md-3">
+                                    <md-input-container class="md-block">
+                                        <label>Station</label>
+                                        <md-select ng-model="rbslocationddl.rbslocationname" aria-label="select">
+                                            <md-option ng-repeat="(index,rbslocation) in rbslocationddl.rbslocation" value="{{rbslocation.abbrev}}"  ng-selected="index == 0"> {{rbslocation.abbrev}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <md-input-container class="md-block">
+                                        <label>Parking Lot</label>
+                                        <md-select ng-model="rbslotddl.rbslotname" aria-label="select">
+                                            <md-option ng-repeat="(index,rbslot) in rbslotddl.rbslot" value="{{rbslot.abbrev}}"  ng-selected="index == 0"> {{rbslot.abbrev}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <md-input-container class="md-block">
+                                        <label>Channel</label>
+                                        <md-select ng-model="rbschannelddl.rbschannelname" aria-label="select">
+                                            <md-option ng-repeat="(index,rbschannel) in rbschannelddl.rbschannel" value="{{rbschannel.abbrev}}"  ng-selected="index == 0"> {{rbschannel.abbrev}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <md-input-container class="md-block">
+                                        <label>Duration</label>
+                                        <md-select ng-model="rbsdurationddl.rbsdurationname" aria-label="select">
+                                            <md-option ng-repeat="rbsduration in rbsdurationddl.rbsduration" value="{{rbsduration.abbrev}}"> {{rbsduration.abbrev}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+    
+                                <div class="col-md-3">
+                                    <md-input-container class="md-block">
+                                        <label style="visibility: hidden;">From Date</label>
+                                        <md-datepicker ng-model="user.submissionDate" md-placeholder="From Date"></md-datepicker>
+                                    </md-input-container>
+                                </div>
+    
+                                <div class="col-md-3">
+                                    <md-input-container class="md-block">
+                                        <label style="visibility: hidden;">To Date</label>
+                                        <md-datepicker ng-model="user.submissionDate2" md-placeholder="To Date"></md-datepicker>
+                                    </md-input-container>
+                                </div>
+    
+                                </div>
+    
+                            </div>
+                        </div>
+    
+                        <md-card class="no-margin-h">
+                            
+                            <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                                <div class="md-toolbar-tools">
+                                    <span>Check in Report</span>
+                                    <div flex></div>
+                                    <div class="search-box visible-md visible-lg">
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="material-icons">search</i></span>
+                                            <input type="text" class="form-control" placeholder="{{ 'SEARCH' | translate }}">
+                                            <span class="input-bar"></span>
+                                        </div>
+                                    </div>
+                                    <div class="icons-set">
+                                        <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+                                        <i class="fa fa-file-excel-o" aria-hidden="true"></i>
+                                        <i class="fa fa-print" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </md-toolbar>
+                            
+                            <md-table-container>
+                                <table class="table-striped" md-table>
+                                    <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
+                                        <tr md-row>
+                                            <th md-column md-order-by="rbcistation"><span>Station</span></th>
+                                            <th md-column md-order-by="rbciplot"><span>Parking Lot</span></th>
+                                            <th md-column md-order-by="rbciapp"><span>App</span></th>                                        
+                                            <th md-column md-order-by="rbcipass"><span>Pass</span></th>                                    
+                                            <th md-column md-order-by="rbciope"><span>Operator</span></th>
+                                            <th md-column md-order-by="rbcicall"><span>Call Pay</span></th>                                    
+                                            <th style="text-align: right;" md-column md-order-by="rbcitotal"><span>Total</span></th>                                                                               
+                                        </tr>
+                                    </thead>
+                                    <tbody md-body>
+                                        <tr md-row md-select="rbcidata" md-on-select="logItem" md-auto-select="options.autoSelect" ng-disabled="rbcidata.calories.value > 400" ng-repeat="rbcidata in rbcidatas.data | filter: filter.search | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit">                                        
+                                            <td md-cell>{{rbcidata.rbcistation}}</td>
+                                            <td md-cell>{{rbcidata.rbciplot}}</td>
+                                            <td md-cell>{{rbcidata.rbciapp}}</td>
+                                            <td md-cell>{{rbcidata.rbcipass}}</td>
+                                            <td md-cell>{{rbcidata.rbciope}}</td>
+                                            <td md-cell>{{rbcidata.rbcicall}}</td>
+                                            <td md-cell style="text-align: right;">{{rbcidata.rbcitotal}}</td>
+                                        </tr>
+                                        <tr md-row class="total-row">
+                                            <td md-cell colspan="6">Grand Total:</td>
+                                            <td md-cell>358</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </md-table-container>
+        
+                            <md-table-pagination md-limit="query.limit" md-limit-options="limitOptions" md-page="query.page" md-total="{{rbcidatas.count}}" md-page-select="options.pageSelect" md-boundary-links="options.boundaryLinks" md-on-paginate="logPagination"></md-table-pagination>
+                        </md-card>
+    
+                    </article>
+                </div>
+            </div>
+    
+        </div>
+    
+    </div>

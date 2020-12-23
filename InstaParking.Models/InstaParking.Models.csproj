@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D6079377-B884-4FF7-BF2D-CFECCC7E65F5}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>InstaParking.Models</RootNamespace>
+    <AssemblyName>InstaParking.Models</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Account.cs" />
+    <Compile Include="Allocations.cs" />
+    <Compile Include="ApplicationType.cs" />
+    <Compile Include="AssignUserStation.cs" />
+    <Compile Include="Charges.cs" />
+    <Compile Include="CheckInReport.cs" />
+    <Compile Include="City.cs" />
+    <Compile Include="DuplicateEntries.cs" />
+    <Compile Include="FOCReport.cs" />
+    <Compile Include="GetLogo.cs" />
+    <Compile Include="Locations.cs" />
+    <Compile Include="LotPrice.cs" />
+    <Compile Include="Lots.cs" />
+    <Compile Include="LotVehicleAvailability.cs" />
+    <Compile Include="Modules.cs" />
+    <Compile Include="OccupancyReport.cs" />
+    <Compile Include="OfferedSpaces.cs" />
+    <Compile Include="OperatorHoursReport.cs" />
+    <Compile Include="ParkingBay.cs" />
+    <Compile Include="ParkingLotTiming.cs" />
+    <Compile Include="ParkingType.cs" />
+    <Compile Include="Passes.cs" />
+    <Compile Include="PassSaleLimit.cs" />
+    <Compile Include="PassType.cs" />
+    <Compile Include="PasswordEncryptDecrypt.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RevenueByChannel.cs" />
+    <Compile Include="RevenueByPasses.cs" />
+    <Compile Include="RevenueByPaymentType.cs" />
+    <Compile Include="RevenueByStation.cs" />
+    <Compile Include="RevenueBySupervisor.cs" />
+    <Compile Include="RevenueByTime.cs" />
+    <Compile Include="RevenueByVehicle.cs" />
+    <Compile Include="RevenueByViolation.cs" />
+    <Compile Include="SearchFilters.cs" />
+    <Compile Include="ServiceType.cs" />
+    <Compile Include="SqlHelper.cs" />
+    <Compile Include="StationOccupancy.cs" />
+    <Compile Include="StationOccupancyDetails.cs" />
+    <Compile Include="SubModule.cs" />
+    <Compile Include="SupportRequests.cs" />
+    <Compile Include="User.cs" />
+    <Compile Include="UserLocationMapper.cs" />
+    <Compile Include="UserType.cs" />
+    <Compile Include="VehicleType.cs" />
+    <Compile Include="ViolationReason.cs" />
+    <Compile Include="Zones.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

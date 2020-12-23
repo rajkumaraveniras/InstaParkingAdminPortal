@@ -1,0 +1,31 @@
+﻿@using InstaParking.Models;
+@using System.Web.Optimization
+@{
+    List<Modules> list = (List<Modules>)Session["Modules"];
+    Layout = null;
+}
+
+<div class="page page-dashboard ng-scope">
+    @foreach (var obj in list)
+        {
+            if (obj.SubModules.Count == 0)
+            {
+                <div class="col-sm-4 home-icons">
+                    <a style="text-decoration:none;cursor:pointer" href="@obj.RootUrl">
+                        <i class="material-icons" >@obj.IconName</i>
+                        <div> @obj.ModuleName</div>
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="col-sm-4 home-icons" >
+                    <a style="text-decoration:none;cursor:pointer" href="@obj.SubModules[0].RootUrl">
+                        <i class="material-icons" >@obj.IconName</i>
+                        <div> @obj.ModuleName</div>
+                    </a>
+                </div>
+
+            }
+        }
+</div>

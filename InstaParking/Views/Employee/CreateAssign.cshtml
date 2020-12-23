@@ -1,0 +1,82 @@
+﻿@{
+    ViewBag.Title = "CreateAssign";
+    Layout = null;
+}
+<div class="page page-create-assign">
+    <div data-ng-controller="EmployeeCtrl">
+        <form name="formAssign">
+            <div class="row ui-section">
+                <div class="col-md-12">
+                    <article class="article">
+                        <md-card class="no-margin-h">
+                            <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                                <div class="md-toolbar-tools">
+                                    <span>Create New Assign</span>
+                                    <div flex></div>
+                                    <a href="#!/employee/assign" class="md-button md-raised btn-w-md" style="display: flex;">
+                                        <i class="material-icons">arrow_back</i> Back To Assigned List
+                                    </a>
+                                </div>
+                            </md-toolbar>
+                            <div>
+
+                                @*<div class="col-md-4">
+                                        <md-input-container class="md-block">
+                                            <label>Employee Code</label>
+                                            <md-select ng-model="assignempcodeddl.assignempcodename" aria-label="select">
+                                                <md-option ng-repeat="assignempcode in assignempcodeddl.assignempcode" value="{{assignempcode.abbrev}}"> {{assignempcode.abbrev}} </md-option>
+                                            </md-select>
+                                        </md-input-container>
+                                    </div>*@
+
+                                <div class="col-md-4">
+                                    <md-input-container class="md-block">
+                                        <label>Employee Name</label>
+                                        <md-select ng-model="AssignModel['UserID']" aria-label="select" name="UserID" required>
+                                            <md-option ng-repeat="assignempname in GetActiveEmployeeListModel" value="{{assignempname.UserID}}"> {{assignempname.UserName}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <md-input-container class="md-block">
+                                        <label>Select Station</label>
+                                        <md-select ng-model="AssignModel['LocationID']" aria-label="select" name="LocationID" required ng-change="GetActiveLots(AssignModel.LocationID)">
+                                            <md-option ng-repeat="assignempstation in GetActiveLocationListModel" value="{{assignempstation.LocationID}}"> {{assignempstation.LocationName}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <md-input-container class="md-block">
+                                        <label>Select Lot</label>
+                                        <md-select ng-model="AssignModel['LotID']" aria-label="select" name="LotID" required>
+                                            <md-option ng-repeat="assignemplot in GetActiveLotListModel" value="{{assignemplot.LocationParkingLotID}}"> {{assignemplot.LocationParkingLotName}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <md-checkbox aria-label="Checkbox 1" class="mt-10" ng-model="AssignModel['IsActive']"> Status </md-checkbox>
+                                </div>
+
+                                <div class="col-md-12 text-center" style="margin: 20px 0px;">
+                                    <md-button type="submit" class="md-button md-raised btn-w-md md-default custom-btn"
+                                               name="myButton" [disabled]="formAssign.$valid"
+                                               data-ng-click="formAssign.$valid && AssignStation()">Assign Station</md-button>
+                                </div>
+
+                            </div>
+
+                        </md-card>
+                    </article>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+@Html.Hidden("GetActiveUsersList", Url.Action("GetActiveUsersList", "Employee"))
+@Html.Hidden("GetActiveLocationsList", Url.Action("GetActiveLocationsList", "Employee"))
+@Html.Hidden("GetActiveLotssList", Url.Action("GetActiveLotssList", "Employee"))
+@Html.Hidden("AssignStation", Url.Action("AssignStation", "Employee"))

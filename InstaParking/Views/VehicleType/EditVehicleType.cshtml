@@ -1,0 +1,104 @@
+﻿@{
+    ViewBag.Title = "EditVehicleType";
+    Layout = null;
+}
+<div class="page page-create-vehicles">
+    <div data-ng-controller="VehiclesCtrl">
+        <form name="formVehicleType">
+            <div class="row ui-section">
+                <div class="col-md-12">
+                    <article class="article">
+                        <md-card class="no-margin-h">
+                            <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                                <div class="md-toolbar-tools">
+                                    <span>Edit Vehicle Type</span>
+                                    <div flex></div>
+                                    <a href="#!/vehicles" class="md-button md-raised btn-w-md" style="display: flex;">
+                                        <i class="material-icons">arrow_back</i> Back To Vehicle Type
+                                    </a>
+                                </div>
+                            </md-toolbar>
+
+                            <div class="row">
+                                <div class="col-md-2 text-center">
+                                    <div class="text-center upload-section">
+                                        <img src="assets/images/feature-icons/icon-place.jpg" style="max-width: 100px;" alt="" id="VehicleImg" />
+                                        <input type="file" class="upload" id="VehicleIconupload" style="display:none;" />
+                                    </div>
+                                </div>
+
+                                <div class="col-md-10">
+                                    <div class="col-md-4 col-lg-3">
+                                        <md-input-container class="md-block">
+                                            <label>Vehicle Type Name</label>
+                                            <input ng-model="VehicleTypeModel['VehicleTypeName']" name="VehicleTypeName" required>
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-md-4 col-lg-3">
+                                        <md-input-container class="md-block">
+                                            <label>Vehicle Type Code</label>
+                                            <input ng-model="VehicleTypeModel['VehicleTypeCode']" name="VehicleTypeCode" required disabled>
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-md-4 col-lg-3">
+                                        <md-input-container class="md-block">
+                                            <label>Wheel Count</label>
+                                            <input ng-model="VehicleTypeModel['WheelCount']" name="WheelCount" required allow-numbers>
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-md-4 col-lg-3">
+                                        <md-input-container class="md-block">
+                                            <label>Axle Count</label>
+                                            <input ng-model="VehicleTypeModel['AxleCount']" name="AxleCount" required allow-numbers>
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-md-8 col-lg-6">
+                                        <md-input-container class="md-block">
+                                            <label>Description</label>
+                                            <input ng-model="VehicleTypeModel['VehicleTypeDesc']" name="VehicleTypeDesc">
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-md-4 col-lg-3">
+                                        <md-checkbox aria-label="Checkbox 1" style="margin-top: 20px;" ng-model="VehicleTypeModel['IsActive']"> Active </md-checkbox>
+                                    </div>
+
+                                    <div class="col-md-12 text-center" style="margin: 20px 0px;">
+                                        <md-button type="submit" class="md-button md-raised btn-w-md md-default custom-btn"
+                                                   name="myButton" [disabled]="formVehicleType.$valid"
+                                                   data-ng-click="formVehicleType.$valid && UpdateVehicleType()">Update Vehicle Type</md-button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </md-card>
+                    </article>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+@Html.Hidden("ViewVehicleType", Url.Action("ViewVehicleType", "VehicleType"))
+<script>
+    $(document).ready(function () {
+        $('#VehicleImg').click(function () {
+            $('#VehicleIconupload').click();
+        })
+
+        $('#VehicleIconupload').change(function (event) {
+            if (event.target.files.length > 0) {
+                var filetype = event.target.files[0].name.split('.')[event.target.files[0].name.split('.').length - 1]
+
+                if (filetype != 'jpg' && filetype != 'jpeg' && filetype != 'png') {
+                    alert('Please Select valid images only')
+                    $("#VehicleIconupload").val("");
+                } else {
+                    var tmppath = URL.createObjectURL(event.target.files[0]);
+                    $('#VehicleImg').attr('src', tmppath)
+                }
+            }
+        });
+    });
+</script>
+@Html.Hidden("UpdateVehicleType", Url.Action("SaveVehicleType", "VehicleType"))

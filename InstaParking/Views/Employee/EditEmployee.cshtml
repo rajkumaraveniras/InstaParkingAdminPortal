@@ -1,0 +1,312 @@
+﻿@{
+    ViewBag.Title = "EditEmployee";
+    Layout = null;
+}
+<div class="page page-create-employee">
+    <div data-ng-controller="EmployeeCtrl">
+
+        <div class="row ui-section">
+            <div class="col-md-12">
+                <article class="article">
+                    <md-card class="no-margin-h">
+                        <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>Edit Employee</span>
+                                <div flex></div>
+                                <a href="#!/employee/employees" class="md-button md-raised btn-w-md" style="display: flex;">
+                                    <i class="material-icons">arrow_back</i> Back To employees
+                                </a>
+                            </div>
+                        </md-toolbar>
+                        <form name="formEmployees">
+                            <div class="row">
+                                <div class="col-md-3 text-center">
+                                    <div class="text-center upload-section">
+                                        <img src="assets\images\picture-upload.jpg" style="max-width: 190px;" alt="" id="EmployeeImg" />
+                                        <input type="file" class="upload" id="Pictureupload" style="display:none;" />
+                                    </div>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="col-md-4">
+                                        <md-input-container class="md-block">
+                                            <label>Employee ID</label>
+                                            <input ng-model="EmployeesModel['UserCode']" name="UserCode" required disabled>
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <md-input-container class="md-block">
+                                            <label>Employee Name</label>
+                                            <input ng-model="EmployeesModel['UserName']" name="UserName" required>
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <md-input-container class="md-block">
+                                            <label>Position</label>
+                                            <md-select ng-model="EmployeesModel['UserTypeID']" aria-label="select" name="UserTypeID"
+                                                        ng-change="ChangeUserType(EmployeesModel.UserTypeID)">
+                                                <md-option ng-repeat="employeetype in ActiveRolesListModel" value="{{employeetype.UserTypeID}}"> {{employeetype.UserTypeName}} </md-option>
+                                            </md-select>
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <md-input-container class="md-block">
+                                            <label style="visibility: hidden;">Joining Date</label>
+                                            <md-datepicker ng-model="EmployeesModel['JoiningDate']" md-placeholder="Joining Date" name="JoiningDate"
+                                                           id="JoiningDate" required></md-datepicker>
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <md-input-container class="md-block">
+                                            <label>Salary</label>
+                                            <input ng-model="EmployeesModel['Salary']" name="Salary" required valid-numbers>
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <md-input-container class="md-block">
+                                            <label>EPF Account Number</label>
+                                            <input ng-model="EmployeesModel['EPFAccountNumber']" name="EPFAccountNumber" required>
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <md-input-container class="md-block">
+                                            <label>Phone Number</label>
+                                            <input ng-model="EmployeesModel['PhoneNumber']" name="PhoneNumber" required ng-pattern="/^[0-9]{10}$/" allow-numbers>
+                                            <div ng-messages="formEmployees.PhoneNumber.$error" role="alert" multiple>
+                                                <div ng-message="pattern" class="my-message">
+                                                    That doesn't look like a valid Phone Number.
+                                                </div>
+                                            </div>
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <md-input-container class="md-block">
+                                            <label>Alternate Phone Number</label>
+                                            <input ng-model="EmployeesModel['AltPhoneNumber']" name="AltPhoneNumber" required ng-pattern="/^[0-9]{10}$/" allow-numbers>
+                                            <div ng-messages="formEmployees.AltPhoneNumber.$error" role="alert" multiple>
+                                                <div ng-message="pattern" class="my-message">
+                                                    That doesn't look like a valid Phone Number.
+                                                </div>
+                                            </div>
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <md-input-container class="md-block">
+                                            <label>Reports To</label>
+                                            <md-select ng-model="EmployeesModel['SupervisorID']" aria-label="select" name="SupervisorID" ng-required="required">
+                                                <md-option ng-repeat="employeesupervisor in SupervisorListModel" value="{{employeesupervisor.UserID}}"> {{employeesupervisor.UserName}} </md-option>
+                                            </md-select>
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <md-input-container class="md-block">
+                                            <label>Password</label>
+                                            <input ng-model="EmployeesModel['Password']" name="Password" required ng-minlength="8">
+                                            <div ng-messages="formEmployees.Password.$error" role="alert" multiple>
+                                                <div ng-message="minlength" class="my-message">
+                                                    Password should contain atleast 8 characters.
+                                                </div>
+                                            </div>
+                                        </md-input-container>
+                                    </div>
+
+
+                                    <div class="col-md-8">
+                                        <md-input-container class="md-block">
+                                            <label>Address</label>
+                                            <input ng-model="EmployeesModel['Address']" name="Address" required>
+                                        </md-input-container>
+                                    </div>
+
+
+
+                                    <div class="clear"></div>
+                                    <div class="col-md-4 upload-section">
+                                        <md-input-container class="md-block">
+                                            @*<label>Aadhaar Number</label>*@
+                                            <label>Primary ID</label>
+                                            <input ng-model="EmployeesModel['AadharNumber']" name="AadharNumber" required allow-numbers>
+                                        </md-input-container>
+                                        <img src="assets\images\aadhaar-upload.jpg" style="max-width: 280px;" alt="" id="AadharImg" />
+                                        <input type="file" class="upload" id="Aadharupload" style="display:none;" />
+                                    </div>
+
+                                    <div class="col-md-4 upload-section">
+                                        <md-input-container class="md-block">
+                                            @*<label>PAN Number</label>*@
+                                            <label>Secondary ID</label>
+                                            <input ng-model="EmployeesModel['PANNumber']" name="PANNumber" required>
+                                        </md-input-container>
+                                        <img src="assets\images\pan-upload.jpg" style="max-width: 280px;" alt="" id="PANImg" />
+                                        <input type="file" class="upload" id="Panupload" style="display:none;" />
+                                    </div>
+                                    <div class="col-md-2 col-lg-2">
+                                        <md-checkbox aria-label="Checkbox 1" class="mt-10" ng-model="EmployeesModel['IsOperator']"> Operator </md-checkbox>
+                                    </div>
+                                    <div class="col-md-2 col-lg-2">
+                                        <md-checkbox aria-label="Checkbox 1" class="mt-10" ng-model="EmployeesModel['IsActive']"> Active </md-checkbox>
+                                    </div>
+
+                                    <div class="col-md-12" style="margin: 20px 0px;">
+                                        <md-button type="submit" class="md-button md-raised btn-w-md md-default custom-btn"
+                                                   name="myButton" [disabled]="formEmployees.$valid"
+                                                   data-ng-click="formEmployees.$valid && UpdateEmployee()">Update Employee</md-button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </md-card>
+
+                    <md-card class="no-margin-h">
+                        <md-toolbar style="min-height: 44px; height:44px; margin-top:16px;" class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>Assign To</span>
+                            </div>
+                        </md-toolbar>
+                        <form name="frmAssignStation">
+                            <div style="padding-bottom:20px;">
+                                <div class="col-md-4 col-lg-3">
+                                    <md-input-container class="md-block">
+                                        <label>Assign to Location</label>
+                                        <md-select ng-model="UserLocationMapperModel['LocationID']" aria-label="select"
+                                                   name="LocationID" required ng-change="GetActiveLots(UserLocationMapperModel.LocationID)">
+                                            <md-option ng-repeat="location in GetActiveLocationListModel" value="{{location.LocationID}}"> {{location.LocationName}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-4 col-lg-3">
+                                    <md-input-container class="md-block">
+                                        <label>Assign to Lot</label>
+                                        <md-select ng-model="UserLocationMapperModel['LocationParkingLotID']" aria-label="select" name="LocationParkingLotID">
+                                            <md-option ng-repeat="lot in GetActiveLotListModel" value="{{lot.LocationParkingLotID}}"> {{lot.LocationParkingLotName}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+                                <div class="col-md-2">
+                                    <md-checkbox aria-label="Checkbox 1" style="margin-top: 20px;" ng-model="UserLocationMapperModel['IsActive']"> Active </md-checkbox>
+                                </div>
+
+                                <div class="col-md-2 col-lg-2">
+                                    <md-button type="submit" class="md-button md-raised btn-w-md md-default custom-btn"
+                                               style="min-width: 80px; margin-top: 12px;"
+                                               data-ng-click="frmAssignStation.$valid && AssignStationtoUser()">Assign</md-button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="price-table">
+                            <md-table-container>
+                                <table md-table>
+                                    <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
+                                        <tr md-row style="background-color: #f4f4f4;">
+                                            <th md-column><span>Actions</span></th>
+                                            <th md-column md-order-by="LocationName"><span>Location</span></th>
+                                            <th md-column md-order-by="LocationParkingLotName"><span>Lot</span></th>
+                                            <th md-column md-order-by="IsActive"><span>Status</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody md-body>
+                                        <tr md-row md-select="assigntodata" md-on-select="logItem" md-auto-select="options.autoSelect"
+                                            ng-repeat="assigntodata in UserLocationMapperListModel">
+                                            <td md-cell class="actions">
+                                                <a title="EDIT" id="View" ng-click="EditAssignStation(assigntodata.UserLocationMapperID)">
+                                                    <md-icon>edit</md-icon>
+                                                </a>
+                                                <a title="DELETE" ng-click="DeleteAssignStation(assigntodata.UserLocationMapperID)">
+                                                    <md-icon>delete</md-icon>
+                                                </a>
+                                            </td>
+                                            <td md-cell>{{assigntodata.LocationName}}</td>
+                                            <td md-cell>{{assigntodata.LocationParkingLotName}}</td>
+                                            <td md-cell><span class="label" ng-class="{'label-default': assigntodata.IsActive=='Inactive' , 'label-success': assigntodata.IsActive=='Active'}">{{assigntodata.IsActive}}</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </md-table-container>
+                        </div>
+                    </md-card>
+                </article>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+@Html.Hidden("ViewEmployee", Url.Action("ViewEmployee", "Employee"))
+@Html.Hidden("GetActiveRolesList", Url.Action("GetActiveRolesList", "Employee"))
+@Html.Hidden("GetActiveSupervisorsList", Url.Action("GetActiveSupervisorsList", "Employee"))
+@Html.Hidden("GetActiveLocationsList", Url.Action("GetActiveLocationsList", "Employee"))
+@Html.Hidden("GetActiveLotssList", Url.Action("GetActiveLotssList", "Employee"))
+@Html.Hidden("UpdateEmployee", Url.Action("SaveEmployee", "Employee"))
+@Html.Hidden("AssignStationtoUser", Url.Action("AssignStationtoUser", "Employee"))
+
+@Html.Hidden("GetSavedUserDetails", Url.Action("ViewEmployee", "Employee"))
+@Html.Hidden("GetAssignStationList", Url.Action("GetAssignStationList", "Employee"))
+@Html.Hidden("GetAssignStationByID", Url.Action("GetAssignStationByID", "Employee"))
+@Html.Hidden("DeleteAssignStation", Url.Action("DeleteAssignStation", "Employee"))
+@Html.Hidden("CheckLocationExistforReportToEmployee", Url.Action("CheckLocationExistforReportToEmployee", "Employee"))
+
+<input type="hidden" id="hdnUpdateUserID" name="hdnUpdateUserID" />
+
+<script>
+    $(document).ready(function () {
+        $('#EmployeeImg').click(function () {
+            $('#Pictureupload').click();
+        })
+        $('#AadharImg').click(function () {
+            $('#Aadharupload').click();
+        })
+        $('#PANImg').click(function () {
+            $('#Panupload').click();
+        })
+
+        $('#Pictureupload').change(function (event) {
+            if (event.target.files.length > 0) {
+                var filetype = event.target.files[0].name.split('.')[event.target.files[0].name.split('.').length - 1]
+
+                if (filetype != 'jpg' && filetype != 'jpeg' && filetype != 'png') {
+                    alert('Please Select valid images only')
+                    $("#Pictureupload").val("");
+                } else {
+                    var tmppath = URL.createObjectURL(event.target.files[0]);
+                    $('#EmployeeImg').attr('src', tmppath)
+                }
+            }
+        });
+        $('#Aadharupload').change(function (event) {
+            if (event.target.files.length > 0) {
+                var filetype = event.target.files[0].name.split('.')[event.target.files[0].name.split('.').length - 1]
+
+                if (filetype != 'jpg' && filetype != 'jpeg' && filetype != 'png' && filetype != 'pdf') {
+                    $("#Aadharupload").val("");
+                    alert('Please Select valid files only')
+                } else {
+                    var tmppath = URL.createObjectURL(event.target.files[0]);
+                    $('#AadharImg').attr('src', tmppath)
+                }
+            }
+        });
+        $('#Panupload').change(function (event) {
+            if (event.target.files.length > 0) {
+                var filetype = event.target.files[0].name.split('.')[event.target.files[0].name.split('.').length - 1]
+
+                if (filetype != 'jpg' && filetype != 'jpeg' && filetype != 'png' && filetype != 'pdf') {
+                    $("#Panupload").val("");
+                    alert('Please Select valid files only')
+                } else {
+                    var tmppath = URL.createObjectURL(event.target.files[0]);
+                    $('#PANImg').attr('src', tmppath)
+                }
+            }
+        });
+    });
+</script>

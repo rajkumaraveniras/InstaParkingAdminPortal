@@ -1,0 +1,655 @@
+﻿@{
+    ViewBag.Title = "CreateLot";
+    Layout = null;
+}
+<style type="text/css">
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+    
+</style>
+<div class="page page-create-lot">
+    <div data-ng-controller="ParkingCtrl">
+        <div class="row ui-section">
+            <div class="col-md-12">
+                <article class="article">
+
+                    <md-card class="no-margin-h">
+
+                        <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>Create New Lot</span>
+                                <div flex></div>
+                                <a href="#!/parking/lots" class="md-button md-raised btn-w-md" style="display: flex;">
+                                    <i class="material-icons">arrow_back</i> Back To Lots
+                                </a>
+                            </div>
+                        </md-toolbar>
+
+                        <form name="formLot">
+                            <div style="padding-bottom:20px;">
+
+                                @*<div class="col-md-3 text-center">
+                                        <div class="text-center upload-section">
+                                            <img src="assets\images\lot.jpg" style="max-width: 280px; margin-top: 10px;" alt="" id="LotImg" />
+                                            <input type="file" class="upload" id="Lotupload" style="display:none;" />
+                                        </div>
+                                    </div>*@
+
+                                <div class="row">
+                                    <div class="col-md-12">
+
+                                        <div class="col-md-3">
+                                            <md-input-container class="md-block">
+                                                <label>Location</label>
+                                                <md-select ng-model="LotsModel['LocationID']" aria-label="select" name="LocationID" required class="type">
+                                                    <md-option ng-repeat="lotlocation in ActiveLocationsListModel" value="{{lotlocation.LocationID}}"> {{lotlocation.LocationName}} </md-option>
+                                                </md-select>
+                                            </md-input-container>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <md-input-container class="md-block">
+                                                <label>Lot Code</label>
+                                                <input ng-model="LotsModel['LocationParkingLotCode']" class="type" name="LocationParkingLotCode" required>
+                                            </md-input-container>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <md-input-container class="md-block">
+                                                <label>Lot Name</label>
+                                                <input ng-model="LotsModel['LocationParkingLotName']" name="LocationParkingLotName" required class="type" ng-maxlength="25">
+                                                <div ng-messages="formLot.LocationParkingLotName.$error" role="alert" multiple>
+                                                    <div ng-message="maxlength" class="my-message">
+                                                        Lot Name should contain less than or equal to 25 characters.
+                                                    </div>
+                                                </div>
+                                            </md-input-container>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <md-input-container class="md-block">
+                                                <label>Latitude</label>
+                                                <input type="number" ng-model="LotsModel['Lattitude']" name="Lattitude" required
+                                                       class="type" allow-decimal-numbers ng-min="0.1" ng-max="99.9999" step="any">
+                                                <div ng-messages="formLot.Lattitude.$error" role="alert" multiple >
+                                                    <div ng-message="max" class="my-message">
+                                                        Lattitude have only two digits before the decimal.
+                                                    </div>
+                                                    <div ng-message="min" class="my-message">
+                                                        Lattitude must be greater than zero.
+                                                    </div>
+                                                </div>
+                                            </md-input-container>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <md-input-container class="md-block">
+                                                <label>Longitude</label>
+                                                <input type="number" ng-model="LotsModel['Longitude']" name="Longitude" required class="type"
+                                                       allow-decimal-numbers ng-min="0.1" ng-max="99.9999" step="any">
+                                                <div ng-messages="formLot.Longitude.$error" role="alert" multiple >
+                                                    <div ng-message="max" class="my-message">
+                                                        Longitude have only two digits before the decimal.
+                                                    </div>
+                                                    <div ng-message="min" class="my-message">
+                                                        Longitude must be greater than zero.
+                                                    </div>
+                                                </div>
+                                            </md-input-container>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <md-input-container class="md-block">
+                                                <label>Parking Type</label>
+                                                <md-select ng-model="LotsModel['ParkingTypeID']" aria-label="select" name="ParkingTypeID" required class="type">
+                                                    <md-option ng-repeat="lotparkingtype in ActiveParkingTypesListModel" value="{{lotparkingtype.ParkingTypeID}}"> {{lotparkingtype.ParkingTypeName}} </md-option>
+                                                </md-select>
+                                            </md-input-container>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <md-input-container class="md-block">
+                                                <label>Vehicle Availability</label>
+                                                <md-select ng-model="LotsModel['LotVehicleAvailabilityID']" aria-label="select" name="LotVehicleAvailabilityID" 
+                                                           id="LotVehicleAvailabilityID" required class="type">
+                                                    <md-option ng-repeat="availability in LotVehicleAvailabilityModel" value="{{availability.LotVehicleAvailabilityID}}"> {{availability.LotVehicleAvailabilityName}} </md-option>
+                                                </md-select>
+                                            </md-input-container>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <md-input-container class="md-block">
+                                                <label>Phone Number</label>
+                                                <input ng-model="LotsModel['PhoneNumber']" name="PhoneNumber" required class="type" ng-pattern="/^[0-9]{10}$/" allow-numbers>
+                                                <div ng-messages="formLot.PhoneNumber.$error" role="alert" multiple >
+                                                    <div ng-message="pattern" class="my-message">
+                                                        That doesn't look like a valid Phone Number.
+                                                    </div>
+                                                </div>
+                                            </md-input-container>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <md-input-container class="md-block">
+                                                <label>Address</label>
+                                                <input ng-model="LotsModel['Address']" name="Address" required class="type">
+                                            </md-input-container>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <md-checkbox aria-label="Checkbox 1" style="margin-top: 20px;" ng-model="LotsModel['IsHoliday']" 
+                                                        ng-change="ChangeActiveCheckboxByHoliday(LotsModel.IsHoliday)" class="type"> Holiday </md-checkbox>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <md-checkbox aria-label="Checkbox 1" style="margin-top: 20px;" ng-disabled="activeCheckboxDisabled"
+                                                         ng-model="LotsModel['IsActive']" class="type"> Active </md-checkbox>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+
+                                        <div class="col-md-3 text-center">
+                                            <div class="text-center upload-section">
+                                                <i class="fa fa-home primaryimage active"></i>
+                                                <img src="assets\images\lot.jpg" style="max-width: 280px; margin-top: 10px;" alt="" id="LotImg" />
+                                                <input type="file" class="upload" id="Lotupload" style="display:none;" />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3 text-center">
+                                            <div class="text-center upload-section">
+                                                <i class="fa fa-home primaryimage"></i>
+                                                <img src="assets\images\lot.jpg" style="max-width: 280px; margin-top: 10px;" alt="" id="LotImg2" />
+                                                <input type="file" class="upload" id="Lotupload2" style="display:none;" />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3 text-center">
+                                            <div class="text-center upload-section">
+                                                <i class="fa fa-home primaryimage"></i>
+                                                <img src="assets\images\lot.jpg" style="max-width: 280px; margin-top: 10px;" alt="" id="LotImg3" />
+                                                <input type="file" class="upload" id="Lotupload3" style="display:none;" />
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12 text-center" style="margin: 20px 0px;">
+                                    <md-button type="submit" class="md-button md-raised btn-w-md md-default custom-btn"
+                                               name="myButton" [disabled]="formLot.$valid" id="lotButton"
+                                               data-ng-click="formLot.$valid && SubmitLot()">Create Lot</md-button>
+                                </div>
+
+                            </div>
+                        </form>
+                    </md-card>
+
+                    <md-card class="no-margin-h">
+                        <md-toolbar style="min-height: 44px; height:44px; margin-top:16px;" class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>Timings</span>
+                            </div>
+                        </md-toolbar>
+
+                        <form name="formLotTimingsform">
+                            <div style="padding-bottom:20px; margin-top: 12px;">
+                                <div class="col-md-6 col-lg-3 form-horizontal">
+                                    <div class="form-group">
+                                        <label for="" class="col-md-5 col-lg-6" style="line-height: 36px;">Day of Week</label>
+                                        <div class="col-md-7 col-lg-6">
+                                            <select style="width: 100%; max-width:160px; min-height: 36px; padding: 8px 2px;"
+                                                    ng-model="LotTimingsModel['DayOfWeek']" required name="DayOfWeek">
+                                                @*data-ng-options="day.name as day.name for day in LotDayofWeekModel">*@
+                                                <option ng-repeat="day in LotDayofWeekModel" value="{{day.name}}">{{day.name}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 col-lg-3 form-horizontal">
+                                    <div class="form-group">
+                                        <label for="" class="col-md-5 col-lg-3" style="line-height: 36px; padding-right:15px;">Open</label>
+                                        <div class="col-md-7 col-lg-9">
+                                            <div class="row timefields">
+                                                <div class="col-xs-3 p-0">
+                                                    <select ng-model="LotTimingsModel['LotOpenTimeHour']" required name="LotOpenTimeHour">
+                                                        @*data-ng-options="hour.hour as hour.hour for hour in LotHoursModel">*@
+                                                        <option ng-repeat="hour in LotHoursModel" value="{{hour.hour}}">{{hour.hour}}</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-xs-1 p-0" style="line-height: 36px; text-align:center;">
+                                                    :
+                                                </div>
+                                                <div class="col-xs-3 p-0">
+                                                    <select ng-model="LotTimingsModel['LotOpenTimeMinute']" required name="LotOpenTimeMinute">
+                                                        @*data-ng-options="minute.minute as minute.minute for minute in LotMinutesModel">*@
+                                                        <option ng-repeat="minute in LotMinutesModel" value="{{minute.minute}}">{{minute.minute}}</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-xs-3 p-0">
+                                                    <select ng-model="LotTimingsModel['LotOpenTimeMeridiem']" required name="LotOpenTimeMeridiem">
+                                                        @*data-ng-options="meridiem.meridiem as meridiem.meridiem for meridiem in LotTimeMeridiemModel">*@
+                                                        <option ng-repeat="meridiem in LotTimeMeridiemModel" value="{{meridiem.meridiem}}">{{meridiem.meridiem}}</option>
+                                                    </select>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 col-lg-3 form-horizontal">
+                                    <div class="form-group">
+                                        <label for="" class="col-md-5 col-lg-3" style="line-height: 36px; padding-right:15px;">Close</label>
+                                        <div class="col-md-7 col-lg-9">
+                                            <div class="row timefields">
+                                                <div class="col-xs-3 p-0">
+                                                    <select ng-model="LotTimingsModel['LotCloseTimeHour']" required name="LotCloseTimeHour">
+                                                        <option ng-repeat="hour in LotHoursModel" value="{{hour.hour}}">{{hour.hour}}</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-xs-1 p-0" style="line-height: 36px; text-align:center;">
+                                                    :
+                                                </div>
+                                                <div class="col-xs-3 p-0">
+                                                    <select ng-model="LotTimingsModel['LotCloseTimeMinute']" required name="LotCloseTimeMinute">
+                                                        <option ng-repeat="minute in LotMinutesModel" value="{{minute.minute}}">{{minute.minute}}</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-xs-3 p-0">
+                                                    <select ng-model="LotTimingsModel['LotCloseTimeMeridiem']" required name="LotCloseTimeMeridiem">
+                                                        <option ng-repeat="meridiem in LotTimeMeridiemModel" value="{{meridiem.meridiem}}">{{meridiem.meridiem}}</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @*<div class="col-md-2 col-lg-1">
+                                        <md-checkbox aria-label="Checkbox 1" style="margin-top: 20px;" ng-model="LotTimingsModel['IsActive']"> Active </md-checkbox>
+                                    </div>*@
+                                <div class="col-md-2 col-lg-2 p-0">
+                                    <md-checkbox aria-label="Checkbox 1" style="margin-top: 8px;" ng-model="LotTimingsModel['IsActive']"> Active </md-checkbox>
+                                </div>
+
+                                <div class="col-md-2 col-lg-1 p-0">
+                                    <md-button type="submit" class="md-button md-raised btn-w-md md-default custom-btn m-m"
+                                               style="min-width: 80px;"
+                                               data-ng-click="formLotTimingsform.$valid && SubmitLotTiming()">Save</md-button>
+                                </div>
+                            </div>
+
+
+
+                            @*<div style="padding-bottom:20px;">
+                                    <div class="col-md-3 col-lg-2">
+                                        <md-input-container class="md-block">
+                                            <label>Day of Week</label>
+                                            <md-select ng-model="LotTimingsModel['DayOfWeek']" class="timing" aria-label="select" name="DayOfWeek" required>
+                                                <md-option ng-repeat="day in LotDayofWeekModel" value="{{day.name}}"> {{day.name}} </md-option>
+                                            </md-select>
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-md-3 col-lg-2">
+                                        <md-input-container class="md-block">
+                                            <label>Lot Open Time</label>
+                                            <input type="time" ng-model="LotTimingsModel['LotOpenTime']" min="LotTimingsModel.LotOpenTime"
+                                                   id="lotopent" class="timing" name="LotOpenTime" required>
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-md-3 col-lg-2">
+                                        <md-input-container class="md-block">
+                                            <label>Lot Close Time</label>
+                                            <input type="time" ng-model="LotTimingsModel['LotCloseTime']" class="timing" name="LotCloseTime" required>
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <md-checkbox aria-label="Checkbox 1" style="margin-top: 20px;" ng-model="LotTimingsModel['IsActive']"> Active </md-checkbox>
+                                    </div>
+
+                                    <div class="col-md-2 col-lg-2">
+                                        <md-button type="submit" class="md-button md-raised btn-w-md md-default custom-btn"
+                                                   style="min-width: 80px; margin-top: 12px;"
+                                                   data-ng-click="formLotTimingsform.$valid && SubmitLotTiming()">Save</md-button>
+                                    </div>
+                                </div>*@
+                        </form>
+
+                        <div class="price-table">
+                            <md-table-container>
+                                <table md-table>
+                                    <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
+                                        <tr md-row style="background-color: #f4f4f4;">
+                                            <th md-column><span>Actions</span></th>
+                                            <th md-column md-order-by="DayOfWeek"><span>Day of Week</span></th>
+                                            <th md-column md-order-by="LotOpenTime"><span>Lot Open Time</span></th>
+                                            <th md-column md-order-by="LotCloseTime"><span>Lot Close Time</span></th>
+                                            <th md-column md-order-by="IsActive"><span>Status</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody md-body>
+                                        <tr md-row md-select="timingdata" ng-repeat="timingdata in LotTimingListModel | orderBy: query.order">
+                                            <td md-cell class="actions">
+                                                <a title="EDIT LOT TIME" id="ViewLotTime" ng-click="EditLotTime(timingdata.ParkingLotTimingID)">
+                                                    <md-icon>edit</md-icon>
+                                                </a>
+                                                <a title="DELETE LOT TIME" ng-click="DeleteLotTime(timingdata.ParkingLotTimingID)">
+                                                    <md-icon>delete</md-icon>
+                                                </a>
+                                            </td>
+                                            <td md-cell>{{timingdata.DayOfWeek}}</td>
+                                            <td md-cell>{{timingdata.LotOpenTime | date:"h:mm a"}}</td>
+                                            <td md-cell>{{timingdata.LotCloseTime | date:"h:mm a"}}</td>
+                                            <td md-cell><span class="label" ng-class="{'label-default': timingdata.IsActive=='Inactive' , 'label-success': timingdata.IsActive=='Active'}">{{timingdata.IsActive}}</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </md-table-container>
+                        </div>
+
+                    </md-card>
+
+                    <md-card class="no-margin-h">
+                        <md-toolbar style="min-height: 44px; height:44px; margin-top:16px;" class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>Price</span>
+                            </div>
+                        </md-toolbar>
+                        <form name="formLotPriceform">
+                            <div style="padding-bottom:20px;">
+                                <div class="col-md-3 col-lg-2">
+                                    <md-input-container class="md-block">
+                                        <label>Vehicle Type</label>
+                                        <md-select ng-model="LotPriceModel['VehicleTypeID']" name="VehicleTypeID" required aria-label="select">
+                                            <md-option ng-repeat="vehicle in ActiveVehicleTypesListModel" value="{{vehicle.VehicleTypeID}}"> {{vehicle.VehicleTypeName}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-3 col-lg-2">
+                                    <md-input-container class="md-block">
+                                        <label>Price Type</label>
+                                        <md-select ng-model="LotPriceModel['ApplicationTypeID']" name="ApplicationTypeID" required aria-label="select">
+                                            <md-option ng-repeat="price in ApplicationTypeListModel" value="{{price.ApplicationTypeID}}"> {{price.ApplicationTypeName}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-2 col-lg-2">
+                                    <md-input-container class="md-block">
+                                        <label>Price</label>
+                                        <input ng-model="LotPriceModel['Price']" name="Price" required allow-decimal-numbers>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-2 col-lg-2">
+                                    <md-input-container class="md-block">
+                                        <label>Duration</label>
+                                        <input ng-model="LotPriceModel['Duration']" name="Duration" required allow-Numbers>
+                                    </md-input-container>
+                                </div>
+                                <div class="col-md-2">
+                                    <md-checkbox aria-label="Checkbox 1" style="margin-top: 20px;" ng-model="LotPriceModel['IsActive']"> Active </md-checkbox>
+                                </div>
+
+                                <div class="col-md-2 col-lg-2">
+                                    <md-button type="submit" class="md-button md-raised btn-w-md md-default custom-btn"
+                                               style="min-width: 80px; margin-top: 12px;"
+                                               data-ng-click="formLotPriceform.$valid && SubmitLotPrice()">Save</md-button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="price-table">
+                            <md-table-container>
+                                <table md-table>
+                                    <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
+                                        <tr md-row style="background-color: #f4f4f4;">
+                                            <th md-column><span>Actions</span></th>
+                                            <th md-column md-order-by="VehicleTypeName"><span>Vehicle Type</span></th>
+                                            <th md-column md-order-by="ApplicationTypeName"><span>Price Type</span></th>
+                                            <th md-column md-order-by="Price"><span>Price</span></th>
+                                            <th md-column md-order-by="Duration"><span>Duration</span></th>
+                                            <th md-column md-order-by="IsActive"><span>Status</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody md-body>
+                                        <tr md-row md-select="pricedata" ng-repeat="pricedata in LotPriceListModel | orderBy: query.order">
+                                            <td md-cell class="actions">
+                                                <a title="EDIT PRICE" ng-click="EditLotPrice(pricedata.PriceID)">
+                                                    <md-icon>edit</md-icon>
+                                                </a>
+                                                <a title="DELETE PRICE" ng-click="DeleteLotPrice(pricedata.PriceID)">
+                                                    <md-icon>delete</md-icon>
+                                                </a>
+                                            </td>
+                                            <td md-cell>{{pricedata.VehicleTypeName}}</td>
+                                            <td md-cell>{{pricedata.ApplicationTypeName}}</td>
+                                            <td md-cell>{{pricedata.Price}} Rs</td>
+                                            <td md-cell>{{pricedata.Duration}} hrs</td>
+                                            <td md-cell><span class="label" ng-class="{'label-default': pricedata.IsActive=='Inactive' , 'label-success': pricedata.IsActive=='Active'}">{{pricedata.IsActive}}</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </md-table-container>
+                        </div>
+
+                    </md-card>
+
+                    <md-card class="no-margin-h">
+                        <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>Others</span>
+                            </div>
+                        </md-toolbar>
+                        <div style="padding-bottom:20px;">
+                            <div class="col-md-3" ng-repeat="val in ActiveServiceTypeListModel">
+                                <md-switch ng-model="val.selected">{{val.ServiceTypeName}}</md-switch>
+                            </div>
+
+                            <div class="col-md-12 text-center" style="margin: 20px 0px 0px 0px;">
+                                <md-button type="submit" class="md-button md-raised btn-w-md md-default custom-btn"
+                                           data-ng-click="SubmitLotServices()">Save</md-button>
+                            </div>
+                        </div>
+                    </md-card>
+
+                    <md-card class="no-margin-h">
+                        <md-toolbar style="min-height: 44px; height:44px; margin-top:16px;" class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>
+                                    Bays
+                                </span>
+                                @*<span>Bays <small>( 2W Capacity : {{TwoWheelerCapacity}} &nbsp; 4W Capacity : {{FourWheelerCapacity}}</small></span>*@
+                            </div>
+                            @*<div style="text-align:right;">
+                                    <span>2W Capacity :</span>{{TwoWheelerCapacity}}
+                                    <span>4W Capacity :</span>{{FourWheelerCapacity}}
+                                </div>*@<div style="text-align:right;">
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </md-toolbar>
+                        <form name="formLotBays">
+                            <div style="padding-bottom:20px;">
+                                <div class="col-md-3 col-lg-2">
+                                    <md-input-container class="md-block">
+                                        <label>Vehicle Type</label>
+                                        <md-select ng-model="LotBaysModel['VehicleTypeID']" aria-label="select" name="VehicleTypeID" id="VehicleTypeID" required>
+                                            <md-option ng-repeat="vehicle in ActiveVehicleTypesListModel" value="{{vehicle.VehicleTypeID}}"> {{vehicle.VehicleTypeName}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-3 col-lg-2">
+                                    <md-input-container class="md-block">
+                                        <label>Number of Spots</label>
+                                        <input ng-model="LotBaysModel['NumberOfBays']" name="NumberOfBays" required allow-Numbers>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-2 col-lg-2">
+                                    <md-input-container class="md-block">
+                                        <label>Bay Range</label>
+                                        <input ng-model="LotBaysModel['ParkingBayRange']" name="ParkingBayRange" required>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <md-checkbox aria-label="Checkbox 1" style="margin-top: 20px;" ng-model="LotBaysModel['IsActive']"> Active </md-checkbox>
+                                </div>
+
+                                <div class="col-md-2 col-lg-2">
+                                    <md-button type="submit" class="md-button md-raised btn-w-md md-default custom-btn"
+                                               style="min-width: 80px; margin-top: 12px;"
+                                               data-ng-click="formLotBays.$valid && SubmitLotBays()">Save</md-button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="bays-table">
+                            <md-table-container>
+                                <table md-table>
+                                    <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
+                                        <tr md-row style="background-color: #f4f4f4;">
+                                            <th md-column><span>Actions</span></th>
+                                            <th md-column md-order-by="VehicleTypeName"><span>Vehicle Type</span></th>
+                                            <th md-column md-order-by="NumberOfBays"><span>Number of Spots</span></th>
+                                            <th md-column md-order-by="ParkingBayRange"><span>Bay Range</span></th>
+                                            <th md-column md-order-by="IsActive"><span>Status</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody md-body>
+                                        <tr md-row md-select="baydata" md-on-select="logItem" ng-repeat="baydata in LotBaysListModel | orderBy: query.order">
+                                            <td md-cell class="actions">
+                                                <a title="EDIT LOT BAY" id="ViewLotBay" ng-click="EditLotBay(baydata.ParkingBayID)">
+                                                    <md-icon>edit</md-icon>
+                                                </a>
+                                                <a title="DELETE LOT BAY" ng-click="DeleteLotBay(baydata.ParkingBayID)">
+                                                    <md-icon>delete</md-icon>
+                                                </a>
+                                            </td>
+                                            <td md-cell>{{baydata.VehicleTypeName}}</td>
+                                            <td md-cell>{{baydata.NumberOfBays}}</td>
+                                            <td md-cell>{{baydata.ParkingBayRange}}</td>
+                                            <td md-cell><span class="label" ng-class="{'label-default': baydata.IsActive=='Inactive' , 'label-success': baydata.IsActive=='Active'}">{{baydata.IsActive}}</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </md-table-container>
+                        </div>
+
+                    </md-card>
+
+                </article>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@Html.Hidden("GetActiveLocationList", Url.Action("GetActiveLocationList", "Parking"))
+@Html.Hidden("GetActiveParkingTypesList", Url.Action("GetActiveParkingTypesList", "Parking"))
+@Html.Hidden("GetActiveVehicleTypesList", Url.Action("GetActiveVehicleTypesList", "Parking"))
+@Html.Hidden("GetActiveParkingBayList", Url.Action("GetActiveParkingBayList", "Parking"))
+@Html.Hidden("GetActiveLotVehicleAvailabilityList", Url.Action("GetActiveLotVehicleAvailabilityList", "Parking"))
+@Html.Hidden("SaveLot", Url.Action("SaveLot", "Parking"))
+@Html.Hidden("GetSavedLotDetails", Url.Action("ViewLot", "Parking"))
+
+@Html.Hidden("SaveLotTimings", Url.Action("SaveLotTimings", "Parking"))
+@Html.Hidden("GetLotTimings", Url.Action("GetLotTimings", "Parking"))
+@Html.Hidden("GetLotTimingByID", Url.Action("GetLotTimingByID", "Parking"))
+@Html.Hidden("DeleteLotTime", Url.Action("DeleteLotTime", "Parking"))
+
+@Html.Hidden("GetApplicationTypesList", Url.Action("GetApplicationTypesList", "Parking"))
+@Html.Hidden("SaveLotPrice", Url.Action("SaveLotPrice", "Parking"))
+@Html.Hidden("GetLotPrices", Url.Action("GetLotPrices", "Parking"))
+@Html.Hidden("GetLotPriceByID", Url.Action("GetLotPriceByID", "Parking"))
+@Html.Hidden("DeleteLotPrice", Url.Action("DeleteLotPrice", "Parking"))
+
+@Html.Hidden("GetActiveServiceTypesList", Url.Action("GetActiveServiceTypesList", "Features"))
+@Html.Hidden("SaveLotServices", Url.Action("SaveLotServices", "Parking"))
+@Html.Hidden("GetSelectedLotServiceTypesList", Url.Action("GetSelectedLotServiceTypesList", "Parking"))
+
+@Html.Hidden("SaveLotBays", Url.Action("SaveLotBays", "Parking"))
+@Html.Hidden("GetLotBays", Url.Action("GetLotBays", "Parking"))
+@Html.Hidden("GetLotBayByID", Url.Action("GetLotBayByID", "Parking"))
+@Html.Hidden("DeleteLotBay", Url.Action("DeleteLotBay", "Parking"))
+
+@Html.Hidden("GetLotCapacityByVehicleType", Url.Action("GetLotCapacityByVehicleType", "Parking"))
+
+<input type="hidden" id="hdnLotID" name="hdnLotID" />
+
+<script>
+    $(document).ready(function () {
+        $('#LotImg').click(function () {
+            $('#Lotupload').click();
+        })
+        $('#LotImg2').click(function () {
+            //alert($("#Lotupload").val());
+            if ($("#Lotupload").val() != "") {
+                $('#Lotupload2').click();
+            }
+            else {
+                alert('Please upload Lot1 Image')
+            }
+        })
+        $('#LotImg3').click(function () {
+            //alert($("#Lotupload2").val());
+            if ($("#Lotupload2").val() != "") {
+                $('#Lotupload3').click();
+            }
+            else {
+                alert('Please upload Lot2 Image')
+            }
+        })
+
+        $('#Lotupload').change(function (event) {
+            if (event.target.files.length > 0) {
+                var filetype = event.target.files[0].name.split('.')[event.target.files[0].name.split('.').length - 1]
+
+                if (filetype != 'jpg' && filetype != 'jpeg' && filetype != 'png') {
+                    alert('Please Select valid images only')
+                    $("#Lotupload").val("");
+                } else {
+                    var tmppath = URL.createObjectURL(event.target.files[0]);
+                    $('#LotImg').attr('src', tmppath)
+                }
+            }
+        });
+        $('#Lotupload2').change(function (event) {
+            if (event.target.files.length > 0) {
+                var filetype = event.target.files[0].name.split('.')[event.target.files[0].name.split('.').length - 1]
+
+                if (filetype != 'jpg' && filetype != 'jpeg' && filetype != 'png') {
+                    alert('Please Select valid images only')
+                    $("#Lotupload2").val("");
+                } else {
+                    var tmppath = URL.createObjectURL(event.target.files[0]);
+                    $('#LotImg2').attr('src', tmppath)
+                }
+            }
+        });
+        $('#Lotupload3').change(function (event) {
+            if (event.target.files.length > 0) {
+                var filetype = event.target.files[0].name.split('.')[event.target.files[0].name.split('.').length - 1]
+
+                if (filetype != 'jpg' && filetype != 'jpeg' && filetype != 'png') {
+                    alert('Please Select valid images only')
+                    $("#Lotupload3").val("");
+                } else {
+                    var tmppath = URL.createObjectURL(event.target.files[0]);
+                    $('#LotImg3').attr('src', tmppath)
+                }
+            }
+        });
+    });
+</script>

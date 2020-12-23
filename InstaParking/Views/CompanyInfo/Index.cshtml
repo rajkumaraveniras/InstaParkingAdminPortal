@@ -1,0 +1,169 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = null;
+    string emailPattern = @"/^.+@.+\..+$/";
+}
+<style>
+    .errordiv {
+        min-height: 20px;
+    }
+</style>
+<div class="page page-company-info">
+    <div data-ng-controller="CompanyinfoCtrl">
+        <div class="row ui-section">
+            <div class="col-md-12">
+                <article class="article">
+                    <md-card class="no-margin-h">
+                        <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>Company Info</span>
+                            </div>
+                        </md-toolbar>
+                        <form name="formAccount">
+                            <div class="row">
+                                <div class="col-md-4 text-center">
+                                    <div class="text-center upload-section">
+                                        <img src="assets\images\upload-logo.jpg" style="max-width: 280px;margin-top:10px;" alt="" id="CompanyImg" />
+                                        <input type="file" class="upload" id="Companyupload" style="display:none;" />
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="col-lg-6 col-md-6">
+                                        <md-input-container class="md-block">
+                                            <label>Company Name</label>
+                                            <input ng-model="AccountModel['AccountName']" name="AccountName">
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <md-input-container class="md-block">
+                                            <label>Address 1</label>
+                                            <input ng-model="AccountModel['Address1']" name="Address1">
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <md-input-container class="md-block">
+                                            <label>Address 2</label>
+                                            <input ng-model="AccountModel['Address2']" name="Address2">
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <md-input-container class="md-block">
+                                            <label>Contact Number</label>
+                                            <input ng-model="AccountModel['ContactNumber']" name="ContactNumber" ng-pattern="/^[0-9]{10}$/"  allow-numbers>
+                                            <div ng-messages="formAccount.ContactNumber.$error" role="alert" multiple class="errordiv">
+                                                <div ng-message="pattern" class="my-message">
+                                                    That doesn't look like a valid Contact Number.
+                                                </div>
+                                            </div>
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <md-input-container class="md-block">
+                                            <label>Alternate Number</label>
+                                            <input ng-model="AccountModel['AlternateNumber']" name="AlternateNumber" ng-pattern="/^[0-9]{10}$/" allow-numbers>
+                                            <div ng-messages="formAccount.AlternateNumber.$error" role="alert" multiple class="errordiv">
+                                                <div ng-message="pattern" class="my-message">
+                                                    That doesn't look like a valid Contact Number.
+                                                </div>
+                                            </div>
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <md-input-container class="md-block">
+                                            <label>Email ID</label>
+                                            <input ng-model="AccountModel['Email']" name="Email" ng-pattern="@emailPattern">
+                                            <div ng-messages="formAccount.Email.$error" role="alert" class="errordiv">
+                                                <div ng-message="pattern" class="my-message">
+                                                    That doesn't look like a valid Email.
+                                                </div>
+                                            </div>
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <md-input-container class="md-block">
+                                            <label>Website</label>
+                                            <input ng-model="AccountModel['Website']" name="Website">
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <md-input-container class="md-block">
+                                            <label>GST Number</label>
+                                            <input ng-model="AccountModel['GSTNumber']" name="GSTNumber">
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <md-input-container class="md-block">
+                                            <label>WhatsApp Number</label>
+                                            <input ng-model="AccountModel['WhatsAppNumber']" name="WhatsAppNumber" required
+                                                   ng-pattern="/^[0-9]{10}$/" allow-numbers>
+                                            <div ng-messages="formAccount.WhatsAppNumber.$error" role="alert" multiple class="errordiv">
+                                                <div ng-message="pattern" class="my-message">
+                                                    That doesn't look like a valid WhatsApp Number.
+                                                </div>
+                                            </div>
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <md-input-container class="md-block">
+                                            <label>Support Number</label>
+                                            <input ng-model="AccountModel['SupportContactNumber']" name="SupportContactNumber" required
+                                                   ng-pattern="/^[0-9]{10}$/" allow-numbers>
+                                            <div ng-messages="formAccount.SupportContactNumber.$error" role="alert" multiple class="errordiv">
+                                                <div ng-message="pattern" class="my-message">
+                                                    That doesn't look like a valid Support Number.
+                                                </div>
+                                            </div>
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <md-input-container class="md-block">
+                                            <label>Support Email ID</label>
+                                            <input ng-model="AccountModel['SupportEmailID']" name="SupportEmailID" required
+                                                   ng-pattern="@emailPattern">
+                                            <div ng-messages="formAccount.SupportEmailID.$error" role="alert" class="errordiv">
+                                                <div ng-message="pattern" class="my-message">
+                                                    That doesn't look like a valid Email.
+                                                </div>
+                                            </div>
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-md-6 col-lg-6">
+                                        <md-checkbox aria-label="Checkbox 1" style="margin-top: 20px;" ng-model="AccountModel['IsActive']"> Active </md-checkbox>
+                                    </div>
+                                    <div class="col-md-12" style="margin: 20px 0px;">
+                                        <md-button type="submit" class="md-button md-raised btn-w-md md-default custom-btn"
+                                                   name="myButton" [disabled]="formAccount.$valid" id="employeeBtn"
+                                                   data-ng-click="formAccount.$valid && SubmitAccount()">Save</md-button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </md-card>
+                </article>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Hidden("GetAccountDetails", Url.Action("GetAccountDetails", "CompanyInfo"))
+@Html.Hidden("SaveAccountDetails", Url.Action("SaveAccountDetails", "CompanyInfo"))
+
+<script>
+    $(document).ready(function () {
+        $('#CompanyImg').click(function () {
+            $('#Companyupload').click();
+        });
+        $('#Companyupload').change(function (event) {
+            if (event.target.files.length > 0) {
+                var filetype = event.target.files[0].name.split('.')[event.target.files[0].name.split('.').length - 1]
+
+                if (filetype != 'jpg' && filetype != 'jpeg' && filetype != 'png' && filetype != 'pdf') {
+                    $("#Companyupload").val("");
+                    alert('Please Select valid files only')
+                } else {
+                    var tmppath = URL.createObjectURL(event.target.files[0]);
+                    $('#CompanyImg').attr('src', tmppath)
+                }
+            }
+        });
+    });
+</script>

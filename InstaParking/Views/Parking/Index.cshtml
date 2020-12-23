@@ -1,0 +1,64 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = null;
+}
+<div class="page page-zones">
+    <div data-ng-controller="ParkingCtrl">
+        <div class="row ui-section">
+            <div class="col-md-12">
+                <article class="article">
+                    <md-card class="no-margin-h">
+                        <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>Zones List</span>
+                                <div flex></div>
+                                <div class="search-box visible-md visible-lg">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="material-icons">search</i></span>
+                                        <input type="text" class="form-control" ng-model="filterTable" placeholder="{{ 'SEARCH' | translate }}">
+                                        <span class="input-bar"></span>
+                                    </div>
+                                </div>
+                                <a href="#!/parking/create-zones" class="md-button md-raised btn-w-md" style="display: flex;">
+                                    <i class="material-icons">add</i> Create New Zone
+                                </a>
+                            </div>
+                        </md-toolbar>
+
+                        <md-table-container>
+                            <table md-table>
+                                <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
+                                    <tr md-row>
+                                        <th md-column><span>Actions</span></th>
+                                        <th md-column md-order-by="ZoneCode"><span>Zone Code</span></th>
+                                        <th md-column md-order-by="ZoneName"><span>Zone Name</span></th>
+                                        <th md-column md-order-by="City"><span>City</span></th>
+                                        <th md-column md-order-by="IsActive"><span>Status</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody md-body>
+                                    <tr md-row md-select="zonedata" md-on-select="logItem" md-auto-select="options.autoSelect" ng-disabled="zonedata.calories.value > 400"
+                                        ng-repeat="zonedata in ZonesListModel | filter: filterTable | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit">
+                                        <td md-cell class="actions">
+                                            <a title="EDIT ZONE" id="ViewZone" href="#!/parking/edit-zones/{{zonedata.ZoneID}}">
+                                                <md-icon>edit</md-icon>
+                                            </a>
+                                        </td>
+                                        <td md-cell>{{zonedata.ZoneCode}}</td>
+                                        <td md-cell>{{zonedata.ZoneName}}</td>
+                                        <td md-cell>{{zonedata.City}}</td>
+                                        <td md-cell><span class="label" ng-class="{'label-default': zonedata.IsActive=='Inactive' , 'label-success': zonedata.IsActive=='Active'}">{{zonedata.IsActive}}</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </md-table-container>
+
+                        <md-table-pagination ng-show="(ZonesListModel|filter:filterTable).length>0" md-limit="query.limit" md-limit-options="limitOptions" md-page="query.page" md-total="{{(ZonesListModel|filter:filterTable).length}}" md-page-select="options.pageSelect" md-boundary-links="options.boundaryLinks" md-on-paginate="logPagination"></md-table-pagination>
+                    </md-card>
+                </article>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Hidden("GetZonesList", Url.Action("GetZonesList", "Parking"))

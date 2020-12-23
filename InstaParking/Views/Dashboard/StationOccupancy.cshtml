@@ -1,0 +1,55 @@
+﻿@{
+    ViewBag.Title = "StationOccupancy";
+    Layout = null;
+}
+<div class="page page-company-info">
+    <div data-ng-controller="DashboardCtrl">
+        <div class="row ui-section">
+            <div class="col-md-12">
+                <article class="article">
+
+                    <md-card class="no-margin-h">
+                        <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>Station Occupancy</span>
+                            </div>
+                        </md-toolbar>
+
+                        <div class="col-md-12">
+                            <div class="panel panel-info">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">{{StationOccupancyDetailsListModel[0].LocationName}} - Occupied: {{StationOccupancyDetailsListModel[0].Occupancy}}% <span style="float: right;">Supervisor: {{StationOccupancyDetailsListModel[0].Supervisor}}</span></h3>
+                                </div>
+                                <div class="panel-body p-0">
+                                    <md-table-container>
+                                        <table md-table>
+                                            <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
+                                                <tr md-row>
+                                                    <th md-column md-order-by="LocationParkingLotName"><span>Lot Name</span></th>
+                                                    <th md-column md-order-by="TwoWheelereOccupancy"><span>2W-Occupancy</span></th>
+                                                    <th md-column md-order-by="FourWheelereOccupancy"><span>4W-Occupancy</span></th>
+                                                    <th md-column md-order-by="Operator"><span>Operator</span></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody md-body>
+                                                <tr md-row md-select="occupancydata" md-on-select="logItem" md-auto-select="options.autoSelect" ng-disabled="occupancydata.calories.value > 400" 
+                                                    ng-repeat="occupancydata in StationOccupancyDetailsListModel | filter: filter.search | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit">
+                                                    <td md-cell>{{occupancydata.LocationParkingLotName}}</td>
+                                                    <td md-cell>{{occupancydata.TwoWheelereOccupancy}}</td>
+                                                    <td md-cell>{{occupancydata.FourWheelereOccupancy}}</td>
+                                                    <td md-cell>{{occupancydata.Operator}}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </md-table-container>
+                                </div>
+                            </div>
+                        </div>
+                    </md-card>
+                </article>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Hidden("GetOccupancyDetailsByStation", Url.Action("GetOccupancyDetailsByStation", "Dashboard"))
+

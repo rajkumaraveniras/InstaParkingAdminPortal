@@ -1,0 +1,70 @@
+﻿@{
+    ViewBag.Title = "Charges";
+    Layout = null;
+}
+<div class="page page-create-zone">
+    <div data-ng-controller="ParkingCtrl">
+        <form name="formCharges">
+            <div class="row ui-section">
+                <div class="col-md-12">
+                    <article class="article">
+                        <md-card class="no-margin-h">
+                            <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                                <div class="md-toolbar-tools">
+                                    <span>Create Charges(In Rupees)</span>
+                                </div>
+                            </md-toolbar>
+
+                            <div>
+                                <div class="col-md-4 col-lg-3">
+                                    <md-input-container class="md-block">
+                                        <label>Clamp Fee for 2W</label>
+                                        <input type="text" ng-model="ChargesModel['ClampFee']" name="ClampFee" required valid-number>
+                                    </md-input-container>
+                                </div>
+                                <div class="col-md-4 col-lg-3">
+                                    <md-input-container class="md-block">
+                                        <label>GO Clamp Fee Limit for 2W</label>
+                                        <input type="text" ng-model="ChargesModel['ClampFeeLimit']" name="ClampFeeLimit" required valid-number>
+                                    </md-input-container>
+                                </div>
+                                <div class="col-md-4 col-lg-3">
+                                    <md-input-container class="md-block">
+                                        <label>Clamp Fee for 4W</label>
+                                        <input type="text" ng-model="ChargesModel['ClampFeefor4W']" name="ClampFeefor4W" required valid-number>
+                                    </md-input-container>
+                                </div>
+                                <div class="col-md-4 col-lg-3">
+                                    <md-input-container class="md-block">
+                                        <label>GO Clamp Fee Limit for 4W</label>
+                                        <input type="text" ng-model="ChargesModel['ClampFeeLimitfor4W']" name="ClampFeeLimitfor4W" required valid-number>
+                                    </md-input-container>
+                                </div>
+                                <div class="col-md-4 col-lg-3">
+                                    <md-input-container class="md-block">
+                                        <label>GO Price Limit 2 Wheeler</label>
+                                        <input type="text" ng-model="ChargesModel['PriceLimitForTwoWheller']" name="PriceLimitForTwoWheller" valid-number disabled>
+                                    </md-input-container>
+                                </div>
+                                <div class="col-md-4 col-lg-3">
+                                    <md-input-container class="md-block">
+                                        <label>GO Price Limit 4 Wheeler</label>
+                                        <input type="text" ng-model="ChargesModel['PriceLimitForFourWheller']" name="PriceLimitForFourWheller" valid-number disabled>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-12 text-center" style="margin: 20px 0px;">
+                                    <md-button type="submit" class="md-button md-raised btn-w-md md-default custom-btn"
+                                               name="myButton" [disabled]="formCharges.$valid"
+                                               data-ng-click="formCharges.$valid && EditCharges()">Save Charges</md-button>
+                                </div>
+                            </div>
+                        </md-card>
+                    </article>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@Html.Hidden("GetChargesData", Url.Action("GetChargesData", "Parking"))
+@Html.Hidden("SaveCharges", Url.Action("SaveCharges", "Parking"))

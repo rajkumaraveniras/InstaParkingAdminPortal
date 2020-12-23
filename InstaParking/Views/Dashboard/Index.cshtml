@@ -1,0 +1,195 @@
+﻿@using System.Web.Optimization
+@{
+    Layout = null;
+}
+<div class="page page-dashboard">
+    <div data-ng-controller="DashboardCtrl">
+        <div class="row">
+            <!-- Stats -->
+            <div class="col-lg-3 col-xsm-6">
+                <div class="panel panel-box">
+                    <span class="dwmy">
+                        <a href="#">Q</a>
+                        <a class="active" href="#">M</a>
+                        <a href="#">W</a>
+                        <a href="#">D</a>
+                    </span>
+                    <div class="panel-top">
+                        <i class="material-icons color-info">supervisor_account</i>
+                    </div>
+                    <div class="panel-info">
+                        <span data-translate="PASS HOLDERS"></span>
+                    </div>
+                    <div class="panel-bottom bg-light">
+                        <span>4442</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-xsm-6">
+                <div class="panel panel-box">
+                    <span class="dwmy">
+                        <a href="#">Q</a>
+                        <a class="active" href="#">M</a>
+                        <a href="#">W</a>
+                        <a href="#">D</a>
+                    </span>
+                    <div class="panel-top">
+                        <i class="material-icons color-success">supervisor_account</i>
+                    </div>
+                    <div class="panel-info">
+                        <span data-translate="NFC CARD HOLDERS"></span>
+                    </div>
+                    <div class="panel-bottom bg-light">
+                        <span>3525</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-xsm-6">
+                <div class="panel panel-box">
+                    <span class="dwmy">
+                        <a href="#">Q</a>
+                        <a class="active" href="#">M</a>
+                        <a href="#">W</a>
+                        <a href="#">D</a>
+                    </span>
+                    <div class="panel-top">
+                        <i class="material-icons color-warning">view_list</i>
+                    </div>
+                    <div class="panel-info">
+                        <span data-translate="PARKED VEHICLES"></span>
+                    </div>
+                    <div class="panel-bottom bg-light">
+                        <span>22000</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-xsm-6">
+                <div class="panel panel-box">
+                    <span class="dwmy">
+                        <a href="#">Q</a>
+                        <a class="active" href="#">M</a>
+                        <a href="#">W</a>
+                        <a href="#">D</a>
+                    </span>
+                    <div class="panel-top">
+                        <i class="material-icons color-success">&#8377;</i>
+                    </div>
+                    <div class="panel-info">
+                        <span data-translate="TOTAL BILLING"></span>
+                    </div>
+                    <div class="panel-bottom bg-light">
+                        <span>200,000.00 </span>
+                    </div>
+                </div>
+            </div>
+            <!-- end stats -->
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-box" style="text-align: left;">
+                    <md-toolbar class="md-table-toolbar md-default">
+                        <div class="md-toolbar-tools">
+                            <span>Station Occupancy</span>
+                        </div>
+                    </md-toolbar>
+
+                    <div class="col-md-12 occupancybox" data-slim-scroll style="padding-left: 10px; padding-right: 10px; max-height: 160px; overflow: auto;">
+                        <div class="col-lg-3 col-xsm-6" ng-repeat="station in StationOccupancyListModel">
+                            <a style="text-decoration: none;" href="#!/station-occupancy/{{station.LocationID}}">
+                                <div class="progressbar-container" style="margin-bottom: 20px;">  
+                                    <md-progress-linear md-mode="determinate" value="{{station.Occupancy}}" class="md-progressbar"
+                                                        ng-class="{'brand-info': station.Occupancy<=50,'brand-warning':(station.Occupancy>50 && station.Occupancy<100),'brand-success': station.Occupancy==100 }"></md-progress-linear>
+                                    <p class="desc">{{station.LocationName}} <span class="pull-right color-info">{{station.Occupancy}}%</span></p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row ui-section">
+            <div class="col-md-12">
+                <article class="article">
+                    <md-card class="no-margin-h" style="display: none;">
+                        <md-card-title style="padding-top: 32px;">
+                            <div layout="row" layout-wrap class="checkboxes">
+                                <md-checkbox ng-model="options.rowSelection">Row Selection</md-checkbox>
+                                <md-checkbox ng-model="options.multiSelect">Multiple Selection</md-checkbox>
+                                <md-checkbox ng-model="options.autoSelect">Auto Selection</md-checkbox>
+                                <md-checkbox ng-model="options.decapitate">Decapitate</md-checkbox>
+                                <md-checkbox ng-model="options.largeEditDialog">Lard Edit Dialogs</md-checkbox>
+                                <md-checkbox ng-model="options.boundaryLinks">Pagination Boundary Links</md-checkbox>
+                                <md-checkbox ng-model="options.limitSelect" ng-click="toggleLimitOptions()">Pagination Limit Select</md-checkbox>
+                                <md-checkbox ng-model="options.pageSelect">Pagination Page Select</md-checkbox>
+                            </div>
+                        </md-card-title>
+                    </md-card>
+
+                    <md-card class="no-margin-h">
+
+                        <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>List of Supervisors</span>
+                                <div flex></div>
+                                <div class="search-box visible-md visible-lg">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="material-icons">search</i></span>
+                                        <input type="text" class="form-control" ng-model="filterTable" placeholder="{{ 'SEARCH' | translate }}">
+                                        <span class="input-bar"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </md-toolbar>
+
+                        @*<md-toolbar class="md-table-toolbar alternate" ng-show="options.rowSelection && selected.length">
+                                <div class="md-toolbar-tools">
+                                    <span>{{selected.length}} {{selected.length > 1 ? 'items' : 'item'}} selected</span>
+                                </div>
+                            </md-toolbar>*@
+
+                        <md-table-container>
+                            @*multiple="{{options.multiSelect}}"*@
+                            @*md-row-select="options.rowSelection"*@
+                            <table md-table ng-model="selected" md-progress="promise">
+                                <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
+                                    <tr md-row>
+                                        @*<th md-column><span>Actions</span></th>*@
+                                        <th md-column md-order-by="UserCode"><span>Supervisor ID</span></th>
+                                        <th md-column md-order-by="UserName"><span>Supervisor Name</span></th>
+                                        <th md-column md-order-by="AssignedLocationID"><span>Covered Stations</span></th>
+                                        <th md-column md-order-by="PhoneNumber"><span>Phone Number</span></th>
+                                        <th md-column md-order-by="Address"><span>Address</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody md-body>
+                                    <tr md-row md-select="dessert" md-on-select="logItem" md-auto-select="options.autoSelect" ng-disabled="dessert.calories.value > 400"
+                                        ng-repeat="dessert in ActiveSupervisorsList | filter: filterTable | orderBy: query.order:true | limitTo: query.limit : (query.page -1) * query.limit">
+                                        @*<td md-cell class="actions">
+                                                <md-icon>open_in_new</md-icon>
+                                                <md-icon>edit</md-icon>
+                                            </td>*@
+                                        <td md-cell>{{dessert.UserCode}}</td>
+                                        <td md-cell>{{dessert.UserName}}</td>
+                                        <td md-cell>{{dessert.AssignedLocationID}}</td>
+                                        <td md-cell>{{dessert.PhoneNumber}}</td>
+                                        <td md-cell>{{dessert.Address}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </md-table-container>
+                        <md-table-pagination ng-show="(ActiveSupervisorsList|filter:filterTable).length>0" md-limit="query.limit" md-limit-options="limitOptions" md-page="query.page"
+                                             md-total="{{(ActiveSupervisorsList|filter:filterTable).length}}" md-page-select="options.pageSelect" md-boundary-links="options.boundaryLinks" md-on-paginate="logPagination"></md-table-pagination>
+                    </md-card>
+                </article>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Hidden("GetSupervisorsList", Url.Action("GetActiveSupervisorsList", "Dashboard"))
+@Html.Hidden("GetListofStationOccupancy", Url.Action("GetListofStationOccupancy", "Dashboard"))
+
+
+
+

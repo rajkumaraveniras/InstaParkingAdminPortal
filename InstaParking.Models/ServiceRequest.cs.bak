@@ -1,0 +1,24 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace eSignet.Models
+{
+    public class ServiceRequest
+    {
+        public int ServiceRequestID { get; set; }
+        public string Token { get; set; }
+        public int CustomerID { get; set; }
+        public int CustomerPOCID { get; set; }
+        public string Status { get; set; }
+        public string CustomerName { get; set; }
+        public string CustomerPOCName { get; set; }
+        public DateTime UpdatedDate { get; set; }
+        public string UpdatedBy { get; set; }
+        public int CarrierID { get; set; }
+        public string CarrierName { get; set; }
+        public string Comments { get; set; }
+    }
+}

@@ -1,0 +1,54 @@
+﻿@{
+    ViewBag.Title = "SupportRequests";
+    Layout = null;
+}
+<div class="page page-offered-spaces">
+    <div data-ng-controller="SupportCtrl">
+        <div class="row ui-section">
+            <div class="col-md-12">
+                <article class="article">
+                    <md-card class="no-margin-h">
+                        <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>Support Requests</span>
+                            </div>
+                        </md-toolbar>
+
+                        <md-table-container>
+                            <table class="table-striped" md-table>
+                                <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
+                                    <tr md-row>
+                                        <th md-column md-order-by="CreatedOn"><span>Date</span></th>
+                                        <th md-column md-order-by="Name"><span>Name</span></th>
+                                        <th md-column md-order-by="PhoneNumber"><span>Phone</span></th>
+                                        <th md-column md-order-by="Email"><span>Email</span></th>
+                                        <th md-column md-order-by="Message" style="max-width:280px;"><span>Message</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody md-body>
+                                    <tr md-row md-select="srdata" md-on-select="logItem" md-auto-select="options.autoSelect"
+                                        ng-if="SupportRequestsListModel.length>0"
+                                        ng-repeat="srdata in SupportRequestsListModel | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit">
+                                        <td md-cell>{{srdata.CreatedOn  | date:"dd-MM-yyyy"}}</td>
+                                        <td md-cell>{{srdata.Name}}</td>
+                                        <td md-cell>{{srdata.PhoneNumber}}</td>
+                                        <td md-cell>{{srdata.Email}}</td>
+                                        <td md-cell style="max-width:280px;">{{srdata.Message}}</td>
+                                    </tr>
+                                    <tr md-row ng-if="SupportRequestsListModel.length==0">
+                                        <td md-cell colspan="5" style="text-align: center;">No Data Available</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </md-table-container>
+                        <md-table-pagination ng-show="SupportRequestsListModel.length>0" md-limit="query.limit"
+                                             md-limit-options="limitOptions" md-page="query.page" md-total="{{SupportRequestsListModel.length}}"
+                                             md-page-select="options.pageSelect" md-boundary-links="options.boundaryLinks" md-on-paginate="logPagination">
+                        </md-table-pagination>
+                    </md-card>
+                </article>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Hidden("GetSupportRequestDetails", Url.Action("GetSupportRequestDetails", "SupportRequest"))

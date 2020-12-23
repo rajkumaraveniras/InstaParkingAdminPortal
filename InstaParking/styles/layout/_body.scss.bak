@@ -1,0 +1,392 @@
+body {
+    background: $main_container_bg;
+}
+
+
+.body-auth,
+.body-err {
+    &.app > .main-container:before {
+        background: none;
+    }
+    // when it's normal nav
+    @media (min-width: $screen-sm) {
+        .page-signin,
+        .page-signup,
+        .page-forgot,
+        .page-err {
+            margin-right: 220px;
+        }
+    }
+    // when it's collapsed nav
+    &.nav-collapsed-min {
+        @media (min-width: $screen-sm) {
+            .page-signin,
+            .page-signup,
+            .page-forgot,
+            .page-err {
+                margin-right: 60px;
+            }
+        }
+    }
+    // when it's horizontal nav
+    .nav-horizontal + .content-container {
+        @media (min-width: $screen-sm) {
+            .page-signin,
+            .page-signup,
+            .page-forgot,
+            .page-err {
+                margin-right: 0;
+            }
+        }
+    }
+}
+
+// fullscreen, hide header and sidebar
+.body-wide {
+
+    #header,
+    #nav-container {
+        display: none;
+    }
+
+    > .main-container {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    #content {
+        z-index: 2;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        // bottom: 0;
+        // margin: 0;
+        padding-bottom: 0;
+        // padding-bottom: 50px;
+    }
+    //
+    &.on-canvas .main-container #content {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+
+.nav-container.bg-dark .nav ul {
+    background-color: #0073b9;
+}
+
+.nav-container.bg-dark.nav-vertical .nav > li.open > a {
+    background-color: #005087;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.nav-container.bg-dark .nav ul > li:hover > a, .nav-container.bg-dark .nav ul > li.active > a {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-container .nav > li.active {
+    background-color: #005087;
+}
+
+table.md-table thead.md-head > tr.md-row {
+    height: 30px;
+}
+
+.page {
+    padding: 15px 15px;
+}
+
+md-card {
+    margin-top: 0px;
+}
+
+table.md-table tbody.md-body > tr.md-row, table.md-table tfoot.md-foot > tr.md-row {
+    height: 40px;
+}
+/*.md-datepicker-input-container{width: 70%;}*/
+.upload-section {
+}
+
+.upload-section img {
+    cursor: pointer;
+    max-height: 190px;
+    width: 100%;
+}
+
+.md-button.md-default-theme.md-raised, .md-button.md-raised {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.md-button.md-default-theme.md-raised.custom-btn, .md-button.md-raised.custom-btn {
+    color: #ffffff;
+    background-color: #001d31 !important;
+}
+
+.md-button.md-default-theme.md-raised.custom-btn:hover, .md-button.md-raised.custom-btn:hover {
+    color: #ffffff;
+    background-color: #005087 !important;
+}
+
+.clear {
+    clear: both;
+}
+
+label.md-placeholder + md-select md-select-value span {
+    font-weight: bold;
+}
+
+.actions {
+    min-width: 120px;
+}
+
+.actions md-icon {
+    margin-right: 6px;
+    cursor: pointer;
+}
+
+.actions md-icon:hover {
+    color: #000000;
+}
+
+md-switch {
+    margin: 4px 0;
+}
+
+.assignoperator, .assignoperator:hover {
+    display: flex;
+    line-height: 23px;
+    color: #353535;
+    text-decoration: none;
+}
+
+.assignoperator-obsent, .assignoperator-obsent:hover {
+    display: flex;
+    line-height: 23px;
+    color: #f91111 !important;
+    text-decoration: none;
+}
+
+.assignoperator-presented, .assignoperator-presented:hover {
+    display: flex;
+    line-height: 23px;
+    color: #2cd003 !important;
+    text-decoration: none;
+}
+
+.assignoperator-assigned, .assignoperator-assigned:hover {
+    display: flex;
+    line-height: 23px;
+    color: #2cd003 !important;
+    text-decoration: none;
+}
+
+.chooseope {
+    max-width: 150px;
+    background-color: #f4f4f4;
+    padding: 0 8px;
+}
+
+.createfromtr td.tdhead {
+    background-color: #f4f4f4;
+    line-height: 22px;
+    font-weight: bold;
+}
+
+.createfromtr td.tdhead span.material-icons {
+    float: right;
+    margin-top: -2px;
+}
+
+.createfromtr button {
+    min-height: 30px;
+}
+
+md-switch.md-default-theme.md-checked .md-thumb, md-switch.md-checked .md-thumb {
+    background-color: rgb(1, 79, 135);
+}
+
+md-switch.md-default-theme.md-checked .md-ink-ripple, md-switch.md-checked .md-ink-ripple {
+    color: rgb(1, 79, 135);
+}
+
+md-switch.md-default-theme.md-checked .md-bar, md-switch.md-checked .md-bar {
+    background-color: rgba(1, 112, 186, 0.5);
+}
+
+.iconplace img {
+    max-width: 22px;
+    max-height: 30px;
+}
+
+.icon-place {
+    padding-right: 0px;
+    padding-left: 0px;
+    text-align: center;
+}
+
+.icon-place img {
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+.total-row {
+    background-color: #f4f4f4;
+}
+
+.total-row td {
+    font-weight: bold;
+    text-align: right !important;
+}
+
+.trbg {
+    background-color: #e8e8e8;
+}
+
+.panel.panel-default {
+    margin-bottom: 6px;
+}
+
+.panel .panel-heading {
+    text-transform: capitalize;
+}
+
+.icons-set .fa {
+    margin: 0 6px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.icons-set .fa:hover {
+    color: #f98f0f;
+}
+
+.icons-set img {
+    margin: 0 5px;
+    max-height: 26px;
+    cursor: pointer;
+}
+
+.icons-set img:hover {
+    max-height: 28px;
+}
+
+.selected-filters {
+    padding: 0px 20px;
+    color: #000000;
+    font-weight: bold;
+    margin-top: -4px;
+    z-index: 9;
+    margin-bottom: 10px;
+}
+
+.a-o-edit {
+    color: #f98f0f;
+    cursor: pointer;
+    padding-left: 6px;
+    padding-top: 3px;
+}
+
+.a-o-edit:hover {
+    color: #005087;
+}
+
+.a-o-table .material-icons {
+    font-size: 21px;
+    margin-right: 6px;
+}
+
+.primaryimage {
+    font-size: 24px;
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: #969696;
+    cursor: pointer;
+}
+
+.primaryimage.active {
+    color: #005087;
+}
+
+.app > .header-container.header-fixed {
+    z-index: 6;
+}
+
+.md-select-value span div {
+    display: inline-block !important;
+}
+
+.editoperator {
+    background-color: #f4f4f4;
+    width: 220px;
+    padding: 2px 6px;
+    border: 1px solid #c5c5c5;
+    display: inline-block;
+}
+
+.editoperator + .material-icons {
+    font-size: 32px;
+    cursor: pointer;
+    color: #005087;
+    margin-left: 12px;
+}
+.sort-none .md-sort-icon {
+    display: none;
+}
+.selected-filters-list span {
+    letter-spacing: 1px;
+}
+.nav-container .nav > li > a > .icon-has-ul {
+    top: 10px !important;
+}
+td span.label.label-default, td span.label.label-success {
+    width: 70px;
+    display: block;
+    font-size: 12px;
+}
+.md-default-theme .md-datepicker-open .md-datepicker-calendar-icon, .md-datepicker-open .md-datepicker-calendar-icon {
+    color: rgb(0, 29, 49);
+}
+.actions a {
+    text-decoration: none;
+}
+table.md-table:not(.md-row-select) td.md-cell:nth-child(n+2):nth-last-child(n+2), table.md-table:not(.md-row-select) th.md-column:nth-child(n+2):nth-last-child(n+2) {
+    padding: 0 20px 0 0 !important;
+}
+.home-icons i.material-icons {
+    font-size: 50px;
+    color: #014f87;
+}
+
+.home-icons {
+    font-weight: bold;
+    text-align: center;
+    margin: 30px auto;
+}
+.home-icons i.material-icons:hover {
+    color: #001d31;
+}
+table.md-table:not(.md-row-select) td.md-cell:first-child, table.md-table:not(.md-row-select) th.md-column:first-child {
+    padding: 0 20px;
+}
+
+
+
+.assign_modules p {
+    background-color: #f4f4f4;
+    padding: 4px 10px;
+}
+
+.assign_modules p + div.row {
+    margin: 0 14px;
+}
+
+.modal-footer {
+    text-align: center !important;
+}

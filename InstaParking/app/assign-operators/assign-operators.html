@@ -1,0 +1,103 @@
+<div class="page page-assign-operators">
+
+    <div data-ng-controller="AssignoperatorsCtrl">
+        <div class="row ui-section">
+            <div class="col-md-12">
+                <article class="article">
+
+                    <md-card class="no-margin-h">
+                        
+                        <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>Assign Operators</span>
+                                <div flex></div>                                
+                            </div>
+                        </md-toolbar>
+                        <div class="col-md-12">
+
+                            <div class="col-md-3">
+                                <md-input-container class="md-block">
+                                    <label>Location</label>
+                                    <md-select ng-model="aolocationddl.aolocationname" aria-label="select">
+                                        <md-option ng-repeat="(index,aolocation) in aolocationddl.aolocation" value="{{aolocation.abbrev}}"  ng-selected="index == 0"> {{aolocation.abbrev}} </md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </div>
+
+                            <div class="col-md-3">
+                                <md-input-container class="md-block">
+                                    <label>Lot</label>
+                                    <md-select ng-model="aolotddl.aolotname" aria-label="select">
+                                        <md-option ng-repeat="aolot in aolotddl.aolot" value="{{aolot.abbrev}}"> {{aolot.abbrev}} </md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </div>
+
+                        </div>
+                        
+                        <md-table-container>
+                            <table class="a-o-table" md-table style="min-width: 800px;">
+                                <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
+                                    <tr md-row class="trbg">
+                                        <th md-column md-order-by="aslocation"><span>Location</span></th>
+                                        <th md-column md-order-by="aslot"><span>Lot</span></th>
+                                        <th md-column md-order-by="asoperator"><span>Operator</span></th>                                           
+                                    </tr>
+                                </thead>
+                                <tbody md-body>
+
+                                    <!--START - DO NOT USE THIS TR call me babu-->
+                                    <tr md-row >
+                                        <td md-cell>JNTU</td>
+                                        <td md-cell>JNTU A</td>
+                                        <td md-cell>
+                                            <md-select class="editoperator" multiple ng-model="editoperatorddl.editoperatorname" aria-label="select">
+                                                <md-option ng-repeat="(index,editoperator) in editoperatorddl.editoperator" value="{{editoperator.abbrev}}"  ng-selected="index == 0"> {{editoperator.abbrev}} </md-option>
+                                            </md-select>
+                                            <span class="material-icons">check_circle</span>
+                                        </td>
+                                    </tr>
+                                    <tr md-row >
+                                        <td md-cell>JNTU</td>
+                                        <td md-cell>JNTU B</td>
+                                        <td md-cell>
+                                                <a class="assignoperator-obsent" href=""><span class="material-icons">highlight_off</span> Srikanth </small> <i class="fa fa-pencil a-o-edit"></i></a>
+                                        </td>
+                                    </tr>
+                                    <tr md-row >
+                                        <td md-cell>JNTU</td>
+                                        <td md-cell>JNTU C</td>                                        
+                                        <td md-cell>
+                                            <a class="assignoperator-presented" href=""><span class="material-icons">check_circle</span> Pawan<small style="color:#000000"> - 06:00 AM </small> <i class="fa fa-pencil a-o-edit"></i></a>
+                                            <a class="assignoperator-obsent" href=""><span class="material-icons">highlight_off</span> Karthik </small> <i class="fa fa-pencil a-o-edit"></i></a>
+                                        </td>
+                                    </tr>
+                                    <tr md-row >
+                                        <td md-cell>JNTU</td>
+                                        <td md-cell>JNTU D</td>                                        
+                                        <td md-cell>
+                                            <a class="assignoperator-presented" href=""><span class="material-icons">check_circle</span> Kumar<small style="color:#000000"> - 06:00 AM </small> <i class="fa fa-pencil a-o-edit"></i></a>
+                                        </td>
+                                    </tr>
+                                    
+                                    <!--END - DO NOT USE THIS TR-->
+                                    <!--
+                                    <tr md-row md-select="assignope" md-on-select="logItem" md-auto-select="options.autoSelect" ng-disabled="assignope.calories.value > 400" ng-repeat="assignope in assignopes.data | filter: filter.search | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit">
+                                        <td md-cell>{{assignope.aslocation}}</td>
+                                        <td md-cell>{{assignope.aslot}}</td>
+                                        <td md-cell><a class="assignoperator-presented" href=""><span class="material-icons">check_circle</span> {{assignope.asoperator}}<small style="color:#000000">-06:00 AM</small> </small> <i class="fa fa-pencil a-o-edit"></i></a></td>
+                                    </tr>
+                                    -->                                    
+                                </tbody>
+                            </table>
+                        </md-table-container>
+                    </md-card>
+
+                </article>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+<script>

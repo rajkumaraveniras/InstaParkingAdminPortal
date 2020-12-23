@@ -1,0 +1,10 @@
+﻿
+
+/* make changes to the !default Bootstrap variables */
+$body-color: green;
+
+/* finally, import Bootstrap to set the changes! */
+@import "~/styles/loader.scss";
+@import "~/styles/bootstrap.scss";
+@import "~/styles/ui.scss";
+@import "~/styles/app.scss";

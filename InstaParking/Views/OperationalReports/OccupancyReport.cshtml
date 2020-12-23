@@ -1,0 +1,214 @@
+﻿@{
+    ViewBag.Title = "OccupancyReport";
+    Layout = null;
+}
+<div class="page page-operatorreports">
+    <div data-ng-controller="OperationalreportsCtrl">
+        <div class="row ui-section">
+            <div class="col-md-12">
+                <article class="article">
+                    <form name="formOccupancy">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"><i class="fa fa-filter" aria-hidden="true"></i> Filters</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <md-input-container class="md-block">
+                                            <label>Station</label>
+                                            <md-select ng-model="ReportFilterModel['LocationID']" aria-label="select"
+                                                       name="LocationID" ng-change="GetActiveLots(ReportFilterModel.LocationID)" required>
+                                                <md-option ng-repeat="location in ActiveLocationListModel" value="{{location.LocationID}}"> {{location.LocationName}} </md-option>
+                                            </md-select>
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <md-input-container class="md-block">
+                                            <label>Parking Lot</label>
+                                            <md-select ng-model="ReportFilterModel['LocationParkingLotID']" aria-label="select" name="LotID" ng-change="GetSelectedLot(ReportFilterModel.LocationParkingLotID)">
+                                                <md-option ng-repeat="lot in ActiveLotListModel" value="{{lot.LocationParkingLotID}}"> {{lot.LocationParkingLotName}} </md-option>
+                                            </md-select>
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <md-input-container class="md-block">
+                                            <label>Vehicle Type</label>
+                                            <md-select ng-model="ReportFilterModel['VehicleTypeID']" aria-label="select" required
+                                                       name="VehicleTypeID" ng-change="GetSelectedVehicleWithAll(ReportFilterModel.VehicleTypeID)">
+                                                <md-option ng-repeat="vehicle in ActiveVehicleTypesListModelWithAll" value="{{vehicle.VehicleTypeID}}"> {{vehicle.VehicleTypeName}} </md-option>
+                                            </md-select>
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <md-button type="submit" class="md-button md-raised btn-w-md md-default custom-btn" style="min-width: 50px; margin:12px 0px;"
+                                                   [disabled]="formOccupancy.$valid" data-ng-click="formOccupancy.$valid && GetOccupancyReport()">Generate Report</md-button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <md-card class="no-margin-h">
+
+                        <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>Occupancy Report</span>
+                                <div flex></div>
+                                <div class="search-box visible-md visible-lg">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="material-icons">search</i></span>
+                                        <input type="text" class="form-control" ng-model="filterTable" placeholder="{{ 'SEARCH' | translate }}">
+                                        <span class="input-bar"></span>
+                                    </div>
+                                </div>
+                                <div class="icons-set">
+                                    <span><a ng-click="DownloadOccupancyPDFReport()"><img src="assets/images/pdf.png"></a></span>
+                                    <span><a ng-click="DownloadOccupancyExcelReport()"><img src="assets/images/xl.png"></a></span>
+                                    <span><a ng-click="OccupancyReportPrint('printcontent')"><img src="assets/images/print.png"></a></span>
+                                </div>
+                            </div>
+                        </md-toolbar>
+
+                        <div class="col-sm-12 selected-filters">
+                            <div class="selected-filters-list">
+                                Added Filters:
+                                <span class="label label-default">{{SelectedItemModel.SelectedStation}}</span>
+                                <span class="label label-default">{{SelectedItemModel.SelectedLot}}</span>
+                                <span class="label label-default">{{SelectedItemModel.SelectedVehicle}}</span>
+                            </div>
+                        </div>
+
+                        <md-table-container>
+                            <table class="table-striped" md-table>
+                                <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
+                                    <tr md-row>
+                                        <th md-column md-order-by="Station"><span>Station</span></th>
+                                        <th md-column md-order-by="ParkingLot"><span>Parking Lot</span></th>
+                                        @*<th md-column md-order-by="ParkingLot"><span>Lot Code</span></th>*@
+                                        <th md-column md-order-by="Capacity"><span>Capacity</span></th>
+                                        <th md-column md-order-by="CurrentlyParked"><span>Currently Parked</span></th>
+                                        <th md-column md-order-by="Occupancy"><span>% Occupancy</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody md-body>
+                                    <tr md-row md-select="rboccudata" md-on-select="logItem" md-auto-select="options.autoSelect" ng-disabled="rboccudata.calories.value > 400"
+                                        ng-if="OccupancyListModel.length>0"
+                                        ng-repeat="rboccudata in OccupancyListModel | filter: filterTable | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit">
+                                        <td md-cell>{{rboccudata.Station}}</td>
+                                        <td md-cell>{{rboccudata.ParkingLot}}</td>
+                                        <td md-cell>{{rboccudata.Capacity}}</td>
+                                        <td md-cell>{{rboccudata.CurrentlyParked}}</td>
+                                        <td md-cell>{{rboccudata.Occupancy}}</td>
+                                    </tr>
+                                    <tr md-row ng-if="OccupancyListModel.length==0">
+                                        <td md-cell colspan="5" style="text-align: center;">No Data Available</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </md-table-container>
+                        <md-table-pagination ng-show="(OccupancyListModel|filter:filterTable).length>0" md-limit="query.limit"
+                                             md-limit-options="limitOptions" md-page="query.page" md-total="{{(OccupancyListModel|filter:filterTable).length}}"
+                                             md-page-select="options.pageSelect" md-boundary-links="options.boundaryLinks" md-on-paginate="logPagination">
+                        </md-table-pagination>
+                    </md-card>
+
+                    @*div for Print Start*@
+                    <div ng-show="isPrinting" id="printcontent">
+                        <div style="width: 100%; max-width: 595px; margin: 0 auto;">
+
+                            <!--header start-->
+                            <div>
+                                <div style="width: 48%; padding: 10px 1%; float: left;">
+                                    <img src="~/assets/images/Logo4.png" style="padding-top:15px;" alt="logo" />
+                                </div>
+                                <div style="width: 48%; padding: 10px 1%; float: left; text-align: left; color:#353535;">
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Unit #3A, Plot No:847, Pacific Towers,<br />
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    Madhapur, Hyderabad – 500081, TS<br />
+                                    <strong style="font-family: pnbold;">
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GSTIN:
+                                    </strong> 36AABCT3518Q1ZX<br />
+                                    <strong style="font-family: pnbold;">
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ph:
+                                    </strong> +91 8143143143 <br />
+                                    <strong style="font-family: pnbold;">
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Email:
+                                    </strong> support@hmrl.com<br />
+                                </div>
+                                <div style="clear:both;"></div>
+                            </div>
+                            <!--header close-->
+                            <!--Title start-->
+                            <div>
+                                <div style="padding: 6px; background-color:#f1f1f1;">
+                                    <h4 style="color:#000000; font-weight:bold; font-size:16px; text-align: center; padding:0px; margin:0px; text-transform: uppercase; font-family: pnbold;">OCCUPANCY REPORT</h4>
+                                </div>
+                            </div>
+                            <!--Title close-->
+                            <!--filtered by start-->
+                            <div style="margin: 10px 0px; color:#353535;">
+                                <div style="display: inline;">
+                                    <strong style="margin-right: 6px; font-family: pnbold;">Filtered By&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;</strong>
+                                    <span>{{SelectedItemModel.SelectedStation}},{{SelectedItemModel.SelectedLot}},{{SelectedItemModel.SelectedVehicle}}</span>
+                                    @*<span style="padding: 2px 6px; -moz-border-radius:3px; -webkit-border-radius:3px; -o-border-radius:3px; -ms-border-radius:3px; border-radius:3px; border:1px solid #dbdbdb;">{{SelectedItemModel.SelectedStation}}</span>
+                                    <span style="padding: 2px 6px; -moz-border-radius:3px; -webkit-border-radius:3px; -o-border-radius:3px; -ms-border-radius:3px; border-radius:3px; border:1px solid #dbdbdb;">{{SelectedItemModel.SelectedLot}}</span>
+                                    <span style="padding: 2px 6px; -moz-border-radius:3px; -webkit-border-radius:3px; -o-border-radius:3px; -ms-border-radius:3px; border-radius:3px; border:1px solid #dbdbdb;">{{SelectedItemModel.SelectedVehicle}}</span>*@
+                                </div>
+                            </div>
+                            <!--filtered by close-->
+                            <!--from to generate dates start-->
+                            <div style="margin: 10px 0px; border-bottom:2px solid #f1f1f1; color:#353535;">
+                                <div style="display: inline;">
+                                    @*<strong style="margin-right: 6px; font-family: pnbold;">Report From:</strong>*@
+                                    @*<span>
+                                        {{ReportFilterModel.FromDate | date:"dd/MM/yyyy"}}
+                                        to
+                                        {{ReportFilterModel.ToDate | date:"dd/MM/yyyy"}}
+                                    </span> &nbsp;&nbsp;&nbsp;&nbsp;*@
+                                    <strong style="margin-right: 6px; font-family: pnbold;">Generated On&nbsp;&nbsp;&nbsp;:&nbsp;</strong>
+                                    <span>{{TodayDate | date:"dd/MM/yyyy  h:mma"}}</span>
+                                </div>
+                                <div style="clear:both; margin-top: 7px;"></div>
+                            </div>
+
+                            <!--from to generate dates close-->
+                            <!--table start-->
+                            <table style="width: 100%; text-align: left; border-collapse: collapse;">
+                                <tr style="font-size:13px; font-weight: bold; background-color: #f1f1f1; font-family: pnbold;">
+                                    <th style=" border: 1px solid #000000;">Station</th>
+                                    <th style=" border: 1px solid #000000;">Parking Lot</th>
+                                    @*<th style=" border: 1px solid #000000;">Lot Code</th>*@
+                                    <th style=" border: 1px solid #000000;">Capacity</th>
+                                    <th style=" border: 1px solid #000000;">Currently Parked</th>
+                                    <th style=" border: 1px solid #000000; text-align: right;">% Occupancy</th>
+                                </tr>
+                                <tr ng-repeat="item in OccupancyListModel">
+                                    <td style=" border: 1px solid #000000;">{{item.Station}}</td>
+                                    <td style=" border: 1px solid #000000;">{{item.ParkingLot}}</td>
+                                    <td style=" border: 1px solid #000000;">{{item.Capacity}}</td>
+                                    <td style=" border: 1px solid #000000;">{{item.CurrentlyParked}} </td>
+                                    <td style=" border: 1px solid #000000; text-align: right;">{{item.Occupancy}}</td>
+                                </tr>
+                            </table>
+                            <!--table close-->
+
+                        </div>
+                    </div>
+                    @*div for Print End*@
+                </article>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Hidden("GetActiveLocationsList", Url.Action("GetActiveLocationsList", "Employee"))
+@Html.Hidden("GetActiveLotssList", Url.Action("GetActiveLotssList", "Employee"))
+@Html.Hidden("GetActiveVehicleTypesList", Url.Action("GetActiveVehicleTypesList", "Parking"))
+@Html.Hidden("GetOccupancyReport", Url.Action("GetOccupancyReport", "OperationalReports"))

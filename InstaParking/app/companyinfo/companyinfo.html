@@ -1,0 +1,223 @@
+<div class="page page-company-info">
+
+        <div data-ng-controller="CompanyinfoCtrl">
+            <div class="row ui-section">
+                <div class="col-md-12">
+                    <article class="article">
+    
+                        <md-card class="no-margin-h">
+                            
+                            <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                                <div class="md-toolbar-tools">
+                                    <span>Company Info</span>
+                                </div>
+                            </md-toolbar>
+    
+                            <div class="row">
+                                <div class="col-md-4 text-center">
+                                    <div class="text-center upload-section">
+                                        <img src="assets\images\upload-logo.jpg" style="max-width: 280px; margin-top:10px;" alt="" />
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+    
+                                    <div class="col-lg-6 col-md-6">
+                                        <md-input-container class="md-block">
+                                            <label>Company Name</label>
+                                            <input ng-model="company.cnmae">
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-lg-6 col-md-6">
+                                        <md-input-container class="md-block">
+                                            <label>Address 1</label>
+                                            <input ng-model="company.address1">
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-lg-6 col-md-6">
+                                        <md-input-container class="md-block">
+                                            <label>Address 2</label>
+                                            <input ng-model="company.address1">
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-lg-6 col-md-6">
+                                        <md-input-container class="md-block">
+                                            <label>Contact Number</label>
+                                            <input ng-model="company.cnumber">
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-lg-6 col-md-6">
+                                        <md-input-container class="md-block">
+                                            <label>Alternate Number</label>
+                                            <input ng-model="company.cnumber2">
+                                        </md-input-container>
+                                    </div>                                                                 
+    
+                                    <div class="col-lg-6 col-md-6">
+                                        <md-input-container class="md-block">
+                                            <label>Email ID</label>
+                                            <input ng-model="company.emailid">
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-lg-6 col-md-6">
+                                        <md-input-container class="md-block">
+                                            <label>Website</label>
+                                            <input ng-model="company.website">
+                                        </md-input-container>
+                                    </div>   
+                                    
+                                    <div class="col-lg-6 col-md-6">
+                                        <md-input-container class="md-block">
+                                            <label>GST Number</label>
+                                            <input ng-model="company.gstnumber">
+                                        </md-input-container>
+                                    </div>
+    
+                                    <div class="col-md-12" style="margin: 20px 0px;">
+                                        <button class="md-button md-raised btn-w-md md-default custom-btn">
+                                            Save
+                                        </button>
+                                    </div>
+    
+                                </div>
+                                
+                            </div>
+    
+                        </md-card>
+    
+                        <md-card class="no-margin-h" style="padding-bottom: 15px;">                        
+                            <md-toolbar style="min-height: 44px; height:44px; margin-top:16px;" class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                                <div class="md-toolbar-tools">
+                                    <span>Support</span>
+                                </div>
+                            </md-toolbar>                        
+                            <div class="row">
+                                <div class="col-md-12">
+
+                                    <div class="row">
+
+                                        <div class="col-lg-4 col-md-6">
+                                            <div class="col-md-8">
+                                                <md-input-container class="md-block">
+                                                    <label>WhatsApp Number</label>
+                                                    <input ng-model="company.snumber">
+                                                </md-input-container>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <button class="md-button md-raised md-default custom-btn" style="margin-top: 10px; display: flex;">
+                                                    <span class="material-icons">add</span> ADD
+                                                </button>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <md-table-container>
+                                                    <table md-table style="margin-top: 22px;">
+                                                        <thead md-head>
+                                                            <tr md-row class="trbg">
+                                                                <th md-column><span>Number</span></th>
+                                                                <th md-column><span>Active/Inactive</span></th>                                                                               
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody md-body>
+                                                            <tr md-row>
+                                                                <td md-cell>+91 7788995544</td>
+                                                                <td md-cell><md-switch ng-model="switchData.s1" aria-label="Default"></md-switch></td>
+                                                            </tr>
+                                                            <tr md-row>
+                                                                <td md-cell>+91 8143143143</td>
+                                                                <td md-cell><md-switch ng-model="switchData.s2" aria-label="Default"></md-switch></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </md-table-container>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-4 col-md-6">
+                                            <div class="col-md-8">
+                                                <md-input-container class="md-block">
+                                                    <label>Support Contact Number</label>
+                                                    <input ng-model="company.wnumber">
+                                                </md-input-container>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <button class="md-button md-raised md-default custom-btn" style="margin-top: 10px; display: flex;">
+                                                    <span class="material-icons">add</span> ADD
+                                                </button>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <md-table-container>
+                                                    <table md-table style="margin-top: 22px;">
+                                                        <thead md-head>
+                                                            <tr md-row class="trbg">
+                                                                <th md-column><span>Number</span></th>
+                                                                <th md-column><span>Active/Inactive</span></th>                                                                               
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody md-body>
+                                                            <tr md-row>
+                                                                <td md-cell>+91 9988995544</td>
+                                                                <td md-cell><md-switch ng-model="switchData.s3" aria-label="Default"></md-switch></td>
+                                                            </tr>
+                                                            <tr md-row>
+                                                                <td md-cell>+91 8843143143</td>
+                                                                <td md-cell><md-switch ng-model="switchData.s4" aria-label="Default"></md-switch></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </md-table-container>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-4 col-md-6">
+                                            <div class="col-md-8">
+                                                <md-input-container class="md-block">
+                                                    <label>Email ID</label>
+                                                    <input ng-model="company.wnumber">
+                                                </md-input-container>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <button class="md-button md-raised md-default custom-btn" style="margin-top: 10px; display: flex;">
+                                                    <span class="material-icons">add</span> ADD
+                                                </button>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <md-table-container>
+                                                    <table md-table style="margin-top: 22px;">
+                                                        <thead md-head>
+                                                            <tr md-row class="trbg">
+                                                                <th md-column><span>Email ID</span></th>
+                                                                <th md-column><span>Active/Inactive</span></th>                                                                               
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody md-body>
+                                                            <tr md-row>
+                                                                <td md-cell>offermyspace@hmrl.com</td>
+                                                                <td md-cell><md-switch ng-model="switchData.s5" aria-label="Default"></md-switch></td>
+                                                            </tr>
+                                                            <tr md-row>
+                                                                <td md-cell>offermyspace2@hmrl.com</td>
+                                                                <td md-cell><md-switch ng-model="switchData.s6" aria-label="Default"></md-switch></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </md-table-container>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+    
+                            </md-card>
+    
+                    </article>
+                </div>
+            </div>
+        </div>
+    
+    </div>

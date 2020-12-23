@@ -1,0 +1,67 @@
+﻿@{
+    ViewBag.Title = "EditRole";
+    Layout = null;
+}
+<div class="page page-create-roles">
+    <div data-ng-controller="EmployeeCtrl">
+        <form name="formRoles">
+            <div class="row ui-section">
+                <div class="col-md-12">
+                    <article class="article">
+                        <md-card class="no-margin-h">
+                            <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                                <div class="md-toolbar-tools">
+                                    <span>Edit Role</span>
+                                    <div flex></div>
+                                    <a href="#!/employee/roles" class="md-button md-raised btn-w-md" style="display: flex;">
+                                        <i class="material-icons">arrow_back</i> Back To Roles
+                                    </a>
+                                </div>
+                            </md-toolbar>
+
+                            <div>
+                                <div class="col-md-4 col-lg-3">
+                                    <md-input-container class="md-block">
+                                        <label>Role Code</label>
+                                        <input ng-model="RoleModel['UserTypeCode']" name="UserTypeCode" required ng-minlength="5" capitalize disabled>
+                                        <div ng-messages="formRoles.UserTypeCode.$error" role="alert" multiple>
+                                            <div ng-message="minlength" class="my-message">
+                                                Role Code should contain atleast 5 characters.
+                                            </div>
+                                        </div>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-4 col-lg-3">
+                                    <md-input-container class="md-block">
+                                        <label>Role Name</label>
+                                        <input ng-model="RoleModel['UserTypeName']" name="UserTypeName" required disabled>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-8 col-lg-6">
+                                    <md-input-container class="md-block">
+                                        <label>Role Description</label>
+                                        <input ng-model="RoleModel['UserTypeDesc']" name="UserTypeDesc">
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-12 col-lg-12">
+                                    <md-checkbox aria-label="Checkbox 1" class="mt-10 md-block" ng-model="RoleModel['IsActive']"> Active </md-checkbox>
+                                </div>
+
+                                <div class="col-md-12 text-center" style="margin: 20px 0px;">
+                                    <md-button type="submit" class="md-button md-raised btn-w-md md-default custom-btn"
+                                               name="myButton" [disabled]="formRoles.$valid"
+                                               data-ng-click="formRoles.$valid && UpdateRole()">Update Role</md-button>
+                                </div>
+                            </div>
+                        </md-card>
+                    </article>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@Html.Hidden("ViewRole", Url.Action("ViewRole", "Employee"))
+@Html.Hidden("UpdateRole", Url.Action("SaveRole", "Employee"))

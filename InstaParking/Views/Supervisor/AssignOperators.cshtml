@@ -1,0 +1,253 @@
+﻿@{
+    ViewBag.Title = "AssignOperators";
+    Layout = null;
+}
+<div class="page page-assign-operators">
+    <div data-ng-controller="AssignoperatorsCtrl">
+        <div class="row ui-section">
+            <div class="col-md-12">
+                <article class="article">
+
+                    <md-card class="no-margin-h">
+
+                        <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>Assign Operators</span>
+                                <div flex></div>
+                            </div>
+                        </md-toolbar>
+                        <div class="col-md-12">
+
+                            <div class="col-md-3">
+                                <md-input-container class="md-block">
+                                    <label>Location</label>
+                                    <md-select ng-model="SearchModel['LocationID']" aria-label="select" ng-change="GetLots(SearchModel.LocationID)">
+                                        <md-option ng-repeat="location in LocationListModel" value="{{location.LocationID}}"> {{location.LocationName}} </md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </div>
+
+                            <div class="col-md-3">
+                                <md-input-container class="md-block">
+                                    <label>Lot</label>
+                                    <md-select ng-model="SearchModel['LocationParkingLotID']" aria-label="select" ng-change="GetOperatorLoginStatusbyLot(SearchModel)">
+                                        <md-option ng-repeat="lot in LotsListModel" value="{{lot.LocationParkingLotID}}"> {{lot.LocationParkingLotName}} </md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </div>
+
+                        </div>
+
+                        <md-table-container>
+                            <table class="a-o-table tablelablecolor" md-table style="min-width: 800px;">
+                                <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
+                                    <tr md-row class="trbg">
+                                        <th md-column md-order-by="LocationName"><span>Location</span></th>
+                                        <th md-column md-order-by="LocationParkingLotName"><span>Lot</span></th>
+                                        <th md-column md-order-by="UserName"><span>Operator</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody md-body>
+                                    @*{{AssignOperatorsListModel}}*@
+                                    <tr md-row md-select="assignope" md-on-select="logItem" md-auto-select="options.autoSelect" ng-disabled="assignope.calories.value > 400"
+                                        ng-repeat="(index,assignope) in AssignOperatorsListModel | orderBy: query.order"
+                                        ng-init="parentIndex=$index">
+                                        <td md-cell>{{assignope.LocationName}}</td>
+                                        <td md-cell>{{assignope.LocationParkingLotName}}</td>
+                                        <td md-cell ng-if="assignope.LoginTime=='' && AssignOperatorsListModel.length>0 && assignope.OperatorExist==true">
+
+                                            <a class="assignoperator-obsent" href="" ng-if="assignope.AssignedUserID==0 && assignope.AssignedUserName==''">
+                                                <span class="material-icons">highlight_off</span> {{assignope.UserName}}
+                                                <i class="fa fa-pencil a-o-edit" ng-click="ShowUserDropdown(parentIndex)"></i>
+
+                                                <md-select ng-model="DropdownOperatorListModel['UserName'][parentIndex]" class="editoperator" multiple aria-label="select" ng-if="visible[$index]">
+                                                    <md-option ng-repeat="chooseope in OperatorsListModel" value="{{chooseope.UserID}}"> {{chooseope.UserName}} </md-option>
+                                                </md-select>
+                                                <span class="material-icons" ng-if="visible[$index]==true" ng-click="AssignUsertoLocationLot(DropdownOperatorListModel['UserName'][parentIndex],childIndex,assignope,assignope.AbsentUserID)">check_circle</span>
+                                                <span class="material-icons" ng-if="visible[$index]==true" ng-click="HideUserDropdown($index)">highlight_off</span>
+                                            </a>
+
+                                            <a class="assignoperator-obsent" href=""
+                                               ng-if="assignope.AssignedUserID==0 && assignope.AssignedUserName==''&& assignope.UserName!=oprtr.UserName
+                                                        && oprtr.OperatorExist==true"
+                                               ng-repeat="(index,oprtr) in assignope.userslist | unique: oprtr.UserName"
+                                               ng-init="childIndex=parentIndex+$index+assignope.LocationID+assignope.LocationParkingLotID+assignope.UserID+assignope.LocationName.length">
+                                                @*ng-init="childIndex=parentIndex+$index+5000+assignope.LocationName">*@
+                                                <span class="material-icons">highlight_off</span> {{oprtr.UserName}}
+                                                <i class="fa fa-pencil a-o-edit" ng-click="ShowUserDropdown(childIndex)"></i>
+
+                                                <md-select ng-model="DropdownOperatorListModel['UserName'][childIndex]" class="editoperator" multiple aria-label="select" ng-if="visible[childIndex]">
+                                                    <md-option ng-repeat="chooseope in OperatorsListModel" value="{{chooseope.UserID}}"> {{chooseope.UserName}} </md-option>
+                                                </md-select>
+                                                @*<span class="material-icons" ng-if="visible[childIndex]==true" ng-click="AssignUsertoLocationLot(DropdownOperatorListModel['UserName'][childIndex],childIndex,assignope,oprtr.AbsentUserID)">check_circle</span>*@
+                                                <span class="material-icons" ng-if="visible[childIndex]==true" ng-click="AssignUsertoLocationLot(DropdownOperatorListModel['UserName'][childIndex],childIndex,assignope,oprtr.UserID)">check_circle</span>
+                                                <span class="material-icons" ng-if="visible[childIndex]==true" ng-click="HideUserDropdown(childIndex)">highlight_off</span>
+
+                                            </a>
+
+                                            <a class="assignoperator-obsent"
+                                               href="" ng-repeat="oprtr in assignope.userslist | unique: oprtr.UserName"
+                                               ng-if="assignope.userslist.length>0 && assignope.AssignedUserID!=0 && assignope.AssignedUserName!=''
+                                                                && assignope.UserName!=oprtr.UserName && oprtr.OperatorExist==true"
+                                               ng-init="childIndex=parentIndex+$index+assignope.LocationID+assignope.LocationParkingLotID+assignope.UserID+assignope.LocationName.length">
+                                                @*ng-init="childIndex=parentIndex+$index+10000+assignope.LocationName">*@
+
+                                                <span class="material-icons">highlight_off</span> {{oprtr.UserName}}
+                                                <i class="fa fa-pencil a-o-edit" ng-click="ShowUserDropdown(childIndex)"></i>
+
+                                                <md-select ng-model="DropdownOperatorListModel['UserName'][childIndex]" class="editoperator"
+                                                           multiple aria-label="select" ng-if="visible[childIndex] && oprtr.AssignUserLoginTime==''">
+                                                    <md-option ng-repeat="chooseope in OperatorsListModel" value="{{chooseope.UserID}}"> {{chooseope.UserName}} </md-option>
+                                                </md-select>
+                                                @*<span class="material-icons" ng-if="visible[childIndex]==true  && oprtr.AssignUserLoginTime==''" ng-click="AssignUsertoLocationLot(DropdownOperatorListModel['UserName'][childIndex],childIndex,assignope,oprtr.AbsentUserID)">check_circle</span>*@
+                                                <span class="material-icons" ng-if="visible[childIndex]==true  && oprtr.AssignUserLoginTime==''" ng-click="AssignUsertoLocationLot(DropdownOperatorListModel['UserName'][childIndex],childIndex,assignope,oprtr.UserID)">check_circle</span>
+                                                <span class="material-icons" ng-if="visible[childIndex]==true  && oprtr.AssignUserLoginTime==''" ng-click="HideUserDropdown(childIndex)">highlight_off</span>
+                                            </a>
+
+                                            <a class="assignoperator-obsent"
+                                               href="" ng-repeat="oprtr in assignope.userslist | unique: oprtr.UserName"
+                                               ng-if="assignope.userslist.length>0 && assignope.AssignedUserID!=0 && assignope.AssignedUserName!=''
+                                                        && assignope.UserName!=oprtr.UserName && AssignedUserName.UserName==oprtr.UserName && oprtr.OperatorExist==true"
+                                               @*ng-init="childIndex=parentIndex+$index+15000+assignope.LocationName">*@
+                                               ng-init="childIndex=parentIndex+$index+assignope.LocationID+assignope.LocationParkingLotID+assignope.UserID+assignope.LocationName.length">
+
+                                                <span class="material-icons">highlight_off</span> {{oprtr.UserName}}
+                                                <i class="fa fa-pencil a-o-edit" ng-click="ShowUserDropdown(childIndex)"></i>
+
+                                                <md-select ng-model="DropdownOperatorListModel['UserName'][childIndex]" class="editoperator"
+                                                           multiple aria-label="select" ng-if="visible[childIndex] && oprtr.AssignUserLoginTime==''">
+                                                    <md-option ng-repeat="chooseope in OperatorsListModel" value="{{chooseope.UserID}}"> {{chooseope.UserName}} </md-option>
+                                                </md-select>
+                                                @*<span class="material-icons" ng-if="visible[childIndex]==true  && oprtr.AssignUserLoginTime==''" ng-click="AssignUsertoLocationLot(DropdownOperatorListModel['UserName'][childIndex],childIndex,assignope,oprtr.AbsentUserID)">check_circle</span>*@
+                                                <span class="material-icons" ng-if="visible[childIndex]==true  && oprtr.AssignUserLoginTime==''" ng-click="AssignUsertoLocationLot(DropdownOperatorListModel['UserName'][childIndex],childIndex,assignope,oprtr.UserID)">check_circle</span>
+                                                <span class="material-icons" ng-if="visible[childIndex]==true  && oprtr.AssignUserLoginTime==''" ng-click="HideUserDropdown(childIndex)">highlight_off</span>
+                                            </a>
+
+                                            <a class="assignoperator-obsent"
+                                               href="" ng-repeat="oprtr in assignope.userslist | unique: oprtr.UserName"
+                                               ng-if="assignope.userslist.length>0 && assignope.AssignedUserID!=0 && assignope.AssignedUserName!=''
+                                               && assignope.UserName!=oprtr.UserName && oprtr.UserID==assignope.AbsentUserID && oprtr.OperatorExist==true"
+                                               @*ng-init="childIndex=parentIndex+$index+10000+assignope.LocationName">*@
+                                               ng-init="childIndex=parentIndex+$index+assignope.LocationID+assignope.LocationParkingLotID+assignope.UserID+assignope.LocationName.length">
+
+                                                <span class="material-icons">highlight_off</span> {{oprtr.UserName}}
+                                                <i class="fa fa-pencil a-o-edit" ng-click="ShowUserDropdown(childIndex)"></i>
+
+                                                <md-select ng-model="DropdownOperatorListModel['UserName'][childIndex]" class="editoperator"
+                                                           multiple aria-label="select" ng-if="visible[childIndex] && oprtr.AssignUserLoginTime==''">
+                                                    <md-option ng-repeat="chooseope in OperatorsListModel" value="{{chooseope.UserID}}"> {{chooseope.UserName}} </md-option>
+                                                </md-select>
+                                                @*<span class="material-icons" ng-if="visible[childIndex]==true  && oprtr.AssignUserLoginTime==''" ng-click="AssignUsertoLocationLot(DropdownOperatorListModel['UserName'][childIndex],childIndex,assignope,oprtr.AbsentUserID)">check_circle</span>*@
+                                                <span class="material-icons" ng-if="visible[childIndex]==true  && oprtr.AssignUserLoginTime==''" ng-click="AssignUsertoLocationLot(DropdownOperatorListModel['UserName'][childIndex],childIndex,assignope,oprtr.UserID)">check_circle</span>
+                                                <span class="material-icons" ng-if="visible[childIndex]==true  && oprtr.AssignUserLoginTime==''" ng-click="HideUserDropdown(childIndex)">highlight_off</span>
+                                            </a>
+
+                                            <a class="assignoperator-obsent"
+                                               href=""
+                                               ng-if="assignope.userslist.length==0&&assignope.AssignedUserID!=0 && assignope.AssignedUserName!='' && oprtr.OperatorExist==true">
+
+                                                <span class="material-icons">highlight_off</span> {{assignope.AssignedUserName}} - {{parentIndex}}
+                                                <i class="fa fa-pencil a-o-edit" ng-click="ShowUserDropdown(parentIndex)"></i>
+
+                                                <md-select ng-model="DropdownOperatorListModel['UserName'][parentIndex]" class="editoperator"
+                                                           multiple aria-label="select" ng-if="visible[parentIndex]">
+                                                    <md-option ng-repeat="chooseope in OperatorsListModel" value="{{chooseope.UserID}}"> {{chooseope.UserName}} </md-option>
+                                                </md-select>
+                                                @*<span class="material-icons" ng-if="visible[parentIndex]==true  && assignope.AssignUserLoginTime==''" ng-click="AssignUsertoLocationLot(DropdownOperatorListModel['UserName'][parentIndex],parentIndex,assignope,assignope.AbsentUserID)">check_circle</span>*@
+                                                <span class="material-icons" ng-if="visible[parentIndex]==true  && assignope.AssignUserLoginTime==''" ng-click="AssignUsertoLocationLot(DropdownOperatorListModel['UserName'][parentIndex],parentIndex,assignope,assignope.UserID)">check_circle</span>
+                                                <span class="material-icons" ng-if="visible[parentIndex]==true  && assignope.AssignUserLoginTime==''" ng-click="HideUserDropdown(parentIndex)">highlight_off</span>
+                                            </a>
+
+                                            <a ng-click="ShowUserAddDropdown(parentIndex)" class="label ng-binding label-primary"><i class="fa fa-plus"></i> ADD</a>
+
+                                            <md-select ng-model="AddDropdownOperatorListModel['UserName'][parentIndex]" class="editoperator"
+                                                       multiple aria-label="select" ng-if="Addbuttonddlvisible[parentIndex]">
+                                                <md-option ng-repeat="chooseope in OperatorsListModel" value="{{chooseope.UserID}}"> {{chooseope.UserName}} </md-option>
+                                            </md-select>
+
+                                            <span class="material-icons" ng-if="Addbuttonddlvisible[parentIndex]==true" ng-click="ADDUsertoLocationLot(AddDropdownOperatorListModel['UserName'][parentIndex],parentIndex,assignope)">check_circle</span>
+                                            <span class="material-icons" ng-if="Addbuttonddlvisible[parentIndex]==true" ng-click="HideUserAddDropdown(parentIndex)">highlight_off</span>
+                                            <div class="clear" style="height:10px;"></div>
+                                        </td>
+                                        <td md-cell ng-if="assignope.LoginTime=='' && assignope.OperatorExist==false">
+                                            <a ng-click="ShowUserAddDropdown(parentIndex)" class="label ng-binding label-primary"><i class="fa fa-plus"></i> ADD</a>
+
+                                            <md-select ng-model="AddDropdownOperatorListModel['UserName'][parentIndex]" class="editoperator"
+                                                       multiple aria-label="select" ng-if="Addbuttonddlvisible[parentIndex]">
+                                                <md-option ng-repeat="chooseope in OperatorsListModel" value="{{chooseope.UserID}}"> {{chooseope.UserName}} </md-option>
+                                            </md-select>
+                                            <span class="material-icons" ng-if="Addbuttonddlvisible[parentIndex]==true" ng-click="ADDUsertoLocationLot(AddDropdownOperatorListModel['UserName'][parentIndex],parentIndex,assignope)">check_circle</span>
+                                            <span class="material-icons" ng-if="Addbuttonddlvisible[parentIndex]==true" ng-click="HideUserAddDropdown(parentIndex)">highlight_off</span>
+                                            <div class="clear" style="height:10px;"></div>
+                                        </td>
+                                        <td md-cell ng-if="assignope.LoginTime!=''  && AssignOperatorsListModel.length>0 && assignope.OperatorExist==true">
+
+                                            <a class="assignoperator-obsent" href="" ng-if="assignope.AssignedUserID==0 && assignope.AssignedUserName==''
+                                               && oprtr.AssignUserLoginTime=='' && oprtr.OperatorExist==true"
+                                               ng-repeat="oprtr in assignope.userslist | unique: oprtr.UserName"
+                                               ng-init="childIndex=parentIndex+$index+assignope.LocationID+assignope.LocationParkingLotID+assignope.UserID+assignope.LocationName.length">
+                                                @*ng-init="childIndex=$index+15000+assignope.LocationName">*@
+                                                <span class="material-icons">highlight_off</span> {{oprtr.UserName}}
+                                                <i class="fa fa-pencil a-o-edit" ng-click="ShowUserDropdown(childIndex)"></i>
+
+                                                <md-select ng-model="DropdownOperatorListModel['UserName'][childIndex]" class="editoperator" multiple aria-label="select" ng-if="visible[childIndex]">
+                                                    <md-option ng-repeat="chooseope in OperatorsListModel" value="{{chooseope.UserID}}"> {{chooseope.UserName}} </md-option>
+                                                </md-select>
+                                                @*<span class="material-icons" ng-if="visible[childIndex]==true" ng-click="AssignUsertoLocationLot(DropdownOperatorListModel['UserName'][childIndex],childIndex,assignope,oprtr.AbsentUserID)">check_circle</span>*@
+                                                <span class="material-icons" ng-if="visible[childIndex]==true" ng-click="AssignUsertoLocationLot(DropdownOperatorListModel['UserName'][childIndex],childIndex,assignope,oprtr.UserID)">check_circle</span>
+                                                <span class="material-icons" ng-if="visible[childIndex]==true" ng-click="HideUserDropdown(childIndex)">highlight_off</span>
+
+                                            </a>
+
+                                            <a class="assignoperator-presented" href="" ng-repeat="oprtr in assignope.userslist | unique: oprtr.UserName"
+                                               ng-if="assignope.userslist.length>0
+                                                && oprtr.UserName!=assignope.UserName && oprtr.AssignUserLoginTime!='' && oprtr.OperatorExist==true">
+                                                <span class="material-icons">check_circle</span> {{oprtr.UserName}}
+                                                <small style="color:#000000"> - {{oprtr.AssignUserLoginTime}}</small>
+
+                                            </a>
+
+                                            <a class="assignoperator-presented" href="">
+                                                <span class="material-icons">check_circle</span> {{assignope.UserName}}
+                                                <small style="color:#000000"> - {{assignope.LoginTime}}</small>
+                                            </a>
+
+                                            <a ng-click="ShowUserAddDropdown(parentIndex)" class="label ng-binding label-primary"><i class="fa fa-plus"></i> ADD</a>
+
+                                            <md-select ng-model="AddDropdownOperatorListModel['UserName'][parentIndex]" class="editoperator"
+                                                       multiple aria-label="select" ng-if="Addbuttonddlvisible[parentIndex]">
+                                                <md-option ng-repeat="chooseope in OperatorsListModel" value="{{chooseope.UserID}}"> {{chooseope.UserName}} </md-option>
+                                            </md-select>
+                                            <span class="material-icons" ng-if="Addbuttonddlvisible[parentIndex]==true" ng-click="ADDUsertoLocationLot(AddDropdownOperatorListModel['UserName'][parentIndex],parentIndex,assignope)">check_circle</span>
+                                            <span class="material-icons" ng-if="Addbuttonddlvisible[parentIndex]==true" ng-click="HideUserAddDropdown(parentIndex)">highlight_off</span>
+                                            <div class="clear" style="height:10px;"></div>
+
+                                        </td>
+                                        <td md-cell ng-if="assignope.LoginTime!='' && assignope.OperatorExist==false">
+                                            <a ng-click="ShowUserAddDropdown(parentIndex)" class="label ng-binding label-primary"><i class="fa fa-plus"></i> ADD</a>
+
+                                            <md-select ng-model="AddDropdownOperatorListModel['UserName'][parentIndex]" class="editoperator"
+                                                       multiple aria-label="select" ng-if="Addbuttonddlvisible[parentIndex]">
+                                                <md-option ng-repeat="chooseope in OperatorsListModel" value="{{chooseope.UserID}}"> {{chooseope.UserName}} </md-option>
+                                            </md-select>
+                                            <span class="material-icons" ng-if="Addbuttonddlvisible[parentIndex]==true" ng-click="ADDUsertoLocationLot(AddDropdownOperatorListModel['UserName'][parentIndex],parentIndex,assignope)">check_circle</span>
+                                            <span class="material-icons" ng-if="Addbuttonddlvisible[parentIndex]==true" ng-click="HideUserAddDropdown(parentIndex)">highlight_off</span>
+                                            <div class="clear" style="height:10px;"></div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </md-table-container>
+                    </md-card>
+                </article>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Hidden("GetOperatorsLoginStatusList", Url.Action("GetOperatorsLoginStatusList", "Supervisor"))
+@Html.Hidden("GetOperatorsBySupervisorID", Url.Action("GetOperatorsBySupervisorID", "Supervisor"))
+@Html.Hidden("GetLocationsofSupervisor", Url.Action("GetLocationsofSupervisor", "Supervisor"))
+@Html.Hidden("GetLotsByLocationofSupervisor", Url.Action("GetLotsByLocationofSupervisor", "Supervisor"))
+@Html.Hidden("GetOperatorsLoginStatusByLocationandLot", Url.Action("GetOperatorsLoginStatusByLocationandLot", "Supervisor"))
+@Html.Hidden("AssignOperatortoLot", Url.Action("AssignOperatortoLot", "Supervisor"))
+@Html.Hidden("AddOperatortoLot", Url.Action("AddOperatortoLot", "Supervisor"))

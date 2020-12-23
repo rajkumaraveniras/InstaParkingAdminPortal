@@ -1,0 +1,54 @@
+<div class="page page-create-service-request">
+
+    <div data-ng-controller="AdministrationCtrl">
+        <div class="row ui-section">
+            <div class="col-md-12">
+                <article class="article">
+
+                    <md-card class="no-margin-h">
+                        
+                        <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>Create Account</span>
+                                <div flex></div>
+                                <a href="#!/administration/account" class="md-button md-raised btn-w-md" style="display: flex;">
+                                    <i class="material-icons">arrow_back</i> Back To Account List
+                                </a>
+                            </div>
+                        </md-toolbar>
+                        
+                        <div>
+                            
+                            <div class="col-md-4">
+                                <md-input-container class="md-block">
+                                    <label>Account Name</label>
+                                    <input ng-model="account.name">
+                                </md-input-container>
+                            </div>
+
+                            <div class="col-md-4">
+                                <md-input-container class="md-block">
+                                    <label>Description</label>
+                                    <input ng-model="account.description">
+                                </md-input-container>
+                            </div>
+
+                            <div class="col-md-4">
+                                <md-checkbox aria-label="Checkbox 1" class="mt-10"> Active </md-checkbox>
+                            </div>
+
+                            <div class="col-md-12 text-center" style="margin-bottom: 20px;">
+                                <button class="md-button md-raised btn-w-md md-default custom-btn">
+                                    Create Account
+                                </button>
+                            </div>
+
+                        </div>
+
+                    </md-card>
+                </article>
+            </div>
+        </div>
+    </div>
+
+</div>

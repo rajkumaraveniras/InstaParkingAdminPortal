@@ -1,0 +1,68 @@
+﻿@{
+    ViewBag.Title = "CreateZone";
+    Layout = null;
+}
+<div class="page page-create-zone">
+    <div data-ng-controller="ParkingCtrl">
+        <form name="formZones">
+            <div class="row ui-section">
+                <div class="col-md-12">
+                    <article class="article">
+                        <md-card class="no-margin-h">
+                            <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                                <div class="md-toolbar-tools">
+                                    <span>Create New Zone</span>
+                                    <div flex></div>
+                                    <a href="#!/parking/zones" class="md-button md-raised btn-w-md" style="display: flex;">
+                                        <i class="material-icons">arrow_back</i> Back To Zones
+                                    </a>
+                                </div>
+                            </md-toolbar>
+
+                            <div>
+
+                                <div class="col-md-4">
+                                    <md-input-container class="md-block">
+                                        <label>Zone Code</label>
+                                        <input ng-model="ZonesModel['ZoneCode']" name="ZoneCode" required>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <md-input-container class="md-block">
+                                        <label>Zone Name</label>
+                                        <input ng-model="ZonesModel['ZoneName']" name="ZoneName" required>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <md-input-container class="md-block">
+                                        <label>City</label>
+                                        <md-select ng-model="ZonesModel['CityID']" aria-label="select" name="CityID" required>
+                                            <md-option ng-repeat="zonescity in CityListModel" value="{{zonescity.CityID}}"> {{zonescity.CityName}} </md-option>
+                                        </md-select>    
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <md-checkbox aria-label="Checkbox 1" class="mt-10" ng-model="ZonesModel['IsActive']"> Status </md-checkbox>
+                                    
+                                </div>
+
+                                <div class="col-md-12 text-center" style="margin: 20px 0px;">
+                                    <md-button type="submit" class="md-button md-raised btn-w-md md-default custom-btn"
+                                               name="myButton" [disabled]="formZones.$valid"
+                                               data-ng-click="formZones.$valid && SubmitZone()">Create Zone</md-button>
+                                </div>
+                            </div>
+                        </md-card>
+                    </article>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+@Html.Hidden("GetActiveCitiesList", Url.Action("GetActiveCitiesList", "Parking"))
+@Html.Hidden("SaveZone", Url.Action("SaveZone", "Parking"))
+

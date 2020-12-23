@@ -1,0 +1,642 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Data;
+using System.Data.SqlClient;
+using System.Configuration;
+using eSignet.Models;
+using System.IO;
+
+namespace eSignet.DAL
+{
+    public class ServiceRequest_DAL
+    {
+        SqlHelper sqlhelper_obj;
+        GetLogo getlogo = new GetLogo();
+
+        public IList<ServiceRequest> GetServiceRequestList(string user,int CentreID)
+        {
+            IList<ServiceRequest> serviceRequestList = new List<ServiceRequest>();
+            sqlhelper_obj = new SqlHelper();
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+
+                    using (SqlCommand sqlcmd_obj = new SqlCommand("BIS_PROC_GetServiceRequestList", sqlconn_obj))
+                    {
+                        sqlcmd_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_obj.Parameters.AddWithValue("@user", user);
+                        sqlcmd_obj.Parameters.AddWithValue("@CentreID", CentreID);
+                        sqlcmd_obj.CommandTimeout = 0;
+                        DataSet ds;
+                        using (SqlDataAdapter da = new SqlDataAdapter(sqlcmd_obj))
+                        {
+                            ds = new DataSet();
+                            da.Fill(ds);
+                        }
+                        DataTable dt = ds.Tables[0];
+
+                        for (int i = 0; i < dt.Rows.Count; i++)
+                        {
+                            ServiceRequest serviceRequest_obj = new ServiceRequest();
+                            serviceRequest_obj.ServiceRequestID = Convert.ToInt32(dt.Rows[i]["ServiceRequestID"]);
+                            serviceRequest_obj.CustomerName = Convert.ToString(dt.Rows[i]["CustomerName"]);
+                            serviceRequest_obj.CustomerPOCName = Convert.ToString(dt.Rows[i]["CustomerPOCName"]);
+                            serviceRequest_obj.CarrierName = Convert.ToString(dt.Rows[i]["CarrierName"]);
+                            serviceRequest_obj.Token = Convert.ToString(dt.Rows[i]["Token"]);
+                            serviceRequest_obj.CarrierID = Convert.ToInt32(dt.Rows[i]["EmployeeID"]);
+                            serviceRequest_obj.Status = Convert.ToString(dt.Rows[i]["Status"]);
+                            serviceRequest_obj.UpdatedDate = dt.Rows[i]["UpdatedDate"] == DBNull.Value ? Convert.ToDateTime(null) : Convert.ToDateTime(dt.Rows[i]["UpdatedDate"]);
+                            serviceRequest_obj.Comments = Convert.ToString(dt.Rows[i]["Comments"]);
+                            serviceRequestList.Add(serviceRequest_obj);
+                        }
+                    }
+                }
+                return serviceRequestList;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public List<CustomerPOC> GetCustomerPOCListBYCustomerID(int CustomerID)
+        {
+            sqlhelper_obj = new SqlHelper();
+            List<CustomerPOC> customerPOC_List = new List<CustomerPOC>();
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+                    using (SqlCommand sqlcmd_details_obj = new SqlCommand("BIS_PROC_GetCustomerPOCByCustomer", sqlconn_obj))
+                    {
+                        sqlcmd_details_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_details_obj.CommandTimeout = 0;
+                        sqlcmd_details_obj.Parameters.AddWithValue("@CustomerID", CustomerID);
+                        DataSet ds;
+                        using (SqlDataAdapter sql_dp = new SqlDataAdapter(sqlcmd_details_obj))
+                        {
+                            ds = new DataSet();
+                            sql_dp.Fill(ds);
+                        }
+                        DataTable dt = ds.Tables[0];
+                        if (dt.Rows.Count > 0)
+                        {
+                            DataRow row = dt.Rows[0];
+                            CustomerPOC customerPOC_obj = new CustomerPOC();
+                            customerPOC_obj.CustomerPOCID = Convert.ToInt32(row["CustomerPOCID"]);
+                            customerPOC_obj.CustomerPOCName = Convert.ToString(row["CustomerPOCName"]);
+                            customerPOC_List.Add(customerPOC_obj);
+                        }
+                    }
+                }
+                return customerPOC_List;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IList<Employee> GetCarrierList(string user,int CentreID)
+        {
+            IList<Employee> employeeList = new List<Employee>();
+            sqlhelper_obj = new SqlHelper();
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+
+                    using (SqlCommand sqlcmd_obj = new SqlCommand("BIS_PROC_GetCarrierList", sqlconn_obj))
+                    {
+                        sqlcmd_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_obj.Parameters.AddWithValue("@user", user);
+                        sqlcmd_obj.Parameters.AddWithValue("@CentreID", CentreID);
+                        sqlcmd_obj.CommandTimeout = 0;
+                        DataSet ds;
+                        using (SqlDataAdapter da = new SqlDataAdapter(sqlcmd_obj))
+                        {
+                            ds = new DataSet();
+                            da.Fill(ds);
+                        }
+                        DataTable dt = ds.Tables[0];
+
+                        for (int i = 0; i < dt.Rows.Count; i++)
+                        {
+                            Employee employee_obj = new Employee();
+                            employee_obj.EmployeeID = Convert.ToInt32(dt.Rows[i]["EmployeeID"]);
+                            employee_obj.EmployeeName = Convert.ToString(dt.Rows[i]["EmployeeName"]);
+                            employeeList.Add(employee_obj);
+                        }
+                    }
+                }
+                return employeeList;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string SaveServiceRequest(ServiceRequest request_data_collection, string CreatedBy)
+        {
+            sqlhelper_obj = new SqlHelper();
+            string request_data_status = string.Empty;
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+                    using (SqlCommand sqlcmd_details_obj = new SqlCommand("BIS_Proc_SaveServiceRequest", sqlconn_obj))
+                    {
+                        sqlcmd_details_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_details_obj.CommandTimeout = 0;
+                        if (request_data_collection.ServiceRequestID.ToString() != "" && request_data_collection.ServiceRequestID != 0)
+                        {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@StmtType", "Update");
+                            sqlcmd_details_obj.Parameters.AddWithValue("@ServiceRequestID", request_data_collection.ServiceRequestID);
+                        }
+                        else
+                        {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@StmtType", "Insert");
+                            sqlcmd_details_obj.Parameters.AddWithValue("@ServiceRequestID", DBNull.Value);
+                        }
+                        #region Token Generation
+                        //sqlcmd_details_obj.Parameters.AddWithValue("@Token", Convert.ToBase64String(Guid.NewGuid().ToByteArray()));
+
+                        Random generator = new Random();
+                        String token = generator.Next(0, 999999).ToString("D6");
+                        sqlcmd_details_obj.Parameters.AddWithValue("@Token", token);
+                        #endregion
+                       
+                        if (request_data_collection.CustomerID.ToString() != "" && request_data_collection.CustomerID != 0)
+                        {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@CustomerID", request_data_collection.CustomerID);
+                        }
+                        else {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@CustomerID", DBNull.Value);
+                        }
+                        if (request_data_collection.CustomerPOCID.ToString() != "" && request_data_collection.CustomerPOCID != 0)
+                        {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@CustomerPOCID", request_data_collection.CustomerPOCID);
+                        }
+                        else {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@CustomerPOCID", DBNull.Value);
+                        }
+                        if (request_data_collection.CarrierID.ToString() != "" && request_data_collection.CarrierID != 0)
+                        {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@CarrierID", request_data_collection.CarrierID);
+                        }
+                        else
+                        {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@CarrierID", DBNull.Value);
+                        }
+                        sqlcmd_details_obj.Parameters.AddWithValue("@Status", "Service Request Open");
+                        //Carrier Picked
+                        //Bin Created
+                        //Assiyer Assigned
+                        //Bin Recieved
+                        //Service Request Closed
+                        sqlcmd_details_obj.Parameters.AddWithValue("@UpdatedBy", CreatedBy);
+                        sqlconn_obj.Open();
+                        int result = sqlcmd_details_obj.ExecuteNonQuery();
+                        sqlconn_obj.Close();
+                        if (result > 0)
+                        {
+                            request_data_status = "Success";
+                        }
+                        else
+                        {
+                            request_data_status = "Failed";
+                        }
+                    }
+                }
+                return request_data_status;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public List<CarrierPickupDetails> ViewServiceRequestDetails(int RequestID)
+        {
+            sqlhelper_obj = new SqlHelper();
+            List<CarrierPickupDetails> serviceRequestList = new List<CarrierPickupDetails>();
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+                    using (SqlCommand sqlcmd_details_obj = new SqlCommand("BIS_PROC_GetServiceRequestDetailsByID", sqlconn_obj))
+                    {
+                        sqlcmd_details_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_details_obj.CommandTimeout = 0;
+                        sqlcmd_details_obj.Parameters.AddWithValue("@RequestID", RequestID);
+                        DataSet ds;
+                        using (SqlDataAdapter sql_dp = new SqlDataAdapter(sqlcmd_details_obj))
+                        {
+                            ds = new DataSet();
+                            sql_dp.Fill(ds);
+                        }
+                        DataTable dt = ds.Tables[0];
+                        if (dt.Rows.Count > 0)
+                        {
+                            DataRow row = dt.Rows[0];
+                            CarrierPickupDetails objDetails = new CarrierPickupDetails();
+                            objDetails.BINID = Convert.ToInt32(row["BINID"]);
+                            objDetails.CustomerName = Convert.ToString(row["CustomerName"]);
+                            objDetails.CarrierName = Convert.ToString(row["CarrierName"]);
+                            objDetails.CustomerPOC = Convert.ToString(row["CustomerPOC"]);
+                            objDetails.Notes = Convert.ToString(row["ItemDescription"]);
+                            objDetails.TotalNoOfItems = Convert.ToString(row["TotalNoOfItems"]);
+                            objDetails.TotalWeightOfItems = Convert.ToString(row["TotalWeightofItems"]);
+                            //objDetails.CustomerSignature = Convert.ToString(row["CustomerSignature"]);
+                            //objDetails.CarrierSignature = Convert.ToString(row["CarrierSignature"]);
+                            if (!String.IsNullOrEmpty(Convert.ToString(row["CustomerSignature"])))
+                            {
+                                objDetails.CustomerSignature = "../" + getlogo.ShowCustomerSignature(Convert.ToString(row["BINID"]), "CustomerSignature");
+                            }
+                            else
+                            {
+                                objDetails.CustomerSignature = "";
+                            }
+                            if (!String.IsNullOrEmpty(Convert.ToString(row["CarrierSignature"])))
+                            {
+                                objDetails.CarrierSignature = "../" + getlogo.ShowCarrierSignature(Convert.ToString(row["BINID"]), "CarrierSignature");
+                            }
+                            else
+                            {
+                                objDetails.CarrierSignature = "";
+                            }
+                            objDetails.Token = Convert.ToString(row["Token"]);
+                            serviceRequestList.Add(objDetails);
+                        }
+                    }
+                }
+                return serviceRequestList;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public Stream ShowSignatures(int BINID, string name)
+        {
+            try
+            {
+                sqlhelper_obj = new SqlHelper();
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+                    using (SqlCommand sqlcmd_getlogo = new SqlCommand("BIS_PROC_GetSignatures", sqlconn_obj))
+                    {
+                        sqlconn_obj.Open();
+                        sqlcmd_getlogo.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_getlogo.Parameters.AddWithValue("@BINID", BINID);
+                        sqlcmd_getlogo.Parameters.AddWithValue("@name", name);
+                        object img = sqlcmd_getlogo.ExecuteScalar();
+                        sqlconn_obj.Close();
+                        return new MemoryStream((byte[])img);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public List<CarrierPickupDetails> ViewBinItemsDetails(int RequestID)
+        {
+            sqlhelper_obj = new SqlHelper();
+            List<CarrierPickupDetails> binitems_lst = new List<CarrierPickupDetails>();
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+                    using (SqlCommand sqlcmd_details_obj = new SqlCommand("BIS_PROC_GetBINItemsList", sqlconn_obj))
+                    {
+                        sqlcmd_details_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_details_obj.CommandTimeout = 0;
+                        sqlcmd_details_obj.Parameters.AddWithValue("@ServiceReqID", RequestID);
+                        DataSet ds;
+                        using (SqlDataAdapter sql_dp = new SqlDataAdapter(sqlcmd_details_obj))
+                        {
+                            ds = new DataSet();
+                            sql_dp.Fill(ds);
+                        }
+                        DataTable dt = ds.Tables[0];
+                        if (dt.Rows.Count > 0)
+                        {
+                            for (int i = 0; i < dt.Rows.Count; i++)
+                            {
+                                DataRow row = dt.Rows[i];
+                                CarrierPickupDetails bititemObj = new CarrierPickupDetails();
+                                bititemObj.ItemType = Convert.ToInt32(row["ItemTypeID"]);
+                                bititemObj.NoOfItems = row["NoOfItems"] == DBNull.Value ? 0 : Convert.ToInt32(row["NoOfItems"]);
+                                bititemObj.Weight = Convert.ToString(row["Weight"]);
+                                binitems_lst.Add(bititemObj);
+                            }
+                        }
+                    }
+                }
+                return binitems_lst;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string ApproveServiceRequest(CarrierPickupDetails request_data_collection, string CreatedBy)
+        {
+            sqlhelper_obj = new SqlHelper();
+            string request_data_status = string.Empty;
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+                    using (SqlCommand sqlcmd_details_obj = new SqlCommand("BIS_PROC_CreateBIN", sqlconn_obj))
+                    {
+                        sqlcmd_details_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_details_obj.CommandTimeout = 0;
+
+                        if (request_data_collection.ServiceRequestID.ToString() != "" && request_data_collection.ServiceRequestID != 0)
+                        {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@ServiceRequestID", request_data_collection.ServiceRequestID);
+                        }
+                        else
+                        {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@ServiceRequestID", DBNull.Value);
+                        }
+                        if (request_data_collection.BINID.ToString() != "" && request_data_collection.BINID != 0)
+                        {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@BINID", request_data_collection.BINID);
+                        }
+                        else
+                        {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@BINID", DBNull.Value);
+                        }
+                        sqlcmd_details_obj.Parameters.AddWithValue("@CustomerBINID", String.IsNullOrEmpty(request_data_collection.CustomerBinID) ? (object)DBNull.Value : request_data_collection.CustomerBinID.Trim());
+                        sqlcmd_details_obj.Parameters.AddWithValue("@CreatedBy", CreatedBy);
+                        sqlconn_obj.Open();
+                        int result = sqlcmd_details_obj.ExecuteNonQuery();
+                        sqlconn_obj.Close();
+                        if (result > 0)
+                        {
+                            request_data_status = "Success";
+                        }
+                        else
+                        {
+                            request_data_status = "Failed";
+                        }
+                    }
+                }
+                return request_data_status;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string RejectServiceRequest(ServiceRequest requestDetails, string CreatedBy)
+        {
+            sqlhelper_obj = new SqlHelper();
+            string request_data_status = string.Empty;
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+                    using (SqlCommand sqlcmd_details_obj = new SqlCommand("BIS_PROC_RejectServiceRequest", sqlconn_obj))
+                    {
+                        sqlcmd_details_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_details_obj.CommandTimeout = 0;
+
+                        if (requestDetails.ServiceRequestID.ToString() != "" && requestDetails.ServiceRequestID != 0)
+                        {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@ServiceRequestID", requestDetails.ServiceRequestID);
+                        }
+                        else
+                        {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@ServiceRequestID", DBNull.Value);
+                        }
+                        sqlcmd_details_obj.Parameters.AddWithValue("@CreatedBy", CreatedBy);
+                        sqlcmd_details_obj.Parameters.AddWithValue("@Comments", requestDetails.Comments);
+                        sqlconn_obj.Open();
+                        int result = sqlcmd_details_obj.ExecuteNonQuery();
+                        sqlconn_obj.Close();
+                        if (result > 0)
+                        {
+                            request_data_status = "Success";
+                        }
+                        else
+                        {
+                            request_data_status = "Failed";
+                        }
+                    }
+                }
+                return request_data_status;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IList<CarrierPickupDetails> GetBinItemTypes(int ServiceReqID)
+        {
+            IList<CarrierPickupDetails> binItemsList = new List<CarrierPickupDetails>();
+            sqlhelper_obj = new SqlHelper();
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+
+                    using (SqlCommand sqlcmd_obj = new SqlCommand("BIS_PROC_GetBinItemList", sqlconn_obj))
+                    {
+                        sqlcmd_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_obj.Parameters.AddWithValue("@ServiceReqID", ServiceReqID);
+                        sqlcmd_obj.CommandTimeout = 0;
+                        DataSet ds;
+                        using (SqlDataAdapter da = new SqlDataAdapter(sqlcmd_obj))
+                        {
+                            ds = new DataSet();
+                            da.Fill(ds);
+                        }
+                        DataTable dt = ds.Tables[0];
+
+                        for (int i = 0; i < dt.Rows.Count; i++)
+                        {
+                            CarrierPickupDetails binItems_obj = new CarrierPickupDetails();
+                            binItems_obj.ItemType = Convert.ToInt32(dt.Rows[i]["ItemTypeID"]);
+                            binItems_obj.ItemTypeName = Convert.ToString(dt.Rows[i]["ItemType"]);
+                            binItems_obj.NoOfItems = Convert.ToInt32(dt.Rows[i]["NoOfItems"]);
+                            binItems_obj.Weight = Convert.ToString(dt.Rows[i]["Weight"]);
+                            binItemsList.Add(binItems_obj);
+                        }
+                    }
+                }
+                return binItemsList;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IList<Employee> GetManualAssayer(int CentreID)
+        {
+            IList<Employee> manualAssayerList = new List<Employee>();
+            sqlhelper_obj = new SqlHelper();
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+
+                    using (SqlCommand sqlcmd_obj = new SqlCommand("BIS_PROC_GetManualAssayerList", sqlconn_obj))
+                    {
+                        sqlcmd_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_obj.Parameters.AddWithValue("@CentreID", CentreID);
+                        sqlcmd_obj.CommandTimeout = 0;
+                        DataSet ds;
+                        using (SqlDataAdapter da = new SqlDataAdapter(sqlcmd_obj))
+                        {
+                            ds = new DataSet();
+                            da.Fill(ds);
+                        }
+                        DataTable dt = ds.Tables[0];
+
+                        for (int i = 0; i < dt.Rows.Count; i++)
+                        {
+                            Employee manualAssayer_obj = new Employee();
+                            manualAssayer_obj.EmployeeID = Convert.ToInt32(dt.Rows[i]["EmployeeID"]);
+                            manualAssayer_obj.EmployeeName = Convert.ToString(dt.Rows[i]["EmployeeName"]);
+                            manualAssayerList.Add(manualAssayer_obj);
+                        }
+                    }
+                }
+                return manualAssayerList;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IList<Employee> GetXRFAssayer(int CentreID)
+        {
+            IList<Employee> xrfAssayerList = new List<Employee>();
+            sqlhelper_obj = new SqlHelper();
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+
+                    using (SqlCommand sqlcmd_obj = new SqlCommand("BIS_PROC_GetXRFAssayerList", sqlconn_obj))
+                    {
+                        sqlcmd_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_obj.Parameters.AddWithValue("@CentreID", CentreID);
+                        sqlcmd_obj.CommandTimeout = 0;
+                        DataSet ds;
+                        using (SqlDataAdapter da = new SqlDataAdapter(sqlcmd_obj))
+                        {
+                            ds = new DataSet();
+                            da.Fill(ds);
+                        }
+                        DataTable dt = ds.Tables[0];
+
+                        for (int i = 0; i < dt.Rows.Count; i++)
+                        {
+                            Employee xrfAssayer_obj = new Employee();
+                            xrfAssayer_obj.EmployeeID = Convert.ToInt32(dt.Rows[i]["EmployeeID"]);
+                            xrfAssayer_obj.EmployeeName = Convert.ToString(dt.Rows[i]["EmployeeName"]);
+                            xrfAssayerList.Add(xrfAssayer_obj);
+                        }
+                    }
+                }
+                return xrfAssayerList;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IList<Customer> GetCustomerList(string user, int CentreID)
+        {
+            IList<Customer> customerList = new List<Customer>();
+            sqlhelper_obj = new SqlHelper();
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+
+                    using (SqlCommand sqlcmd_obj = new SqlCommand("BIS_Proc_GetCustomerListForServiceRequest", sqlconn_obj))
+                    {
+                        sqlcmd_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_obj.Parameters.AddWithValue("@user", user);
+                        sqlcmd_obj.Parameters.AddWithValue("@CentreID", CentreID);
+                        sqlcmd_obj.CommandTimeout = 0;
+                        DataSet ds;
+                        using (SqlDataAdapter da = new SqlDataAdapter(sqlcmd_obj))
+                        {
+                            ds = new DataSet();
+                            da.Fill(ds);
+                        }
+                        DataTable dt = ds.Tables[0];
+
+                        for (int i = 0; i < dt.Rows.Count; i++)
+                        {
+                            Customer customer_obj = new Customer();
+                            customer_obj.CustomerID = Convert.ToInt32(dt.Rows[i]["CustomerID"]);
+                            customer_obj.CustomerName = Convert.ToString(dt.Rows[i]["CustomerName"]);
+                            customer_obj.DBAName = Convert.ToString(dt.Rows[i]["DBAName"]);
+                            customer_obj.CustomerCode = Convert.ToString(dt.Rows[i]["CustomerCode"]);
+                            customer_obj.Address1 = Convert.ToString(dt.Rows[i]["Address1"]);
+                            customer_obj.Address2 = Convert.ToString(dt.Rows[i]["Address2"]);
+                            customer_obj.Address3 = Convert.ToString(dt.Rows[i]["Address3"]);
+                            customer_obj.PINCode = Convert.ToString(dt.Rows[i]["PINCode"]);
+                            customer_obj.PhoneNumber = Convert.ToString(dt.Rows[i]["PhoneNumber"]);
+                            customer_obj.Email = Convert.ToString(dt.Rows[i]["Email"]);
+                            customer_obj.GSTIN = Convert.ToString(dt.Rows[i]["GSTIN"]);
+                            customer_obj.DBAName = Convert.ToString(dt.Rows[i]["DBAName"]);
+                            customer_obj.Status = Convert.ToBoolean(dt.Rows[i]["Status"]);
+                            customer_obj.UpdatedDate = dt.Rows[i]["UpdatedDate"] == DBNull.Value ? Convert.ToDateTime(null) : Convert.ToDateTime(dt.Rows[i]["UpdatedDate"]);
+                            int PocCount = Convert.ToInt32(dt.Rows[i]["POCCount"]);
+                            if (PocCount > 0)
+                            {
+                                customer_obj.IsCustomerPOCExist = true;
+                            }
+                            else
+                            {
+                                customer_obj.IsCustomerPOCExist = false;
+                            }
+                            customer_obj.CustomerPOC = Convert.ToString(dt.Rows[i]["CustomerPOCName"]);
+                            customerList.Add(customer_obj);
+                        }
+                    }
+                }
+                return customerList;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+}

@@ -1,0 +1,123 @@
+﻿@{
+    ViewBag.Title = "features";
+    Layout = null;
+}
+<div class="page page-featurs">
+    <div data-ng-controller="FeaturesCtrl">
+
+        <div class="row ui-section">
+            <div class="col-md-12">
+                <article class="article">
+                    <md-card class="no-margin-h">
+                        <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>Lot Features</span>
+                                <div flex></div>
+                                <div class="search-box visible-md visible-lg">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="material-icons">search</i></span>
+                                        <input type="text" class="form-control" ng-model="filterTable" placeholder="{{ 'SEARCH' | translate }}">
+                                        <span class="input-bar"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </md-toolbar>
+                        <form name="formFeatures">
+                            <md-table-container>
+                                <div class="col-md-12" style="padding: 0px;">
+                                    <div class="col-md-1 col-lg-1 icon-place">
+                                        <img src="assets/images/feature-icons/icon-place.jpg" alt="" id="IconImg" />
+                                        <input type="file" class="upload" id="Iconupload" style="display:none;" />
+                                    </div>
+                                    <div class="col-md-4 col-lg-3">
+                                        <md-input-container class="md-block">
+                                            <label>Feature Name</label>
+                                            <input type="text" ng-model="ServiceTypeModel['ServiceTypeName']" name="ServiceTypeName" required />
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-md-3 col-lg-4">
+                                        <md-input-container class="md-block">
+                                            <label>Description</label>
+                                            <input type="text" ng-model="ServiceTypeModel['ServiceTypeDesc']" name="ServiceTypeDesc" required />
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-md-2 col-lg-2">
+                                        <md-checkbox aria-label="Checkbox 1" style="margin-top: 20px; pading-right:0px;" ng-model="ServiceTypeModel['IsActive']"> Active </md-checkbox>
+                                    </div>
+
+                                    <div class="col-md-2 col-lg-2">                                       
+                                        <md-button type="submit" class="md-button md-raised btn-w-md md-default custom-btn"
+                                                   name="myButton" style="min-width: 50px; margin:12px 0px;" [disabled]="formFeatures.$valid"
+                                                   data-ng-click="formFeatures.$valid && SubmitServiceType()">Save</md-button>
+                                        <md-button type="submit" class="md-button md-raised btn-w-md md-default"
+                                                   style="min-width: 50px; margin:12px 0px;"
+                                                   data-ng-click="ClearServiceType()">Clear</md-button>
+                                    </div>
+                                </div>
+
+                                <table md-table>
+                                    <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
+                                        <tr md-row style="background-color: #F4F4F4">
+                                            <th md-column style="padding-right: 0; width: 160px;"><span>Actions</span></th>
+                                            <th md-column md-order-by="ficon"><span>Icon</span></th>
+                                            <th md-column md-order-by="ServiceTypeName"><span>Feature Name</span></th>
+                                            <th md-column md-order-by="ServiceTypeDesc"><span>Description</span></th>
+                                            <th md-column md-order-by="IsActive" style="padding-right: 0; width: 60px;"><span>Status</span></th>
+                                            <th md-column>&nbsp;</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody md-body>
+                                        <tr md-row md-select="features" md-on-select="logItem" md-auto-select="options.autoSelect" ng-disabled="features.calories.value > 400"
+                                            ng-repeat="features in ServiceTypeListModel | filter: filterTable  | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit">
+                                            <td md-cell class="actions">
+                                                <a title="EDIT FEATURE" id="ViewFeature" ng-click="EditServiceType(features.ServiceTypeID)">
+                                                    <md-icon>edit</md-icon>
+                                                </a>
+                                            </td>
+                                            @*<td md-cell><span class="iconplace"><img ng-src="{{features.ServiceTypeImage}}" /></span></td>*@
+                                            <td md-cell><span class="iconplace"><img ng-src="{{features.IconName}}" /></span></td>
+                                            <td md-cell>{{features.ServiceTypeName}}</td>
+                                            <td md-cell>{{features.ServiceTypeDesc}}</td>
+                                            <td md-cell><span class="label" ng-class="{'label-default': features.IsActive=='Inactive' , 'label-success': features.IsActive=='Active'}">{{features.IsActive}}</span></td>
+                                            <td md-cell>&nbsp;</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </md-table-container>
+                        </form>
+                        <md-table-pagination ng-show="(ServiceTypeListModel|filter:filterTable).length>0" md-limit="query.limit" md-limit-options="limitOptions" md-page="query.page" md-total="{{(ServiceTypeListModel|filter:filterTable).length}}" md-page-select="options.pageSelect" md-boundary-links="options.boundaryLinks" md-on-paginate="logPagination"></md-table-pagination>
+                    </md-card>
+                </article>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@Html.Hidden("GetFeaturesList", Url.Action("GetFeaturesList", "Features"))
+@Html.Hidden("SaveServiceType", Url.Action("SaveServiceType", "Features"))
+@Html.Hidden("ViewServiceType", Url.Action("ViewServiceType", "Features"))
+
+<script>
+    $(document).ready(function () {
+        $('#IconImg').click(function () {
+            $('#Iconupload').click();
+        })
+
+        $('#Iconupload').change(function (event) {
+            if (event.target.files.length > 0) {
+                var filetype = event.target.files[0].name.split('.')[event.target.files[0].name.split('.').length - 1]
+
+                if (filetype != 'jpg' && filetype != 'jpeg' && filetype != 'png') {
+                    alert('Please Select valid images only')
+                    $("#Iconupload").val("");
+                } else {
+                    var tmppath = URL.createObjectURL(event.target.files[0]);
+                    $('#IconImg').attr('src', tmppath)
+                }
+            }
+        });
+    });
+</script>

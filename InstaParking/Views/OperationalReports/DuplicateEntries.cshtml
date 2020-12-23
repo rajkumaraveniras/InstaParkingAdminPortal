@@ -1,0 +1,292 @@
+﻿@{
+    ViewBag.Title = "DuplicateEntries";
+    Layout = null;
+}
+
+<div class="page page-operatorreports">
+    <div data-ng-controller="OperationalreportsCtrl">
+        <div class="row ui-section">
+            <div class="col-md-12">
+                <article class="article">
+                    <form name="formDuplicates">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"><i class="fa fa-filter" aria-hidden="true"></i> Filters</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <md-input-container class="md-block">
+                                            <label>Duration</label>
+                                            <md-select ng-model="ReportFilterModel['Duration']" aria-label="select" ng-change="AssignDates()">
+                                                <md-option ng-repeat="rbsduration in DurationListModel" value="{{rbsduration.value}}"> {{rbsduration.name}} </md-option>
+                                            </md-select>
+                                        </md-input-container>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <md-input-container class="md-block">
+                                            <label style="visibility: hidden;">From Date</label>
+                                            <md-datepicker ng-model="ReportFilterModel['FromDate']" md-placeholder="From Date" name="FromDate"
+                                                           ng-disabled="disabled" ng-required="required"
+                                                           ng-change="ChangeToDate()" md-open-on-focus id="FromDate"></md-datepicker>
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-md-3" ng-if="ReportFilterModel.Duration!=''">
+                                        <md-input-container class="md-block" ng-if="ReportFilterModel.Duration!=''">
+                                            <label style="visibility: hidden;">To Date</label>
+                                            <md-datepicker ng-model="ReportFilterModel['ToDate']" md-placeholder="To Date" name="ToDate"
+                                                           ng-disabled="disabled" ng-required="required"
+                                                           ng-change="AssignToDate()" id="ToDate"
+                                                           md-max-date="TomaxDate"></md-datepicker>
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-md-3" ng-if="ReportFilterModel.Duration==''">
+                                        <md-input-container class="md-block" ng-if="ReportFilterModel.Duration==''">
+                                            <label style="visibility: hidden;">To Date</label>
+                                            <md-datepicker ng-model="ReportFilterModel['ToDate']" md-placeholder="To Date" name="ToDate"
+                                                           ng-disabled="disabled" ng-required="required"
+                                                           md-min-date="ReportFilterModel.FromDate"
+                                                           ng-change="AssignToDate()" id="ToDate"
+                                                           md-max-date="TomaxDate"></md-datepicker>
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <md-button type="submit" class="md-button md-raised btn-w-md md-default custom-btn" style="min-width: 50px; margin:12px 0px;"
+                                                   [disabled]="formDuplicates.$valid" data-ng-click="formDuplicates.$valid && GetDuplicateEntriesReport()">Generate Report</md-button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <md-card class="no-margin-h">
+
+                        <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>Duplicates</span>
+                                <div flex></div>
+                                <div class="search-box visible-md visible-lg">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="material-icons">search</i></span>
+                                        <input type="text" class="form-control" ng-model="filterTable" placeholder="{{ 'SEARCH' | translate }}">
+                                        <span class="input-bar"></span>
+                                    </div>
+                                </div>
+                                <div class="icons-set">
+                                    <span><a ng-click="DownloadDuplicatesPDFReport()"><img src="assets/images/pdf.png"></a></span>
+                                    <span><a ng-click="DownloadDuplicatesExcelReport()"><img src="assets/images/xl.png"></a></span>
+                                    <span><a ng-click="DuplicatesReportPrint('printcontent')"><img src="assets/images/print.png"></a></span>
+                                </div>
+                            </div>
+                        </md-toolbar>
+
+                        @*<div class="col-sm-12 selected-filters">
+            <div class="selected-filters-list">
+                Added Filters:
+                <span class="label label-default">{{SelectedItemModel.SupervisorName}}</span>
+                <span class="label label-default">{{SelectedItemModel.SelectedStation}}</span>
+                <span class="label label-default">{{SelectedItemModel.SelectedLot}}</span>
+            </div>
+        </div>*@
+                       
+                        <md-table-container>
+                            <table class="table-striped" md-table>
+                                <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
+                                    <tr md-row>
+                                        <th md-column md-order-by="Operator"><span>Operator</span></th>
+                                        <th md-column md-order-by="Supervisor"><span>Supervisor</span></th>
+                                        <th md-column md-order-by="Station"><span>Station</span></th>
+                                        <th md-column md-order-by="ParkingLot"><span>Parking Lot</span></th>
+                                        <th md-column md-order-by="RegistrationNumber"><span>Vehicle Number</span></th>
+                                        @*<th md-column md-order-by="VehicleType"><span>Vehicle Type</span></th>*@
+                                        <th md-column md-order-by="Status"><span>Status</span></th>
+                                        @*<th md-column md-order-by="ApplicationType"><span>Application Type</span></th>*@
+                                        <th md-column md-order-by="TransactionDate"><span>Transaction Date</span></th>
+                                        <th md-column md-order-by="NoofTimes"><span>No of Times</span></th>
+                                        <th md-column md-order-by="GovtVehicle"><span>Govt Vehicle</span></th>
+                                        <th md-column md-order-by="Violation"><span>Violation</span></th>
+                                        <th md-column md-order-by="Amount" class="sort-none" style="text-align: right !important;"><span>Amount</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody md-body>
+                                    <tr md-row md-select="rbodata" md-on-select="logItem" md-auto-select="options.autoSelect" ng-disabled="rbodata.calories.value > 400"
+                                        ng-if="DuplicateEntriesListModel.length>0"
+                                        ng-repeat="duplicate in DuplicateEntriesListModel | filter: filterTable | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit">
+                                        <td md-cell>{{duplicate.Operator}}</td>
+                                        <td md-cell>{{duplicate.Supervisor}}</td>
+                                        <td md-cell>{{duplicate.Station}}</td>
+                                        <td md-cell>{{duplicate.ParkingLot}}</td>
+                                        <td md-cell>{{duplicate.RegistrationNumber}}</td>
+                                        @*<td md-cell>{{duplicate.VehicleType}}</td>*@
+                                        <td md-cell>{{duplicate.Status}}</td>
+                                        @*<td md-cell>{{duplicate.ApplicationType}}</td>*@
+                                        @*<td md-cell>{{duplicate.TransactionDate | date:"MM/dd/yyyy h:mma"}}</td>*@
+                                        <td md-cell>{{duplicate.TransactionDate}}</td>
+                                        <td md-cell>{{duplicate.NoofTimes}}</td>
+                                        <td md-cell>{{duplicate.GovtVehicle}}</td>
+                                        <td md-cell>{{duplicate.Violation}}</td>
+                                        <td md-cell style="text-align: right;">{{duplicate.Amount}}</td>
+                                    </tr>
+
+                                    <tr md-row class="total-row" ng-if="DuplicateEntriesListModel.length>0">
+                                        <td md-cell></td>
+                                        <td md-cell></td>
+                                        <td md-cell></td>
+                                        <td md-cell></td>
+                                        <td md-cell></td>
+                                        @*<td md-cell></td>*@
+                                        @*<td md-cell></td>*@
+                                        <td md-cell></td>
+                                        <td md-cell></td>
+                                        <td md-cell></td>
+                                        <td md-cell></td>
+                                        <td md-cell>Total :</td>
+                                        <td md-cell>{{DuplicateEntriesListModel[0].Total}}</td>
+                                    </tr>
+
+                                    <tr md-row ng-if="DuplicateEntriesListModel.length==0">
+                                        <td md-cell colspan="11" style="text-align: center;">No Data Available</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </md-table-container>
+                        <md-table-pagination ng-show="(DuplicateEntriesListModel|filter:filterTable).length>0" md-limit="query.limit"
+                                             md-limit-options="limitOptions" md-page="query.page" md-total="{{(DuplicateEntriesListModel|filter:filterTable).length}}"
+                                             md-page-select="options.pageSelect" md-boundary-links="options.boundaryLinks" md-on-paginate="logPagination">
+                        </md-table-pagination>
+
+                    </md-card>
+
+                    @*div for Print Start*@
+                    <div ng-show="isPrinting" id="printcontent">
+                        <div style="width: 100%; max-width: 595px; margin: 0 auto;">
+
+                            <!--header start-->
+                            <div>
+                                <div style="width: 48%; padding: 10px 1%; float: left;">
+                                    <img src="~/assets/images/Logo4.png" style="padding-top:15px;" alt="logo" />
+                                </div>
+                                <div style="width: 48%; padding: 10px 1%; float: left; text-align: left; color:#353535;">
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Unit #3A, Plot No:847, Pacific Towers,<br />
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    Madhapur, Hyderabad – 500081, TS<br />
+                                    <strong style="font-family: pnbold;">
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GSTIN:
+                                    </strong> 36AABCT3518Q1ZX<br />
+                                    <strong style="font-family: pnbold;">
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ph:
+                                    </strong> +91 8143143143 <br />
+                                    <strong style="font-family: pnbold;">
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Email:
+                                    </strong> support@hmrl.com<br />
+                                </div>
+                                <div style="clear:both;"></div>
+                            </div>
+                            <!--header close-->
+                            <!--Title start-->
+                            <div>
+                                <div style="padding: 6px; background-color:#f1f1f1;">
+                                    <h4 style="color:#000000; font-weight:bold; font-size:16px; text-align: center; padding:0px; margin:0px; text-transform: uppercase; font-family: pnbold;">Duplicate Records</h4>
+                                </div>
+                            </div>
+                            <!--Title close-->
+                            <!--filtered by start-->
+                            @*<div style="margin: 10px 0px; color:#353535;">
+                                <div style="display: inline;">
+                                    <strong style="margin-right: 6px; font-family: pnbold;">Filtered By&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;</strong>
+                                    <span>{{SelectedItemModel.SupervisorName}},{{SelectedItemModel.SelectedStation}},{{SelectedItemModel.SelectedLot}}</span>
+                                </div>
+                            </div>*@
+                            <!--filtered by close-->
+                            <!--from to generate dates start-->
+                            <div style="margin: 10px 0px;">
+                                <div style="display: inline;">
+                                    <strong style="margin-right: 6px; font-family: pnbold;">Report From&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;</strong>
+                                    <span>
+                                        {{printFromDate | date:"dd/MM/yyyy"}}
+                                        to
+                                        {{printToDate | date:"dd/MM/yyyy"}}
+
+
+                                        @*{{ReportFilterModel.FromDate | date:"dd/MM/yyyy"}}
+                                            to
+                                            {{ReportFilterModel.ToDate | date:"dd/MM/yyyy"}}*@
+                                    </span> &nbsp;&nbsp;&nbsp;&nbsp;
+                                    @*<strong style="margin-right: 6px; font-family: pnbold;">Generated On:</strong>
+                                        <span>{{TodayDate | date:"dd/MM/yyyy  h:mma"}}</span>*@
+                                </div>
+                                <div style="clear:both; margin-top: 7px;"></div>
+                            </div>
+                            <div style="margin: 10px 0px; border-bottom:2px solid #f1f1f1; color:#353535;">
+                                <div style="display: inline;">
+                                    <strong style="margin-right: 6px; font-family: pnbold;">Generated On&nbsp;&nbsp;&nbsp;:&nbsp;</strong>
+                                    <span>{{TodayDate | date:"dd/MM/yyyy  h:mma"}}</span>
+                                </div>
+                                <div style="clear:both; margin-top: 7px;"></div>
+                            </div>
+
+                            <!--from to generate dates close-->
+                            <!--table start-->
+                            <table style="width: 100%; text-align: left; border-collapse: collapse;">
+                                <tr style="font-size:13px; font-weight: bold; background-color: #f1f1f1; font-family: pnbold;">
+                                    <th style=" border: 1px solid #000000;">Operator</th>
+                                    <th style=" border: 1px solid #000000;">Supervisor</th>
+                                    <th style=" border: 1px solid #000000;">Station</th>
+                                    <th style=" border: 1px solid #000000;">Parking Lot</th>
+                                    <th style=" border: 1px solid #000000;">Vehicle Number</th>
+                                    <th style=" border: 1px solid #000000;">Status</th>
+                                    @*<th style=" border: 1px solid #000000;">Application Type</th>*@
+                                    <th style=" border: 1px solid #000000;">Transaction Date</th>
+                                    <th style=" border: 1px solid #000000;">No of Times</th>
+                                    <th style=" border: 1px solid #000000;">Govt Vehicle</th>
+                                    <th style=" border: 1px solid #000000;">Violation</th>
+                                    <th style=" border: 1px solid #000000; text-align: right;">Amount</th>
+                                </tr>
+                                <tr ng-repeat="item in DuplicateEntriesListModel">
+                                    <td style=" border: 1px solid #000000;">{{item.Operator}}</td>
+                                    <td style=" border: 1px solid #000000;">{{item.Supervisor}}</td>
+                                    <td style=" border: 1px solid #000000;">{{item.Station}}</td>
+                                    <td style=" border: 1px solid #000000;">{{item.ParkingLot}}</td>
+                                    <td style=" border: 1px solid #000000;">{{item.RegistrationNumber}}</td>
+                                    <td style=" border: 1px solid #000000;">{{item.Status}}</td>
+                                    @*<td style=" border: 1px solid #000000;">{{item.ApplicationType}}</td>*@
+                                    <td style=" border: 1px solid #000000;">{{item.TransactionDate}} </td>
+                                    <td style=" border: 1px solid #000000;">{{item.NoofTimes}}</td>
+                                    <td style=" border: 1px solid #000000;">{{item.GovtVehicle}}</td>
+                                    <td style=" border: 1px solid #000000;">{{item.Violation}}</td>                                    
+                                    <td style=" border: 1px solid #000000; text-align: right;">
+                                        {{item.Amount}}
+                                    </td>
+                                </tr>
+                                <tr style=" font-family: pnbold;">
+                                    <td style=" border: 1px solid #000000;">&nbsp;</td>
+                                    <td style=" border: 1px solid #000000;">&nbsp;</td>
+                                    <td style=" border: 1px solid #000000;">&nbsp;</td>
+                                    <td style=" border: 1px solid #000000;">&nbsp;</td>
+                                    <td style=" border: 1px solid #000000;">&nbsp;</td>
+                                    @*<td style=" border: 1px solid #000000;">&nbsp;</td>*@
+                                    <td style=" border: 1px solid #000000;">&nbsp;</td>
+                                    <td style=" border: 1px solid #000000;">&nbsp;</td>
+                                    <td style=" border: 1px solid #000000;">&nbsp;</td>
+                                    <td style=" border: 1px solid #000000;">&nbsp;</td>
+                                    <td style=" border: 1px solid #000000; font-size: 13px; font-weight: bold; text-align: right;">TOTAL</td>
+                                    <td style=" border: 1px solid #000000;font-size: 13px; font-weight: bold; text-align: right;">{{DuplicateEntriesListModel[0].Total}}</td>
+                                </tr>
+                            </table>
+                            <!--table close-->
+
+                        </div>
+                    </div>
+                    @*div for Print End*@
+
+                </article>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Hidden("GetDuplicateEntries", Url.Action("GetDuplicateEntries", "OperationalReports"))

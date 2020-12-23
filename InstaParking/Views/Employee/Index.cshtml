@@ -1,0 +1,231 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = null;
+}
+<div class="page page-roles">
+    <div data-ng-controller="EmployeeCtrl">
+        <div class="row ui-section">
+            <div class="col-md-12">
+                <article class="article">
+                    <md-card class="no-margin-h">
+                        <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>Roles List</span>
+                                <div flex></div>
+                                <div class="search-box visible-md visible-lg">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="material-icons">search</i></span>
+                                        <input type="text" class="form-control" ng-model="filterTable" placeholder="{{ 'SEARCH' | translate }}">
+                                        <span class="input-bar"></span>
+                                    </div>
+                                </div>
+                                <a href="#!/employee/create-roles" class="md-button md-raised btn-w-md" style="display: flex;">
+                                    <i class="material-icons">add</i> Create New Role
+                                </a>
+                            </div>
+                        </md-toolbar>
+
+                        <md-table-container>
+                            <table md-table>
+                                <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
+                                    <tr md-row>
+                                        <th md-column><span>Actions</span></th>
+                                        <th md-column md-order-by="UserTypeCode"><span>Role Code</span></th>
+                                        <th md-column md-order-by="UserTypeName"><span>Role Name</span></th>
+                                        <th md-column md-order-by="UserTypeDesc"><span>Role Description</span></th>
+                                        <th md-column md-order-by="IsActive"><span>Status</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody md-body>
+                                    <tr md-row md-select="roledata" md-on-select="logItem" md-auto-select="options.autoSelect" ng-disabled="roledata.calories.value > 400"
+                                        ng-repeat="roledata in RolesListModel | filter: filterTable | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit">
+                                        <td md-cell class="actions">
+                                            <a title="EDIT ROLE" id="ViewRole" href="#!/employee/edit-roles/{{roledata.UserTypeID}}">
+                                                <md-icon>edit</md-icon>
+                                            </a>
+                                            <a title="ASSIGN MODULE" id="assignModules" ng-click="OpenPopup(roledata.UserTypeID)" style="cursor: pointer">
+                                                <md-icon>assignment_ind</md-icon>
+                                            </a>
+                                        </td>
+                                        <td md-cell>{{roledata.UserTypeCode}}</td>
+                                        <td md-cell>{{roledata.UserTypeName}}</td>
+                                        <td md-cell>{{roledata.UserTypeDesc}}</td>
+                                        <td md-cell><span class="label" ng-class="{'label-default': roledata.IsActive=='Inactive' , 'label-success': roledata.IsActive=='Active'}">{{roledata.IsActive}}</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </md-table-container>
+
+                        <md-table-pagination ng-show="(RolesListModel|filter:filterTable).length>0" md-limit="query.limit" md-limit-options="limitOptions" md-page="query.page" md-total="{{(RolesListModel|filter:filterTable).length}}" md-page-select="options.pageSelect" md-boundary-links="options.boundaryLinks" md-on-paginate="logPagination"></md-table-pagination>
+                    </md-card>
+                </article>
+            </div>
+        </div>
+        @*modal*@
+        <div class="modal fade" id="myModal" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Assign Modules/Sub Modules</h4>
+                    </div>
+                    <div class="modal-body assign_modules">
+                        <div class="col-md-12">
+                            <div style="padding: 8px;" data-ng-repeat="modules in ModulesList" data-ng-if="ModulesList.length>0">
+                                <p style="font-weight: bold;">
+                                    <input type="checkbox" style="margin-right: 5px;" ng-model="modules.IsAssign" ng-change="isSelectAll(modules)" />{{modules.ModuleName}}
+                                </p>
+                                <div class="row">
+                                    <div class="col-sm-4" data-ng-repeat="submodules in modules.SubModules" data-ng-if="modules.SubModules.length>0">
+                                        <input type="checkbox" ng-model="submodules.IsAssign" ng-change="isSelect(modules,submodules)" />
+                                        {{submodules.ModuleName}}
+                                    </div>
+                                    <div class="clear"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="clear:both;"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="md-button md-raised btn-w-md md-default custom-btn" data-ng-click="AssignModule()" data-dismiss="modal">Assign</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @*modal*@
+    </div>
+</div>
+@Html.Hidden("GetRolesList", Url.Action("GetRolesList", "Employee"))
+@Html.Hidden("GetModulesSubModulesList", Url.Action("GetModulesSubModulesList", "Employee"))
+@Html.Hidden("AssignModules", Url.Action("AssignModules", "Employee"))
+<input type="hidden" id="hdnUserTypeID" name="hdnUserTypeID" />
+<script src="~/app/employee/bootstrap.min.js"></script>
+<style type="text/css">
+    .modal-open {
+        overflow: hidden;
+    }
+
+    .modal {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1050;
+        display: none;
+        overflow: hidden;
+        -webkit-overflow-scrolling: touch;
+        outline: 0;
+    }
+
+        .modal.fade .modal-dialog {
+            -webkit-transform: translate(0, -25%);
+            -ms-transform: translate(0, -25%);
+            -o-transform: translate(0, -25%);
+            transform: translate(0, -25%);
+            -webkit-transition: -webkit-transform 0.3s ease-out;
+            -o-transition: -o-transform 0.3s ease-out;
+            transition: -webkit-transform 0.3s ease-out;
+            transition: transform 0.3s ease-out;
+            transition: transform 0.3s ease-out, -webkit-transform 0.3s ease-out, -o-transform 0.3s ease-out;
+        }
+
+        .modal.in .modal-dialog {
+            -webkit-transform: translate(0, 0);
+            -ms-transform: translate(0, 0);
+            -o-transform: translate(0, 0);
+            transform: translate(0, 0);
+        }
+
+    .modal-open .modal {
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .modal-dialog {
+        position: relative;
+        width: auto;
+        margin: 10px;
+        max-width: 980px;
+        margin: 0px auto;
+        margin-top: 5%;
+    }
+
+    .modal-content {
+        position: relative;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #999;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 6px;
+        -webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
+        outline: 0;
+    }
+
+    .modal-backdrop {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1040;
+        background-color: #000;
+    }
+
+        .modal-backdrop.fade {
+            filter: alpha(opacity=0);
+            opacity: 0;
+        }
+
+        .modal-backdrop.in {
+            filter: alpha(opacity=50);
+            opacity: 0.5;
+        }
+
+    .modal-header {
+        padding: 15px;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+        .modal-header .close {
+            margin-top: -2px;
+        }
+
+    .modal-title {
+        margin: 0;
+        line-height: 1.42857143;
+    }
+
+    .modal-body {
+        position: relative;
+        padding: 15px;
+    }
+
+    .modal-footer {
+        padding: 15px;
+        text-align: right;
+        border-top: 1px solid #e5e5e5;
+    }
+
+        .modal-footer .btn + .btn {
+            margin-bottom: 0;
+            margin-left: 5px;
+        }
+
+        .modal-footer .btn-group .btn + .btn {
+            margin-left: -1px;
+        }
+
+        .modal-footer .btn-block + .btn-block {
+            margin-left: 0;
+        }
+
+    .modal-scrollbar-measure {
+        position: absolute;
+        top: -9999px;
+        width: 50px;
+        height: 50px;
+        overflow: scroll;
+    }
+</style>

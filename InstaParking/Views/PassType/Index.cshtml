@@ -1,0 +1,158 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = null;
+}
+<div class="page page-passes">
+    <div data-ng-controller="PassesCtrl">
+        <div class="row ui-section">
+            <div class="col-md-12">
+                <article class="article">
+                    <md-card class="no-margin-h">
+                        <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>List of Passes</span>
+                                <div flex></div>
+                                <div class="search-box visible-md visible-lg">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="material-icons">search</i></span>
+                                        <input type="text" class="form-control" ng-model="filterTable" placeholder="{{ 'SEARCH' | translate }}">
+                                        <span class="input-bar"></span>
+                                    </div>
+                                </div>
+                                <a href="#!/create-passes" class="md-button md-raised btn-w-md" style="display: flex;">
+                                    <i class="material-icons">add</i> Create New Pass
+                                </a>
+                            </div>
+                        </md-toolbar>
+
+                        <md-table-container>
+                            <table md-table>
+                                <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
+                                    <tr md-row>
+                                        <th md-column><span>Actions</span></th>
+                                        <th md-column md-order-by="PassName" style="min-width:200px;"><span>Pass Name</span></th>
+                                        <th md-column md-order-by="PassTypeName"><span>Pass Type</span></th>
+                                        <th md-column md-order-by="StationAccess"><span>Pass Access</span></th>
+                                        <th md-column md-order-by="Duration"><span>Pass Duration</span></th>
+                                        <th md-column md-order-by="VehicleTypeName"><span>Vehicle Type</span></th>
+                                        <th md-column md-order-by="Price"><span>Price</span></th>
+                                        <th md-column md-order-by="IsActive"><span>Status</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody md-body>
+                                    <tr md-row md-select="passtype" md-on-select="logItem" md-auto-select="options.autoSelect" ng-disabled="passtype.calories.value > 400"
+                                        ng-repeat="passtype in PassListModel | filter: filterTable | orderBy: query.order| limitTo: query.limit : (query.page -1) * query.limit">
+                                        <td md-cell class="actions">
+                                            <a title="EDIT PASS" id="ViewPass" href="#!/edit-passes/{{passtype.PassPriceID}}">
+                                                <md-icon>edit</md-icon>
+                                            </a>
+                                        </td>
+                                        <td md-cell style="min-width:200px;">{{passtype.PassName}}</td>
+                                        <td md-cell >{{passtype.PassTypeName}}</td>
+                                        <td md-cell>{{passtype.StationAccess}}</td>
+                                        <td md-cell>{{passtype.Duration}}</td>
+                                        <td md-cell>{{passtype.VehicleTypeName}}</td>
+                                        <td md-cell>{{passtype.Price}}</td>
+                                        <td md-cell><span class="label" ng-class="{'label-default': passtype.IsActive=='Inactive' , 'label-success': passtype.IsActive=='Active'}">{{passtype.IsActive}}</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </md-table-container>
+                        <md-table-pagination ng-show="(PassListModel|filter:filterTable).length>0" md-limit="query.limit" md-limit-options="limitOptions" md-page="query.page" md-total="{{(PassListModel|filter:filterTable).length}}" md-page-select="options.pageSelect" md-boundary-links="options.boundaryLinks" md-on-paginate="logPagination"></md-table-pagination>
+                    </md-card>
+
+                    <md-card class="no-margin-h">
+                        <md-toolbar style="min-height: 44px; height:44px; margin-top:16px;" class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>Passes Sale Limit</span>
+                            </div>
+                        </md-toolbar>
+                        <form name="formPassSaleLimit">
+                            <div style="padding-bottom:20px;">
+
+                                <div class="col-md-3 col-lg-2">
+                                    <md-input-container class="md-block">
+                                        <label>Pass Type</label>
+                                        <md-select ng-model="PassSaleLimitModel['PassTypeID']" aria-label="select" name="PassTypeID" required>
+                                            <md-option ng-repeat="passtype in PassTypeListModel" value="{{passtype.PassTypeID}}"> {{passtype.PassTypeName}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-3 col-lg-2">
+                                    <md-input-container class="full-width">
+                                        <label class="md-required">Vehicle Type</label>
+                                        <md-select ng-model="PassSaleLimitModel['VehicleTypeID']" aria-label="select" name="VehicleTypeID" required>
+                                            <md-option ng-repeat="vehicle in VehicleTypeListModel" value="{{vehicle.VehicleTypeID}}"> {{vehicle.VehicleTypeName}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-2 col-lg-2">
+                                    <md-input-container class="md-block">
+                                        <label>Limit Percentage</label>
+                                        <input ng-model="PassSaleLimitModel['LimitPercentage']" required allow-numbers>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-2 col-lg-2">
+                                    <md-checkbox aria-label="Checkbox 1" style="margin-top: 20px; pading-right:0px;" ng-model="PassSaleLimitModel['IsActive']"> Active </md-checkbox>
+                                </div>
+
+                                <div class="col-md-2 col-lg-4">
+                                    <md-button type="submit" class="md-button md-raised btn-w-md md-default custom-btn"
+                                               [disabled]="formPassSaleLimit.$valid" style="min-width: 80px; margin-top: 12px;"
+                                               data-ng-click="formPassSaleLimit.$valid && RestrictPassSaleLimit()">Restrict</md-button>
+                                    <md-button type="submit" class="md-button md-raised btn-w-md md-default"
+                                        style="min-width: 80px; margin-top: 12px;"
+                                        data-ng-click="ClearPassSaleLimit()">Clear</md-button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="percentage-table">
+                            <md-table-container>
+                                <table md-table>
+                                    <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
+                                        <tr md-row style="background-color: #f4f4f4;">
+                                            <th md-column><span>Actions</span></th>
+                                            <th md-column md-order-by="ppasstype"><span>Pass Type</span></th>
+                                            <th md-column md-order-by="pvehtype"><span>Vehicle Type</span></th>
+                                            <th md-column md-order-by="ppercentage"><span>Limit Percentage</span></th>.
+                                            <th md-column md-order-by="IsActive"><span>Status</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody md-body>
+                                        <tr md-row md-select="percentagedata" md-on-select="logItem" md-auto-select="options.autoSelect"
+                                            ng-disabled="percentagedata.calories.value > 400"
+                                            ng-repeat="percentagedata in PassSaleLimitListModel | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit">
+                                            <td md-cell class="actions">
+                                                <a title="EDIT PASS SALE LIMIT" ng-click="EditPassSaleLimit(percentagedata.PassSaleLimitID)">
+                                                    <md-icon>edit</md-icon>
+                                                </a>
+                                                <a title="DELETE PASS SALE LIMIT" ng-click="DeletePassSaleLimit(percentagedata.PassSaleLimitID)">
+                                                    <md-icon>delete</md-icon>
+                                                </a>
+                                            </td>
+                                            <td md-cell>{{percentagedata.PassTypeName}}</td>
+                                            <td md-cell>{{percentagedata.VehicleTypeName}}</td>
+                                            <td md-cell>{{percentagedata.LimitPercentage}}</td>
+                                            <td md-cell><span class="label" ng-class="{'label-default': percentagedata.IsActive=='Inactive' , 'label-success': percentagedata.IsActive=='Active'}">{{percentagedata.IsActive}}</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </md-table-container>
+                        </div>
+                    </md-card>
+                </article>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Hidden("GetPassTypeList", Url.Action("GetPassTypeList", "PassType"))
+@Html.Hidden("GetActiveVehicleTypes", Url.Action("GetActiveVehicleTypesList", "Parking"))
+@Html.Hidden("GetActivePassTypes", Url.Action("GetActivePassTypes", "PassType"))
+@Html.Hidden("GetPassSaleLimitList", Url.Action("GetPassSaleLimitList", "PassType"))
+@Html.Hidden("RestrictPassSaleLimit", Url.Action("RestrictPassSaleLimit", "PassType"))
+@Html.Hidden("EditPassSaleLimit", Url.Action("EditPassSaleLimit", "PassType"))
+@Html.Hidden("DeletePassSaleLimit", Url.Action("DeletePassSaleLimit", "PassType"))

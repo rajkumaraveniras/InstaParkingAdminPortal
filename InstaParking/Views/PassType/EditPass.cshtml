@@ -1,0 +1,133 @@
+﻿@{
+    ViewBag.Title = "EditPass";
+    Layout = null;
+}
+<div class="page page-create-passes">
+    <div data-ng-controller="PassesCtrl">
+        <form name="formPassType">
+            <div class="row ui-section">
+                <div class="col-md-12">
+                    <article class="article">
+                        <md-card class="no-margin-h">
+                            <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                                <div class="md-toolbar-tools">
+                                    <span>Edit New Pass</span>
+                                    <div flex></div>
+                                    <a href="#!/passes" class="md-button md-raised btn-w-md" style="display: flex;">
+                                        <i class="material-icons">arrow_back</i> Back To Passes
+                                    </a>
+                                </div>
+                            </md-toolbar>
+                            <div>
+                                <div class="col-md-3">
+                                    <md-input-container class="md-block">
+                                        <label>Pass Name</label>
+                                        <input ng-model="PassTypeModel['PassName']" name="PassName" required>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <md-input-container class="md-block">
+                                        <label>Pass Code</label>
+                                        <input ng-model="PassTypeModel['PassCode']" name="PassCode" required disabled>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <md-input-container class="md-block">
+                                        <label>Pass Type </label>
+                                        <md-select ng-model="PassTypeModel['PassTypeID']" aria-label="select" name="PassTypeID">
+                                            <md-option ng-repeat="passtype in PassTypeListModel" value="{{passtype.PassTypeID}}"> {{passtype.PassTypeName}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <md-input-container class="full-width">
+                                        <label class="md-required">Station Access</label>
+                                        <md-select ng-model="PassTypeModel['StationAccess']" aria-label="select" name="StationAccess">
+                                            <md-option ng-repeat="access in StationAccessModel" value="{{access.name}}"> {{access.name}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <md-input-container class="full-width">
+                                        <label class="md-required">Vehicle Type</label>
+                                        <md-select ng-model="PassTypeModel['VehicleTypeID']" aria-label="select" name="VehicleTypeID">
+                                            <md-option ng-repeat="vehicle in VehicleTypeListModel" value="{{vehicle.VehicleTypeID}}"> {{vehicle.VehicleTypeName}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <md-input-container class="full-width">
+                                        <label class="md-required">Duration</label>
+                                        <input ng-model="PassTypeModel['Duration']" name="Duration" required allow-numbers>
+                                        @*<md-select ng-model="PassTypeModel['Duration']" aria-label="select" name="Duration">
+            <md-option ng-repeat="duration in DurationModel" value="{{duration.name}}"> {{duration.name}} </md-option>
+        </md-select>*@
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <md-input-container class="full-width">
+                                        <label class="md-required" style="visibility: hidden;">Start Date</label>
+                                        <md-datepicker ng-model="PassTypeModel['StartDate']" md-placeholder="Start Date" name="StartDate"
+                                                       id="StartDate" required></md-datepicker>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <md-input-container class="full-width">
+                                        <label style="visibility: hidden;">End Date</label>
+                                        <md-datepicker ng-model="PassTypeModel['EndDate']" md-placeholder="End Date" id="EndDate" name="EndDate" required></md-datepicker>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <md-input-container class="full-width">
+                                        <label>Price of Pass</label>
+                                        <input ng-model="PassTypeModel['Price']" name="Price" required  valid-number>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <md-checkbox aria-label="Checkbox 1" style="margin-top: 20px;" ng-model="PassTypeModel['NFCApplicable']"> NFC Applicable </md-checkbox>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <md-input-container class="md-block">
+                                        <label>NFC Card  Price</label>
+                                        <input ng-model="PassTypeModel['NFCCardPrice']" name="NFCCardPrice"  valid-number>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <md-checkbox aria-label="Checkbox 1" style="margin-top: 20px;" ng-model="PassTypeModel['IsActive']"> Active </md-checkbox>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <md-input-container class="md-block">
+                                        <label>Description</label>
+                                        <input ng-model="PassTypeModel['PassDescription']" name="PassDescription">
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-12 text-center" style="margin: 20px 0px;">
+                                    <md-button type="submit" class="md-button md-raised btn-w-md md-default custom-btn"
+                                               name="myButton" [disabled]="formPassType.$valid"
+                                               data-ng-click="formPassType.$valid && UpdatePassType()">Update Pass</md-button>
+                                </div>
+                            </div>
+                        </md-card>
+                    </article>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@Html.Hidden("ViewPassType", Url.Action("ViewPassType", "PassType"))
+@Html.Hidden("UpdatePassType", Url.Action("SavePassType", "PassType"))
+@Html.Hidden("GetActiveVehicleTypes", Url.Action("GetActiveVehicleTypesList", "Parking"))
+@Html.Hidden("GetActivePassTypes", Url.Action("GetActivePassTypes", "PassType"))

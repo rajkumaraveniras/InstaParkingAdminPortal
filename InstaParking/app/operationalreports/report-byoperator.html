@@ -1,0 +1,124 @@
+<div class="page page-operatorreports">
+
+        <div data-ng-controller="OperationalreportsCtrl">
+            <div class="row ui-section">
+                <div class="col-md-12">
+                    <article class="article">
+    
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"><i class="fa fa-filter" aria-hidden="true"></i> Filters</h3>
+                            </div>
+                            <div class="panel-body">
+    
+                                <div class="row">
+                                
+                                <div class="col-md-3">
+                                    <md-input-container class="md-block">
+                                        <label>Parking Lot</label>
+                                        <md-select ng-model="rbslotddl.rbslotname" aria-label="select">
+                                            <md-option ng-repeat="(index,rbslot) in rbslotddl.rbslot" value="{{rbslot.abbrev}}"  ng-selected="index == 0"> {{rbslot.abbrev}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+    
+                                <div class="col-md-3">
+                                    <md-input-container class="md-block">
+                                        <label>Supervisor</label>
+                                        <md-select ng-model="rbssuperviserddl.rbssupervisername" aria-label="select">
+                                            <md-option ng-repeat="(index,rbssuperviser) in rbssuperviserddl.rbssuperviser" value="{{rbssuperviser.abbrev}}"  ng-selected="index == 0"> {{rbssuperviser.abbrev}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+    
+                                <div class="col-md-3">
+                                    <md-input-container class="md-block">
+                                        <label>Operator</label>
+                                        <md-select ng-model="rbsoperatorddl.rbsoperatorname" aria-label="select">
+                                            <md-option ng-repeat="(index,rbsoperator) in rbsoperatorddl.rbsoperator" value="{{rbsoperator.abbrev}}"  ng-selected="index == 0"> {{rbsoperator.abbrev}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <md-input-container class="md-block">
+                                        <label>Duration</label>
+                                        <md-select ng-model="rbsdurationddl.rbsdurationname" aria-label="select">
+                                            <md-option ng-repeat="rbsduration in rbsdurationddl.rbsduration" value="{{rbsduration.abbrev}}"> {{rbsduration.abbrev}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+    
+                                <div class="col-md-3">
+                                    <md-input-container class="md-block">
+                                        <label style="visibility: hidden;">From Date</label>
+                                        <md-datepicker ng-model="user.submissionDate" md-placeholder="From Date"></md-datepicker>
+                                    </md-input-container>
+                                </div>
+    
+                                <div class="col-md-3">
+                                    <md-input-container class="md-block">
+                                        <label style="visibility: hidden;">To Date</label>
+                                        <md-datepicker ng-model="user.submissionDate2" md-placeholder="To Date"></md-datepicker>
+                                    </md-input-container>
+                                </div>
+    
+                                </div>
+    
+                            </div>
+                        </div>
+    
+                        <md-card class="no-margin-h">
+                            
+                            <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                                <div class="md-toolbar-tools">
+                                    <span>Operational Report By Operator</span>
+                                    <div flex></div>
+                                    <div class="search-box visible-md visible-lg">
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="material-icons">search</i></span>
+                                            <input type="text" class="form-control" placeholder="{{ 'SEARCH' | translate }}">
+                                            <span class="input-bar"></span>
+                                        </div>
+                                    </div>
+                                    <div class="icons-set">
+                                        <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+                                        <i class="fa fa-file-excel-o" aria-hidden="true"></i>
+                                        <i class="fa fa-print" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </md-toolbar>
+                            
+                            <md-table-container>
+                                <table class="table-striped" md-table>
+                                    <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
+                                        <tr md-row>
+                                            <th md-column md-order-by="rbosvisor"><span>Supervisor</span></th>
+                                            <th md-column md-order-by="rbooperator"><span>Operator</span></th>
+                                            <th md-column md-order-by="rbohours"><span>Hours</span></th>                                        
+                                            <th md-column md-order-by="rbothours"><span>Total Hours</span></th>                                    
+                                            <th md-column md-order-by="rbotdays"><span>Total Days</span></th>                                                                               
+                                        </tr>
+                                    </thead>
+                                    <tbody md-body>
+                                        <tr md-row md-select="rbodata" md-on-select="logItem" md-auto-select="options.autoSelect" ng-disabled="rbodata.calories.value > 400" ng-repeat="rbodata in rbodatas.data | filter: filter.search | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit">                                        
+                                            <td md-cell>{{rbodata.rbosvisor}}</td>
+                                            <td md-cell>{{rbodata.rbooperator}}</td>
+                                            <td md-cell>{{rbodata.rbohours}}</td>
+                                            <td md-cell>{{rbodata.rbothours}}</td>
+                                            <td md-cell>{{rbodata.rbotdays}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </md-table-container>
+        
+                            <md-table-pagination md-limit="query.limit" md-limit-options="limitOptions" md-page="query.page" md-total="{{rbodatas.count}}" md-page-select="options.pageSelect" md-boundary-links="options.boundaryLinks" md-on-paginate="logPagination"></md-table-pagination>
+                        </md-card>
+    
+                    </article>
+                </div>
+            </div>
+    
+        </div>
+    
+    </div>

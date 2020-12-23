@@ -1,0 +1,288 @@
+﻿@using InstaParking.Models;
+@using System.Web.Optimization
+@{
+    List<Modules> list = (List<Modules>)Session["Modules"];
+    var img = Session["EmpPhoto"];
+    var usertype = Convert.ToString(Session["UserType"]);
+    var username = Convert.ToString(Session["Name"]);
+    var usercode = Convert.ToString(Session["UserCode"]);
+
+    Layout = null;
+        }
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>InstaParking </title>
+    <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="~/vendors/material-design-icons/iconfont/material-icons.css">
+    <link rel="stylesheet" href="~/node_modules/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="~/node_modules/angular-material/angular-material.min.css">
+    @Styles.Render("~/Bundle/sass")
+
+</head>
+<body data-ng-app="app"
+      id="app"
+      class="app"
+      data-custom-page
+      data-ng-controller="AppCtrl"
+      data-ng-class=" { 'layout-boxed': main.layout === 'boxed',
+                            'nav-collapsed-min': main.isMenuCollapsed
+    } ">
+    <div id="loader-container"></div>
+
+    <header id="header" class="header-container"
+            data-ng-class="{ 'header-fixed': main.fixedHeader,'bg-white': ['11','12','13','14','15','16','21'].indexOf(main.skin) >= 0,'bg-dark': main.skin === '31','bg-primary': ['22','32'].indexOf(main.skin) >= 0,'bg-success': ['23','33'].indexOf(main.skin) >= 0,'bg-info': ['24','34'].indexOf(main.skin) >= 0,'bg-warning': ['25','35'].indexOf(main.skin) >= 0,'bg-danger': ['26','36'].indexOf(main.skin) >= 0}">
+        @*Header Section Start*@
+        <header class="top-header clearfix">
+            <div ui-preloader></div>
+            <!-- Logo -->
+            <div class="logo bg-white"
+                 ng-class="{'bg-dark': ['11','31'].indexOf(main.skin)>= 0,'bg-white': main.skin === '21','bg-success': ['13','23','33'].indexOf(main.skin) >= 0,'bg-info': ['14','24','34'].indexOf(main.skin) >= 0,'bg-warning': ['15','25','35'].indexOf(main.skin) >= 0,'bg-danger': ['16','26','36'].indexOf(main.skin) >= 0 }">
+                <a href="#!/">
+                    <span class="logo-icon"><img src="assets/images/Logo1.png" alt="Logo" /></span>
+                    <span class="logo-text"><img src="assets/images/Logo2.png" alt="Text" /></span>
+                </a>
+            </div>
+            <!-- needs to be put after logo to make it work -->
+            <div class="menu-button" toggle-off-canvas>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </div>
+            <div class="top-nav">
+                <ul class="nav-left list-unstyled">
+                    <li><md-button class="header-btn toggle-min" data-toggle-nav-collapsed-min aria-label="toggle-nav-collapsed-min"><i class="material-icons">menu</i></md-button></li>
+                    @*<li>
+                        <md-menu md-position-mode="left bottom">
+                            <md-button class="header-btn" aria-label="menu" ng-click="$mdMenu.open($event)">
+                                <i class="material-icons">email</i>
+                                <span class="badge">3</span>
+                            </md-button>
+                            <md-menu-content class="top-header-dropdown" width="4">
+                                <md-list class="md-dense">
+                                    <md-list-item class="md-2-line" ng-click="null">
+                                        <md-icon class="material-icons">mail_outline</md-icon>
+                                        <div class="md-list-item-text">
+                                            <h3>New mail from David</h3>
+                                            <p>5 minutes ago</p>
+                                        </div>
+                                    </md-list-item>
+                                    <md-list-item class="md-2-line" ng-click="null">
+                                        <md-icon class="material-icons">chat_bubble_outline</md-icon>
+                                        <div class="md-list-item-text">
+                                            <h3>Message from Jane</h3>
+                                            <p>15 minutes ago</p>
+                                        </div>
+                                    </md-list-item>
+                                    <md-list-item class="md-2-line" ng-click="null">
+                                        <md-icon class="material-icons">person_outline</md-icon>
+                                        <div class="md-list-item-text">
+                                            <h3>New member John joined</h3>
+                                            <p>1 hour ago</p>
+                                        </div>
+                                    </md-list-item>
+                                </md-list>
+                            </md-menu-content>
+                        </md-menu>
+                    </li>
+                    <li class="search-box visible-md visible-lg">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="material-icons">search</i></span>
+                            <input type="text" class="form-control" placeholder="{{ 'SEARCH' | translate }}">
+                            <span class="input-bar"></span>
+                        </div>
+                    </li>*@
+                </ul>
+                <ul class="nav-right pull-right list-unstyled">
+                    <li>
+                        <md-menu md-position-mode="target-right target">
+                            <md-button class="header-btn" aria-label="menu" ng-click="$mdMenu.open($event)">
+                                @*<img src="assets/images/g1.jpg" alt="" class="img-circle img30_30">*@
+                                <img src="@img" alt="" class="img-circle img30_30">@username (@usercode) 
+                            </md-button>
+                            <md-menu-content class="top-header-dropdown" width="3">
+                                @if (usertype == "Administrator" || usertype == "Super Administrator")
+                                {
+                                    <md-menu-item><md-button aria-label="menu" ng-href="#!/dashboard"><md-icon class="material-icons">assignment</md-icon><span data-translate="DASHBOARD"></span></md-button></md-menu-item>
+                                }
+                                <md-menu-item><md-button aria-label="menu" ng-href="#!/editprofile"><md-icon class="material-icons">lock_outline</md-icon><span data-translate="MY_PROFILE"></span></md-button></md-menu-item>
+                                <md-menu-item><md-button aria-label="menu" ng-href="@Url.Action("LogOut","Account")"><md-icon class="material-icons">keyboard_tab</md-icon><span data-translate="LOG_OUT"></span></md-button></md-menu-item>
+                            </md-menu-content>
+                        </md-menu>
+                    </li>
+                    <li class="hidden-xs hidden-sm hidden-md hidden-lg" data-ng-controller="LangCtrl as ctrl">
+                        <md-menu md-position-mode="target-right target">
+                            <md-button class="active-flag" aria-label="menu" ng-click="$mdMenu.open($event)">
+                                <div class="flag flags-{{activeLang}}"></div>
+                            </md-button>
+                            <md-menu-content width="3" class="langs">
+                                <md-menu-item ng-repeat="lang in langs">
+                                    <md-button ng-click="setLang(lang)">
+                                        <div class="flag flags-{{lang}}"></div>
+                                        <span class="lang-text">{{lang}}</span>
+                                    </md-button>
+                                </md-menu-item>
+                            </md-menu-content>
+                        </md-menu>
+                    </li>
+                </ul>
+            </div>
+        </header>
+        @*Header Section End*@
+    </header>
+
+
+    <div class="main-container"
+         data-ng-class="{ 'app-nav-horizontal': main.menu === 'horizontal' }">
+        @*<aside data-ng-include=" 'app/layout/sidebar.html' "
+                   id="nav-container"
+                   class="nav-container"
+                   data-ng-class="{ 'nav-fixed': main.fixedSidebar,'nav-horizontal': main.menu === 'horizontal','nav-vertical': main.menu === 'vertical','bg-white': ['31','32','33','34','35','36'].indexOf(main.skin) >= 0,'bg-dark': ['31','32','33','34','35','36'].indexOf(main.skin) < 0 }">
+
+            </aside>*@
+        <aside id="nav-container"
+               class="nav-container"
+               data-ng-class="{ 'nav-fixed': main.fixedSidebar,'nav-horizontal': main.menu === 'horizontal','nav-vertical': main.menu === 'vertical','bg-white': ['31','32','33','34','35','36'].indexOf(main.skin) >= 0,'bg-dark': ['31','32','33','34','35','36'].indexOf(main.skin) < 0 }">
+            <div class="nav-wrapper">
+                <ul id="nav"
+                    class="nav"
+                    data-slim-scroll
+                    data-collapse-nav
+                    data-highlight-active>
+                    @*<li><a md-button aria-label="menu" href="#!/dashboard"><i class="material-icons">home</i><span data-translate="DASHBOARD"></span></a></li>*@
+                    <li><a md-button aria-label="menu" href="#!/home"><i class="material-icons">home</i><span data-translate="Home"></span></a></li>
+                    @foreach (var obj in list)
+                    {
+                        if (obj.SubModules.Count == 0)
+                        {
+                            <li><a md-button aria-label="menu" href="@obj.RootUrl"><i class="material-icons">@obj.IconName</i><span data-translate="@obj.ModuleName"></span></a></li>
+                        }
+                        else
+                        {
+                            <li>
+                                <a md-button aria-label="menu" href="@obj.RootUrl"><i class="material-icons">@obj.IconName</i><span data-translate="@obj.ModuleName"></span></a>
+                                <ul>
+                                    @foreach (var subobj in obj.SubModules)
+                                    {
+                                        <li><a md-button aria-label="menu" href="@subobj.RootUrl"><i class="fa fa-circle"></i><span data-translate="@subobj.ModuleName"></span></a></li>
+                                    }
+                                </ul>
+                            </li>
+                        }
+                    }
+
+                    @*<li>
+                            <a md-button aria-label="menu" href="#!/parking"><i class="material-icons">location_on</i><span data-translate="Parking"></span></a>
+                            <ul>
+                                <li><a md-button aria-label="menu" href="#!/parking/zones"><i class="fa fa-circle"></i><span data-translate="Zones"></span></a></li>
+                                <li><a md-button aria-label="menu" href="#!/parking/stations"><i class="fa fa-circle"></i><span data-translate="Stations"></span></a></li>
+                                <li><a md-button aria-label="menu" href="#!/parking/lots"><i class="fa fa-circle"></i><span data-translate="Lots"></span></a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a md-button aria-label="menu" href="#!/employee"><i class="material-icons">group</i><span data-translate="Employee"></span></a>
+                            <ul>
+                                <li><a md-button aria-label="menu" href="#!/employee/roles"><i class="fa fa-circle"></i><span data-translate="Roles"></span></a></li>
+                                <li><a md-button aria-label="menu" href="#!/employee/employees"><i class="fa fa-circle"></i><span data-translate="Employees"></span></a></li>
+                                <li><a md-button aria-label="menu" href="#!/employee/assign"><i class="fa fa-circle"></i><span data-translate="Assign"></span></a></li>
+                            </ul>
+                        </li>*@
+                    @*<li><a md-button aria-label="menu" href="#!/passes"><i class="material-icons">branding_watermark</i><span data-translate="Pass Types"></span></a></li>
+                        <li><a md-button aria-label="menu" href="#!/vehicles"><i class="material-icons">view_list</i><span data-translate="Vehicle Types"></span></a></li>*@
+
+                </ul>
+            </div>
+        </aside>
+
+        <div id="content" class="content-container">
+            <section data-ui-view class="view-container {{main.pageTransition.class}}"></section>
+        </div>
+
+    </div>
+
+    @*<aside data-ng-include="'app/layout/customizer.html'"></aside>*@
+
+    <script src="~/Scripts/moment.min.js"></script>
+
+    <!-- build:js scripts/vendor.js -->
+    <script src="~/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="~/node_modules/angular/angular.min.js"></script>
+    <script src="~/node_modules/angular-animate/angular-animate.min.js"></script>
+    <script src="~/node_modules/angular-aria/angular-aria.min.js"></script>
+    <script src="~/node_modules/angular-messages/angular-messages.min.js"></script>
+    <script src="~/node_modules/uirouter/angularjs/release/angular-ui-router.min.js"></script>
+    <script src="~/node_modules/oclazyload/dist/ocLazyLoad.js"></script>
+    <!-- endbuild -->
+    <!-- build:js scripts/ui.js -->
+    <script src="~/node_modules/angular-translate/dist/angular-translate.min.js"></script>
+    <script src="~/node_modules/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js"></script>
+
+    <script src="~/node_modules/angular-material/angular-material.min.js"></script>
+
+    <script src="~/node_modules/angular-scroll/angular-scroll.min.js"></script>
+    <script src="~/node_modules/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+
+    <script src="~/vendors/echarts.js"></script>
+    <script src="~/vendors/ngecharts.js"></script>
+
+    <script src="~/node_modules/angular-material-data-table/dist/md-data-table.min.js"></script>
+    <script src="~/node_modules/angular-validation-match/dist/angular-validation-match.min.js"></script>
+    <!-- endbuild -->
+    <!-- build:js scripts/app.js -->
+    <!-- inject:js -->
+    <script src="~/app/app.module.js"></script>
+    <script src="~/app/chart/chart.module.js"></script>
+    <script src="~/app/core/core.module.js"></script>
+    <script src="~/app/form/form.module.js"></script>
+    <script src="~/app/form/formValidation.module.js"></script>
+    <script src="~/app/page/page.module.js"></script>
+    <script src="~/app/layout/layout.module.js"></script>
+    <script src="~/app/table/table.module.js"></script>
+    <script src="~/app/ui/ui.module.js"></script>
+    <script src="~/app/chart/echarts.controller.js"></script>
+    <script src="~/app/core/app.config.js"></script>
+    <script src="~/app/core/app.controller.js"></script>
+    <script src="~/app/core/config.lazyload.js"></script>
+    <script src="~/app/core/config.route.js"></script>
+    <script src="~/app/core/i18n.js"></script>
+    <script src="~/app/dashboard/dashboard.controller.js"></script>
+    <script src="~/app/form/form.controller.js"></script>
+    <script src="~/app/form/formValidation.controller.js"></script>
+    <script src="~/app/form/wizard.controller.js"></script>
+    <script src="~/app/page/page.controller.js"></script>
+    <script src="~/app/page/page.directive.js"></script>
+    <script src="~/app/layout/customizer.controller.js"></script>
+    <script src="~/app/layout/layout.diretive.js"></script>
+    <script src="~/app/layout/loader.js"></script>
+    <script src="~/app/layout/sidebar.directive.js"></script>
+    <script src="~/app/service-request/service-request.controller.js"></script>
+    <script src="~/app/table/table.controller.js"></script>
+    <script src="~/app/ui/material.controller.js"></script>
+    <script src="~/app/ui/ui.controller.js"></script>
+    <script src="~/app/ui/ui.directive.js"></script>
+    <script src="~/app/material-consumption/material-consumption.controller.js"></script>
+
+    <script src="~/app/parking/parking.controller.js"></script>
+    <script src="~/app/employee/employee.controller.js"></script>
+    <script src="~/app/assign-operators/assignoperators.controller.js"></script>
+    <script src="~/app/passes/passes.controller.js"></script>
+    <script src="~/app/vehicles/vehicles.controller.js"></script>
+    <script src="~/app/features/features.controller.js"></script>
+    <script src="~/app/revenuereports/revenuereports.controller.js"></script>
+    <script src="~/app/operationalreports/operationalreports.controller.js"></script>
+    <script src="~/app/companyinfo/companyinfo.controller.js"></script>
+    <script src="~/app/offered-spaces/offeredspaces.controller.js"></script>
+    <script src="~/app/support/support.controller.js"></script>
+    @*<script src="~/Scripts/moment.min.js"></script>*@
+
+
+    <!-- endinject -->
+    <!-- endbuild -->
+    @Html.Hidden("CheckSessionValue", Url.Action("CheckInSession", "Parking"))
+    @Html.Hidden("LogOut", Url.Action("LogOut", "Account"))
+</body>
+</html>

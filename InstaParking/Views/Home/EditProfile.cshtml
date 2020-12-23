@@ -1,0 +1,135 @@
+﻿@{
+    var img = Session["EmpPhoto"];
+    var empid = Session["UserID"];
+    Layout = null;
+}
+<div class="page page-employee-profile">
+
+    <div data-ng-controller="EmployeeCtrl">
+        <div class="row ui-section">
+
+            <div class="col-md-12">
+                <article class="article">
+
+                    <md-card class="no-margin-h">
+
+                        <div>
+
+                            <div class="col-md-6">
+                                <div class="callout callout-warning" style="min-height: 165px;">
+                                    <div class="row">
+                                        <div class="col-md-4 text-center">
+                                            <img style="width: 100%; max-width: 124px;" src="@img" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            <h4 style="margin-bottom: 20px; color:#000000;">{{EmployeesModel.UserName}}</h4>
+                                            @*<p>
+                                                    {{EmployeesModel.UserCode}}<br />
+                                                    {{EmployeesModel.PhoneNumber}}
+
+                                                </p>*@
+                                            <div class="form-horizontal">
+                                                <div class="form-group">
+                                                    <label for="" class="col-sm-5">Employee ID</label>
+                                                    <div class="col-sm-7">
+                                                        <p>{{EmployeesModel.UserCode}}</p>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label for="" class="col-sm-5">Phone Number</label>
+                                                    <div class="col-sm-7">
+                                                        <p>{{EmployeesModel.PhoneNumber}}</p>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="callout callout-warning" style="min-height: 165px;">
+                                    <h4 style="margin-bottom: 20px; color:#000000;">Current Position</h4>
+
+                                    <div class="form-horizontal">
+
+                                        <div class="form-group">
+                                            <label for="" class="col-sm-5">Designation</label>
+                                            <div class="col-sm-7">
+                                                <p>{{EmployeesModel.UserTypeName}}</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="" class="col-sm-5">Location</label>
+                                            <div class="col-sm-7">
+                                                <p>{{EmployeesModel.Address}}</p>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="callout callout-warning">
+                                    <h4 style="margin-bottom: 20px; color:#000000;">Personal Information</h4>
+                                    <div class="form-horizontal">
+
+                                        <div class="form-group">
+                                            <label for="" class="col-sm-5">Primary ID</label>
+                                            <div class="col-sm-7">
+                                                <p>{{EmployeesModel.AadharNumber}}</p>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="" class="col-sm-5">Secondary ID</label>
+                                            <div class="col-sm-7">
+                                                <p>{{EmployeesModel.PANNumber}}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="callout callout-warning">
+                                    <h4 style="margin-bottom: 20px; color:#000000;">Joining Details</h4>
+                                    <div class="form-horizontal">
+
+                                        <div class="form-group">
+                                            <label for="" class="col-sm-5">Joined On</label>
+                                            <div class="col-sm-7">
+                                                <p>{{EmployeesModel.JoiningDate  | date:"dd/MM/yyyy"}}</p>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="" class="col-sm-5">Salary</label>
+                                            <div class="col-sm-7">
+                                                <p>{{EmployeesModel.Salary}}</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="" class="col-sm-5">Status</label>
+                                            <div class="col-sm-7">
+                                                <p ng-if="EmployeesModel.IsActive==true">Active</p>
+                                                <p ng-if="EmployeesModel.IsActive==false">In Active</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </md-card>
+                </article>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="hdnUpdateUserID" name="hdnUpdateUserID" value="@empid" />
+@Html.Hidden("ViewEmployeeProfile", Url.Action("ViewEmployeeProfile", "Employee"))

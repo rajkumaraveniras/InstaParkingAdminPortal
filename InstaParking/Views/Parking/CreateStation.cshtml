@@ -1,0 +1,109 @@
+﻿@{
+    ViewBag.Title = "CreateStation";
+    Layout = null;
+}
+<style type="text/css">
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+<div class="page page-create-zone">
+    <div data-ng-controller="ParkingCtrl">
+        <form name="formStation">
+            <div class="row ui-section">
+                <div class="col-md-12">
+                    <article class="article">
+                        <md-card class="no-margin-h">
+                            <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                                <div class="md-toolbar-tools">
+                                    <span>Create New Location</span>
+                                    <div flex></div>
+                                    <a href="#!/parking/stations" class="md-button md-raised btn-w-md" style="display: flex;">
+                                        <i class="material-icons">arrow_back</i> Back To Locations
+                                    </a>
+                                </div>
+                            </md-toolbar>
+
+                            <div>
+                                <div class="col-md-4 col-lg-3">
+                                    <md-input-container class="md-block">
+                                        <label>Location Name</label>
+                                        <input ng-model="LocationsModel['LocationName']" name="LocationName" required>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-4 col-lg-3">
+                                    <md-input-container class="md-block">
+                                        <label>Location Code</label>
+                                        <input ng-model="LocationsModel['LocationCode']" name="LocationCode" required>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-4 col-lg-3">
+                                    <md-input-container class="md-block">
+                                        <label>Latitude</label>
+                                        <input type="number" ng-model="LocationsModel['Lattitude']" name="Lattitude" required allow-decimal-numbers
+                                               ng-min="0.1" ng-max="99.9999" step="any">
+                                        <div ng-messages="formStation.Lattitude.$error" role="alert" multiple>
+                                            <div ng-message="max" class="my-message">
+                                                Lattitude have only two digits before the decimal.
+                                            </div>
+                                            <div ng-message="min" class="my-message">
+                                                Lattitude must be greater than zero.
+                                            </div>
+                                        </div>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-4 col-lg-3">
+                                    <md-input-container class="md-block">
+                                        <label>Longitude</label>
+                                        <input type="number" ng-model="LocationsModel['Longitude']" name="Longitude" required allow-decimal-numbers
+                                               ng-min="0.1" ng-max="99.9999" step="any">
+                                        <div ng-messages="formStation.Longitude.$error" role="alert" multiple>
+                                            <div ng-message="max" class="my-message">
+                                                Longitude have only two digits before the decimal.
+                                            </div>
+                                            <div ng-message="min" class="my-message">
+                                                Longitude must be greater than zero.
+                                            </div>
+                                        </div>
+                                    </md-input-container>
+                                </div>
+
+
+
+                                <div class="col-md-8 col-lg-6">
+                                    <md-input-container class="md-block">
+                                        <label>Address</label>
+                                        <input ng-model="LocationsModel['Address']" name="Address" required>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-4 col-lg-3">
+                                    <md-checkbox aria-label="Checkbox 1" style="margin-top: 20px;" ng-model="LocationsModel['IsActive']"> Active </md-checkbox>
+                                </div>
+
+                                <div class="col-md-12 text-center" style="margin: 20px 0px;">
+                                    <md-button type="submit" class="md-button md-raised btn-w-md md-default custom-btn"
+                                               name="myButton" [disabled]="formStation.$valid"
+                                               data-ng-click="formStation.$valid && SubmitStation()">Create Location</md-button>
+                                </div>
+                            </div>
+                        </md-card>
+                    </article>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@Html.Hidden("SaveLocation", Url.Action("SaveLocation", "Parking"))
