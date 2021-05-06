@@ -68,6 +68,17 @@ namespace InstaParking.DAL
                             checkin_obj.Operator = Convert.ToInt32(dt_location.Rows[i]["Operator"]);
                             checkin_obj.CallPay = Convert.ToInt32(dt_location.Rows[i]["Call Pay"]);
                             checkin_obj.Total = Convert.ToInt32(dt_location.Rows[i]["Total"]);
+                            checkin_obj.Out = dt_location.Rows[i]["Out"]==DBNull.Value?0: Convert.ToInt32(dt_location.Rows[i]["Out"]);
+                            checkin_obj.FOC = dt_location.Rows[i]["FOC"] == DBNull.Value ? 0 : Convert.ToInt32(dt_location.Rows[i]["FOC"]);
+                            if (i == 0)
+                            {
+                                checkin_obj.AppTotal = Convert.ToString(dt_location.Compute("Sum(App)", ""));
+                                checkin_obj.PassTotal = Convert.ToString(dt_location.Compute("Sum(Pass)", ""));
+                                checkin_obj.OperatorTotal = Convert.ToString(dt_location.Compute("Sum(Operator)", ""));
+                                checkin_obj.CallPayTotal = Convert.ToString(dt_location.Compute("Sum([Call Pay])", ""));
+                                checkin_obj.OutTotal = Convert.ToString(dt_location.Compute("Sum(Out)", ""));
+                                checkin_obj.FOCTotal = Convert.ToString(dt_location.Compute("Sum(FOC)", ""));
+                            }
                             checkin_List.Add(checkin_obj);
                         }
                     }
@@ -558,6 +569,135 @@ namespace InstaParking.DAL
                     }
                 }
                 return duplicate_List;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public string LogoutEmployee(string EmployeeID,string LoginTime)
+        {  
+            sqlhelper_obj = new SqlHelper();
+            string resultmsg = string.Empty;
+          
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+                    using (SqlCommand sqlcmd_details_obj = new SqlCommand("PARK_PROC_LogoutEmployee", sqlconn_obj))
+                    {
+                        sqlcmd_details_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_details_obj.CommandTimeout = 0;
+                        
+                        sqlcmd_details_obj.Parameters.AddWithValue("@EmpID", EmployeeID);
+                        sqlcmd_details_obj.Parameters.AddWithValue("@LoginTime", LoginTime);
+                        sqlconn_obj.Open();
+                        int res = sqlcmd_details_obj.ExecuteNonQuery();
+                        sqlconn_obj.Close();
+                        if(res>0)
+                        {
+                            resultmsg = "Success";
+                        }
+                        else
+                        {
+                            resultmsg = "Fail";
+                        }
+
+                    }
+                }
+                return resultmsg;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public List<PassExpiredCustomer> GetPassExpiredCustomersList(SearchFilters passExpiryFilterData)
+        {
+            sqlhelper_obj = new SqlHelper();
+            List<PassExpiredCustomer> customers_List = new List<PassExpiredCustomer>();
+           
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+                    using (SqlCommand sqlcmd_details_obj = new SqlCommand("PARK_PROC_GetPassExpiredCustomersList", sqlconn_obj))
+                    {
+                        sqlcmd_details_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_details_obj.CommandTimeout = 0;
+                       
+                        if (passExpiryFilterData.Duration != "0" && passExpiryFilterData.Duration != null)
+                        {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@Duration", passExpiryFilterData.Duration);
+                        }
+                        else
+                        {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@Duration", DBNull.Value);
+                        }
+                        sqlcmd_details_obj.Parameters.AddWithValue("@VehicleTypeID", passExpiryFilterData.VehicleTypeID);
+                        DataSet ds;
+                        using (SqlDataAdapter sql_dp = new SqlDataAdapter(sqlcmd_details_obj))
+                        {
+                            ds = new DataSet();
+                            sql_dp.Fill(ds);
+                        }
+                        DataTable dt_location = ds.Tables[0];
+                        for (int i = 0; i < dt_location.Rows.Count; i++)
+                        {
+                            PassExpiredCustomer customer_obj = new PassExpiredCustomer();
+                            customer_obj.Name = Convert.ToString(dt_location.Rows[i]["Name"]);
+                            customer_obj.PhoneNumber = Convert.ToString(dt_location.Rows[i]["PhoneNumber"]);
+                            customer_obj.VehicleType = Convert.ToString(dt_location.Rows[i]["VehicleTypeCode"]);
+                            customer_obj.VehicleNumber = Convert.ToString(dt_location.Rows[i]["RegistrationNumber"]);
+                            customer_obj.TypeofPass = Convert.ToString(dt_location.Rows[i]["PassTypeName"]);
+                            customer_obj.PassExpiryDate = Convert.ToString(dt_location.Rows[i]["ExpiryDate"]);
+                            customers_List.Add(customer_obj);
+                        }
+                    }
+                }
+                return customers_List;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public string DeleteDuplicateEntries(List<DuplicateEntries> duplicateList,string createdBy)
+        {
+            sqlhelper_obj = new SqlHelper();
+            string resultmsg = "";
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+
+                    for (var i = 0; i < duplicateList.Count; i++)
+                    {
+                        using (SqlCommand sqlcmd_obj = new SqlCommand("PARK_PROC_DeleteDuplicates", sqlconn_obj))
+                        {
+                            sqlcmd_obj.CommandType = CommandType.StoredProcedure;
+                            sqlcmd_obj.CommandTimeout = 0;
+                            sqlcmd_obj.Parameters.AddWithValue("@RegistrationNumber", duplicateList[i].RegistrationNumber);
+                            sqlcmd_obj.Parameters.AddWithValue("@CreatedOn", duplicateList[i].TransactionDate);
+                            sqlcmd_obj.Parameters.AddWithValue("@CreatedBy", createdBy);
+                            sqlconn_obj.Open();
+                            int res = sqlcmd_obj.ExecuteNonQuery();
+                            sqlconn_obj.Close();
+                            if (res > 0)
+                            {
+                                resultmsg = "Success";
+                            }
+                            else
+                            {
+                                resultmsg = "Failed";
+                            }
+                        }
+                    }                   
+                }
+                return resultmsg;
             }
             catch (Exception ex)
             {

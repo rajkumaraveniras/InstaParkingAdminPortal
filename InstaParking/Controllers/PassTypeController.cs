@@ -44,6 +44,7 @@ namespace InstaParking.Controllers
         public JsonResult SavePassType(Passes PassTypeData)
         {
             string success = "";
+           
             try
             {
                 success = passTypeDAL_obj.InsertAndUpdatePassType(PassTypeData, Convert.ToString(Session["UserID"]));

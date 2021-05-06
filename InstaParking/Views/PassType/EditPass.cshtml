@@ -36,7 +36,8 @@
                                 <div class="col-md-3">
                                     <md-input-container class="md-block">
                                         <label>Pass Type </label>
-                                        <md-select ng-model="PassTypeModel['PassTypeID']" aria-label="select" name="PassTypeID">
+                                        <md-select ng-model="PassTypeModel['PassTypeID']" aria-label="select" name="PassTypeID" required
+                                                   ng-change="GetStationAccessByPassType(PassTypeModel.PassTypeID)">
                                             <md-option ng-repeat="passtype in PassTypeListModel" value="{{passtype.PassTypeID}}"> {{passtype.PassTypeName}} </md-option>
                                         </md-select>
                                     </md-input-container>
@@ -45,7 +46,7 @@
                                 <div class="col-md-3">
                                     <md-input-container class="full-width">
                                         <label class="md-required">Station Access</label>
-                                        <md-select ng-model="PassTypeModel['StationAccess']" aria-label="select" name="StationAccess">
+                                        <md-select ng-model="PassTypeModel['StationAccess']" aria-label="select" name="StationAccess" required>
                                             <md-option ng-repeat="access in StationAccessModel" value="{{access.name}}"> {{access.name}} </md-option>
                                         </md-select>
                                     </md-input-container>
@@ -65,8 +66,8 @@
                                         <label class="md-required">Duration</label>
                                         <input ng-model="PassTypeModel['Duration']" name="Duration" required allow-numbers>
                                         @*<md-select ng-model="PassTypeModel['Duration']" aria-label="select" name="Duration">
-            <md-option ng-repeat="duration in DurationModel" value="{{duration.name}}"> {{duration.name}} </md-option>
-        </md-select>*@
+                                                <md-option ng-repeat="duration in DurationModel" value="{{duration.name}}"> {{duration.name}} </md-option>
+                                            </md-select>*@
                                     </md-input-container>
                                 </div>
 
@@ -88,20 +89,20 @@
                                 <div class="col-md-3">
                                     <md-input-container class="full-width">
                                         <label>Price of Pass</label>
-                                        <input ng-model="PassTypeModel['Price']" name="Price" required  valid-number>
+                                        <input ng-model="PassTypeModel['Price']" name="Price" required valid-number>
                                     </md-input-container>
                                 </div>
 
-                                <div class="col-md-3">
-                                    <md-checkbox aria-label="Checkbox 1" style="margin-top: 20px;" ng-model="PassTypeModel['NFCApplicable']"> NFC Applicable </md-checkbox>
-                                </div>
+                                @*<div class="col-md-3">
+                                        <md-checkbox aria-label="Checkbox 1" style="margin-top: 20px;" ng-model="PassTypeModel['NFCApplicable']"> NFC Applicable </md-checkbox>
+                                    </div>
 
-                                <div class="col-md-3">
-                                    <md-input-container class="md-block">
-                                        <label>NFC Card  Price</label>
-                                        <input ng-model="PassTypeModel['NFCCardPrice']" name="NFCCardPrice"  valid-number>
-                                    </md-input-container>
-                                </div>
+                                    <div class="col-md-3">
+                                        <md-input-container class="md-block">
+                                            <label>NFC Card  Price</label>
+                                            <input ng-model="PassTypeModel['NFCCardPrice']" name="NFCCardPrice"  valid-number>
+                                        </md-input-container>
+                                    </div>*@
 
                                 <div class="col-md-3">
                                     <md-checkbox aria-label="Checkbox 1" style="margin-top: 20px;" ng-model="PassTypeModel['IsActive']"> Active </md-checkbox>
@@ -127,7 +128,8 @@
         </form>
     </div>
 </div>
+@Html.Hidden("GetActivePassTypes", Url.Action("GetActivePassTypes", "PassType"))
 @Html.Hidden("ViewPassType", Url.Action("ViewPassType", "PassType"))
 @Html.Hidden("UpdatePassType", Url.Action("SavePassType", "PassType"))
 @Html.Hidden("GetActiveVehicleTypes", Url.Action("GetActiveVehicleTypesList", "Parking"))
-@Html.Hidden("GetActivePassTypes", Url.Action("GetActivePassTypes", "PassType"))
+

@@ -438,3 +438,13 @@ table.md-table:not(.md-row-select) td.md-cell:first-child, table.md-table:not(.m
 .allocationsfont-danger {
     color: red;
 }
+
+.md-datepicker-input-container {
+    width: 100% !important;
+    margin: 0px !important;
+}
+
+/*._md-datepicker-floating-label > md-datepicker .md-datepicker-button {
+    display: none;
+    visibility:hidden;
+}*/

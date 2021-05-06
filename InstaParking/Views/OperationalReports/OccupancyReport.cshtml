@@ -120,27 +120,27 @@
 
                             <!--header start-->
                             <div>
-                                <div style="width: 48%; padding: 10px 1%; float: left;">
-                                    <img src="~/assets/images/Logo4.png" style="padding-top:15px;" alt="logo" />
+                                <div style="width:48%;padding: 5px 1%; float: left;">
+                                    @*<img src="~/assets/images/Logo4.png" style="padding-top:15px;" alt="logo" />*@
+                                    <img id="CompanyImg" style="padding-top:5px;width:80px; height: 72px;" alt="logo" />
                                 </div>
                                 <div style="width: 48%; padding: 10px 1%; float: left; text-align: left; color:#353535;">
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Unit #3A, Plot No:847, Pacific Towers,<br />
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    Madhapur, Hyderabad – 500081, TS<br />
+                                    @*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*@
+                                    @*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Unit #3A, Plot No:847, Pacific Towers,<br />*@
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{AccountModel.Address1}}<br />
+                                    @*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*@
+                                    @*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*@
+                                    @*Madhapur, Hyderabad – 500081, TS<br />*@
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{AccountModel.Address2}}<br />
                                     <strong style="font-family: pnbold;">
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GSTIN:
-                                    </strong> 36AABCT3518Q1ZX<br />
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GSTIN:
+                                    </strong> {{AccountModel.GSTNumber}}<br />
                                     <strong style="font-family: pnbold;">
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ph:
-                                    </strong> +91 8143143143 <br />
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ph:
+                                    </strong> +91 {{AccountModel.ContactNumber}} <br />
                                     <strong style="font-family: pnbold;">
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Email:
-                                    </strong> support@hmrl.com<br />
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Email:
+                                    </strong> {{AccountModel.SupportEmailID}}<br />
                                 </div>
                                 <div style="clear:both;"></div>
                             </div>
@@ -158,8 +158,8 @@
                                     <strong style="margin-right: 6px; font-family: pnbold;">Filtered By&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;</strong>
                                     <span>{{SelectedItemModel.SelectedStation}},{{SelectedItemModel.SelectedLot}},{{SelectedItemModel.SelectedVehicle}}</span>
                                     @*<span style="padding: 2px 6px; -moz-border-radius:3px; -webkit-border-radius:3px; -o-border-radius:3px; -ms-border-radius:3px; border-radius:3px; border:1px solid #dbdbdb;">{{SelectedItemModel.SelectedStation}}</span>
-                                    <span style="padding: 2px 6px; -moz-border-radius:3px; -webkit-border-radius:3px; -o-border-radius:3px; -ms-border-radius:3px; border-radius:3px; border:1px solid #dbdbdb;">{{SelectedItemModel.SelectedLot}}</span>
-                                    <span style="padding: 2px 6px; -moz-border-radius:3px; -webkit-border-radius:3px; -o-border-radius:3px; -ms-border-radius:3px; border-radius:3px; border:1px solid #dbdbdb;">{{SelectedItemModel.SelectedVehicle}}</span>*@
+                                        <span style="padding: 2px 6px; -moz-border-radius:3px; -webkit-border-radius:3px; -o-border-radius:3px; -ms-border-radius:3px; border-radius:3px; border:1px solid #dbdbdb;">{{SelectedItemModel.SelectedLot}}</span>
+                                        <span style="padding: 2px 6px; -moz-border-radius:3px; -webkit-border-radius:3px; -o-border-radius:3px; -ms-border-radius:3px; border-radius:3px; border:1px solid #dbdbdb;">{{SelectedItemModel.SelectedVehicle}}</span>*@
                                 </div>
                             </div>
                             <!--filtered by close-->
@@ -168,10 +168,10 @@
                                 <div style="display: inline;">
                                     @*<strong style="margin-right: 6px; font-family: pnbold;">Report From:</strong>*@
                                     @*<span>
-                                        {{ReportFilterModel.FromDate | date:"dd/MM/yyyy"}}
-                                        to
-                                        {{ReportFilterModel.ToDate | date:"dd/MM/yyyy"}}
-                                    </span> &nbsp;&nbsp;&nbsp;&nbsp;*@
+                                            {{ReportFilterModel.FromDate | date:"dd/MM/yyyy"}}
+                                            to
+                                            {{ReportFilterModel.ToDate | date:"dd/MM/yyyy"}}
+                                        </span> &nbsp;&nbsp;&nbsp;&nbsp;*@
                                     <strong style="margin-right: 6px; font-family: pnbold;">Generated On&nbsp;&nbsp;&nbsp;:&nbsp;</strong>
                                     <span>{{TodayDate | date:"dd/MM/yyyy  h:mma"}}</span>
                                 </div>
@@ -212,3 +212,4 @@
 @Html.Hidden("GetActiveLotssList", Url.Action("GetActiveLotssList", "Employee"))
 @Html.Hidden("GetActiveVehicleTypesList", Url.Action("GetActiveVehicleTypesList", "Parking"))
 @Html.Hidden("GetOccupancyReport", Url.Action("GetOccupancyReport", "OperationalReports"))
+@Html.Hidden("GetAccountDetails", Url.Action("GetAccountDetails", "CompanyInfo"))

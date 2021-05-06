@@ -19,5 +19,7 @@ namespace InstaParking.Models
         public bool IsDeleted { get; set; }
         public DateTime UpdatedOn { get; set; }
         public string UpdatedBy { get; set; }
+        public int TagType { get; set; }/*27022021*/
+        public List<Passes> PassAccess { get; set; }
     }
 }

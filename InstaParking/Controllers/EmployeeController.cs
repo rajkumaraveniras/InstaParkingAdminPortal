@@ -263,6 +263,7 @@ namespace InstaParking.Controllers
             try
             {
                 List<User> usersList = usersDAL_obj.ViewEmployee(EmployeeID);
+                System.Web.HttpContext.Current.Session["EmployeePhotoName"] = usersList[0].Photo;
                 return new JsonResult()
                 {
                     Data = usersList,

@@ -203,5 +203,124 @@ namespace InstaParking.DAL
 
 
         }
+        public IList<VehicleType> GetListofActiveVehicleTypes()
+        {
+            IList<VehicleType> vehicleTypeList = new List<VehicleType>();
+            sqlhelper_obj = new SqlHelper();
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+
+                    using (SqlCommand sqlcmd_getvehicleType_obj = new SqlCommand("PARK_PROC_GetActiveVehicleTypes", sqlconn_obj))
+                    {
+                        sqlcmd_getvehicleType_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_getvehicleType_obj.CommandTimeout = 0;
+                        DataSet ds;
+                        using (SqlDataAdapter da = new SqlDataAdapter(sqlcmd_getvehicleType_obj))
+                        {
+                            ds = new DataSet();
+                            da.Fill(ds);
+                        }
+                        DataTable dt = ds.Tables[0];
+
+                        for (int i = 0; i < dt.Rows.Count; i++)
+                        {
+                            VehicleType vehicleType_obj = new VehicleType();
+                            vehicleType_obj.VehicleTypeID = Convert.ToInt32(dt.Rows[i]["VehicleTypeID"]);
+                            vehicleType_obj.VehicleTypeCode = Convert.ToString(dt.Rows[i]["VehicleTypeCode"]);
+                            vehicleType_obj.selected = false;
+                            vehicleTypeList.Add(vehicleType_obj);
+                        }
+                    }
+                }
+                return vehicleTypeList;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IList<VehicleType> GetListofLocationVehicleTypesByID(int LocationID)
+        {
+            IList<VehicleType> vehicleTypeList = new List<VehicleType>();
+            sqlhelper_obj = new SqlHelper();
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+
+                    using (SqlCommand sqlcmd_getvehicleType_obj = new SqlCommand("PARK_PROC_GetLocationVehicleTypesListByLocationID", sqlconn_obj))
+                    {
+                        sqlcmd_getvehicleType_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_getvehicleType_obj.CommandTimeout = 0;
+                        sqlcmd_getvehicleType_obj.Parameters.AddWithValue("@LocationID", LocationID);
+                        DataSet ds;
+                        using (SqlDataAdapter da = new SqlDataAdapter(sqlcmd_getvehicleType_obj))
+                        {
+                            ds = new DataSet();
+                            da.Fill(ds);
+                        }
+                        DataTable dt = ds.Tables[0];
+
+                        for (int i = 0; i < dt.Rows.Count; i++)
+                        {
+                            VehicleType vehicleType_obj = new VehicleType();
+                            vehicleType_obj.VehicleTypeID = Convert.ToInt32(dt.Rows[i]["VehicleTypeID"]);
+                            vehicleType_obj.VehicleTypeCode = Convert.ToString(dt.Rows[i]["VehicleTypeCode"]);
+                            vehicleType_obj.selected = Convert.ToBoolean(dt.Rows[i]["IsActive"]);
+                            vehicleTypeList.Add(vehicleType_obj);
+                        }
+                    }
+                }
+                return vehicleTypeList;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IList<VehicleType> GetVehicleTypesByLotID(int LotID)
+        {
+            IList<VehicleType> vehicleTypeList = new List<VehicleType>();
+            sqlhelper_obj = new SqlHelper();
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+
+                    using (SqlCommand sqlcmd_getvehicleType_obj = new SqlCommand("PARK_PROC_GetLotVehicleTypesListByLotID", sqlconn_obj))
+                    {
+                        sqlcmd_getvehicleType_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_getvehicleType_obj.CommandTimeout = 0;
+                        sqlcmd_getvehicleType_obj.Parameters.AddWithValue("@LotID", LotID);
+                        DataSet ds;
+                        using (SqlDataAdapter da = new SqlDataAdapter(sqlcmd_getvehicleType_obj))
+                        {
+                            ds = new DataSet();
+                            da.Fill(ds);
+                        }
+                        DataTable dt = ds.Tables[0];
+
+                        for (int i = 0; i < dt.Rows.Count; i++)
+                        {
+                            VehicleType vehicleType_obj = new VehicleType();
+                            vehicleType_obj.VehicleTypeID = Convert.ToInt32(dt.Rows[i]["VehicleTypeID"]);
+                            vehicleType_obj.VehicleTypeCode = Convert.ToString(dt.Rows[i]["VehicleTypeCode"]);
+                            vehicleType_obj.selected = Convert.ToBoolean(dt.Rows[i]["IsActive"]);
+                            vehicleTypeList.Add(vehicleType_obj);
+                        }
+                    }
+                }
+                return vehicleTypeList;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

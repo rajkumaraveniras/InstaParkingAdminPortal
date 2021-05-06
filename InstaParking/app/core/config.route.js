@@ -252,6 +252,15 @@ var absUrl = 'http://localhost:8405';
                         templateUrl: absUrl + '/Home/EditProfile'
                     })
 
+                    .state('revenuereports/report-duecollected', {
+                        url: '/revenuereports/report-duecollected',
+                        templateUrl: absUrl + '/RevenueReports/DueCollectedReport'
+                    })
+                    .state('operationalreports/report-passexpiry', {
+                        url: '/operationalreports/report-passexpiry',
+                        templateUrl: absUrl + '/OperationalReports/PassExpiryReport'
+                    })
+
                     //.state('assign-operators', {
                     //    url: '/assign-operators',
                     //    templateUrl: absUrl + '/Supervisor/AssignOperators'

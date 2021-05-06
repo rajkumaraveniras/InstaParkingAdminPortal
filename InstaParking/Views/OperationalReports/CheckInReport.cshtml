@@ -65,7 +65,8 @@
                                             <label style="visibility: hidden;">From Date</label>
                                             <md-datepicker ng-model="ReportFilterModel['FromDate']" md-placeholder="From Date" name="FromDate"
                                                            ng-disabled="disabled" ng-required="required"
-                                                           ng-change="ChangeToDate()" md-open-on-focus id="FromDate"></md-datepicker>
+                                                           ng-change="ChangeToDate()" md-open-on-focus id="FromDate" readonly
+                                                           md-max-date="TomaxDate"></md-datepicker>
                                         </md-input-container>
                                     </div>
 
@@ -84,7 +85,7 @@
                                             <md-datepicker ng-model="ReportFilterModel['ToDate']" md-placeholder="To Date" name="ToDate"
                                                            ng-disabled="disabled" ng-required="required"
                                                            ng-change="AssignToDate()" id="ToDate"
-                                                           md-max-date="TomaxDate"></md-datepicker>
+                                                           md-max-date="TomaxDate" readonly></md-datepicker>
                                         </md-input-container>
                                     </div>
                                     <div class="col-md-3" ng-if="ReportFilterModel.Duration==''">
@@ -94,7 +95,7 @@
                                                            ng-disabled="disabled" ng-required="required"
                                                            md-min-date="ReportFilterModel.FromDate"
                                                            ng-change="AssignToDate()" id="ToDate"
-                                                           md-max-date="TomaxDate"></md-datepicker>
+                                                           md-max-date="TomaxDate" readonly></md-datepicker>
                                         </md-input-container>
                                     </div>
 
@@ -144,11 +145,12 @@
                                     <tr md-row>
                                         <th md-column md-order-by="Station"><span>Station</span></th>
                                         <th md-column md-order-by="ParkingLot"><span>Parking Lot</span></th>
-                                        @*<th md-column md-order-by="ParkingLot"><span>Lot Code</span></th>*@
                                         <th md-column md-order-by="App"><span>App</span></th>
                                         <th md-column md-order-by="Pass"><span>Pass</span></th>
                                         <th md-column md-order-by="Operator"><span>Operator</span></th>
                                         <th md-column md-order-by="CallPay"><span>Call Pay</span></th>
+                                        <th md-column md-order-by="Out"><span>Out</span></th>
+                                        <th md-column md-order-by="FOC"><span>FOC</span></th>
                                         <th style="text-align: right;" class="sort-none" md-column md-order-by="Total"><span>Total</span></th>
                                     </tr>
                                 </thead>
@@ -162,15 +164,23 @@
                                         <td md-cell>{{rbcidata.Pass}}</td>
                                         <td md-cell>{{rbcidata.Operator}}</td>
                                         <td md-cell>{{rbcidata.CallPay}}</td>
+                                        <td md-cell>{{rbcidata.Out}}</td>
+                                        <td md-cell>{{rbcidata.FOC}}</td>
                                         <td md-cell style="text-align: right;">{{rbcidata.Total}}</td>
                                     </tr>
                                     <tr md-row class="total-row" ng-if="CheckInReportListModel.length>0">
                                         <td md-cell></td>
-                                        <td md-cell colspan="5">Total:</td>
+                                        <td md-cell style="text-align: left !important;">Total:</td>
+                                        <td md-cell style="text-align: left !important;">{{CheckInReportListModel[0].AppTotal}}</td>
+                                        <td md-cell style="text-align: left !important;">{{CheckInReportListModel[0].PassTotal}}</td>
+                                        <td md-cell style="text-align: left !important;">{{CheckInReportListModel[0].OperatorTotal}}</td>
+                                        <td md-cell style="text-align: left !important;">{{CheckInReportListModel[0].CallPayTotal}}</td>
+                                        <td md-cell style="text-align: left !important;">{{CheckInReportListModel[0].OutTotal}}</td>
+                                        <td md-cell style="text-align: left !important;">{{CheckInReportListModel[0].FOCTotal}}</td>
                                         <td md-cell>{{CheckInGrandTotal}}</td>
                                     </tr>
                                     <tr md-row ng-if="CheckInReportListModel.length==0">
-                                        <td md-cell colspan="7" style="text-align: center;">No Data Available</td>
+                                        <td md-cell colspan="9" style="text-align: center;">No Data Available</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -187,27 +197,27 @@
 
                             <!--header start-->
                             <div>
-                                <div style="width: 48%; padding: 10px 1%; float: left;">
-                                    <img src="~/assets/images/Logo4.png" style="padding-top:15px;" alt="logo" />
+                                <div style="width:48%;padding: 5px 1%; float: left;">
+                                    @*<img src="~/assets/images/Logo4.png" style="padding-top:15px;" alt="logo" />*@
+                                    <img id="CompanyImg" style="padding-top:5px;width:80px; height: 72px;" alt="logo" />
                                 </div>
                                 <div style="width: 48%; padding: 10px 1%; float: left; text-align: left; color:#353535;">
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Unit #3A, Plot No:847, Pacific Towers,<br />
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    Madhapur, Hyderabad – 500081, TS<br />
+                                    @*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*@
+                                    @*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Unit #3A, Plot No:847, Pacific Towers,<br />*@
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{AccountModel.Address1}}<br />
+                                    @*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*@
+                                    @*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*@
+                                    @*Madhapur, Hyderabad – 500081, TS<br />*@
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{AccountModel.Address2}}<br />
                                     <strong style="font-family: pnbold;">
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GSTIN:
-                                    </strong> 36AABCT3518Q1ZX<br />
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GSTIN:
+                                    </strong> {{AccountModel.GSTNumber}}<br />
                                     <strong style="font-family: pnbold;">
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ph:
-                                    </strong> +91 8143143143 <br />
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ph:
+                                    </strong> +91 {{AccountModel.ContactNumber}} <br />
                                     <strong style="font-family: pnbold;">
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Email:
-                                    </strong> support@hmrl.com<br />
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Email:
+                                    </strong> {{AccountModel.SupportEmailID}}<br />
                                 </div>
                                 <div style="clear:both;"></div>
                             </div>
@@ -244,7 +254,7 @@
                                             {{ReportFilterModel.ToDate | date:"dd/MM/yyyy"}}*@
                                     </span> &nbsp;&nbsp;&nbsp;&nbsp;
                                     @*<strong style="margin-right: 6px; font-family: pnbold;">Generated On:</strong>
-                                    <span>{{TodayDate | date:"dd/MM/yyyy  h:mma"}}</span>*@
+                                        <span>{{TodayDate | date:"dd/MM/yyyy  h:mma"}}</span>*@
                                 </div>
                                 <div style="clear:both; margin-top: 7px;"></div>
                             </div>
@@ -266,6 +276,8 @@
                                     <th style=" border: 1px solid #000000;">Pass</th>
                                     <th style=" border: 1px solid #000000;">Operator</th>
                                     <th style=" border: 1px solid #000000;">Call Pay</th>
+                                    <th style=" border: 1px solid #000000;">Out</th>
+                                    <th style=" border: 1px solid #000000;">FOC</th>
                                     <th style=" border: 1px solid #000000; text-align: right;">Total</th>
                                 </tr>
                                 <tr ng-repeat="item in CheckInReportListModel">
@@ -275,15 +287,22 @@
                                     <td style=" border: 1px solid #000000;">{{item.Pass}} </td>
                                     <td style=" border: 1px solid #000000;">{{item.Operator}}</td>
                                     <td style=" border: 1px solid #000000;">{{item.CallPay}}</td>
+                                    <td style=" border: 1px solid #000000;">{{item.Out}}</td>
+                                    <td style=" border: 1px solid #000000;">{{item.FOC}}</td>
                                     <td style=" border: 1px solid #000000; text-align: right;">{{item.Total}}</td>
                                 </tr>
                                 <tr style=" font-family: pnbold;">
                                     <td style=" border: 1px solid #000000;">&nbsp;</td>
-                                    <td style=" border: 1px solid #000000;">&nbsp;</td>
-                                    <td style=" border: 1px solid #000000;">&nbsp;</td>
-                                    <td style=" border: 1px solid #000000;">&nbsp;</td>
-                                    <td colspan="2" style=" border: 1px solid #000000; font-size: 13px; font-weight: bold; text-align: right;">TOTAL:</td>
-                                    <td style=" border: 1px solid #000000;font-size: 13px; font-weight: bold; text-align: right;">{{CheckInGrandTotal}}</td>
+                                    <td style=" border: 1px solid #000000; font-size: 13px; font-weight: bold; text-align: right;">TOTAL:</td>
+                                    <td style=" border: 1px solid #000000;">{{CheckInReportListModel[0].AppTotal}}</td>
+                                    <td style=" border: 1px solid #000000;">{{CheckInReportListModel[0].PassTotal}}</td>
+                                    <td style=" border: 1px solid #000000;">{{CheckInReportListModel[0].OperatorTotal}}</td>
+                                    <td style=" border: 1px solid #000000;">{{CheckInReportListModel[0].CallPayTotal}}</td>
+                                    <td style=" border: 1px solid #000000;">{{CheckInReportListModel[0].OutTotal}}</td>
+                                    <td style=" border: 1px solid #000000;">{{CheckInReportListModel[0].FOCTotal}}</td>
+                                    <td style=" border: 1px solid #000000;font-size: 13px; font-weight: bold; text-align: right;">
+                                        {{CheckInGrandTotal}}
+                                    </td>
                                 </tr>
                             </table>
                             <!--table close-->
@@ -301,3 +320,4 @@
 @Html.Hidden("GetActiveLotssList", Url.Action("GetActiveLotssList", "Employee"))
 @Html.Hidden("GetActiveChannelsList", Url.Action("GetActiveChannelsList", "RevenueReports"))
 @Html.Hidden("GetCheckInReport", Url.Action("GetCheckInReport", "OperationalReports"))
+@Html.Hidden("GetAccountDetails", Url.Action("GetAccountDetails", "CompanyInfo"))

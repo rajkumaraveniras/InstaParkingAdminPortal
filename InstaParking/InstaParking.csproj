@@ -369,6 +369,8 @@
     <Content Include="Images\checked-checkbox-50.png" />
     <Content Include="Images\default-logo.png" />
     <Content Include="Images\loginimage.png" />
+    <Content Include="Images\quality 19 Jan 2021 15-34-03.png" />
+    <Content Include="Images\Quality 2020-29-12 at 10 19 Jan 2021 16-31-11.jpg" />
     <Content Include="node_modules\angular-animate\angular-animate.js" />
     <Content Include="node_modules\angular-animate\angular-animate.min.js" />
     <Content Include="node_modules\angular-animate\index.js" />
@@ -3797,6 +3799,8 @@
     <Content Include="Views\Home\EditProfile.cshtml" />
     <Content Include="Views\OperationalReports\Allocations.cshtml" />
     <Content Include="Views\OperationalReports\DuplicateEntries.cshtml" />
+    <Content Include="Views\RevenueReports\DueCollectedReport.cshtml" />
+    <Content Include="Views\OperationalReports\PassExpiryReport.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

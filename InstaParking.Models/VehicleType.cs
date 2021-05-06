@@ -18,6 +18,10 @@ namespace InstaParking.Models
         public bool IsDeleted { get; set; }
         public DateTime UpdatedOn { get; set; }
         public string UpdatedBy { get; set; }
-        public string VehicleTypeIcon { get; set; }
+        public string VehicleTypeIcon { get; set; }     
+        
+        //26022021 Start
+        public bool selected { get; set; }
+        //26022021 End
     }
 }

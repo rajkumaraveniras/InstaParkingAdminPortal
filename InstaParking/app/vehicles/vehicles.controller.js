@@ -253,7 +253,7 @@
     // table code
 
     $scope.selected = [];
-        $scope.limitOptions = [5, 10, 15];
+        $scope.limitOptions = [10, 20, 30];
         
         $scope.options = {
             rowSelection: true,
@@ -268,7 +268,7 @@
         
         $scope.query = {
             order: 'name',
-            limit: 5,
+            limit: 10,
             page: 1
         };
         
@@ -327,7 +327,7 @@
         };
         
         $scope.toggleLimitOptions = function () {
-            $scope.limitOptions = $scope.limitOptions ? undefined : [5, 10, 15];
+            $scope.limitOptions = $scope.limitOptions ? undefined : [10, 20, 30];
         };
         
         $scope.getTypes = function () {

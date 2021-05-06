@@ -14,6 +14,8 @@
         public decimal PassesEPay { get; set; }
         public decimal NFCCash { get; set; }
         public decimal NFCEPay { get; set; }
+        public decimal DueCash { get; set; }
+        public decimal DueEPay { get; set; }
         public string TotalClampCash { get; set; }
         public string TotalClampEPay { get; set; }
         public string TotalCheckInsCash { get; set; }
@@ -22,6 +24,8 @@
         public string TotalPassesEPay { get; set; }
         public string TotalNFCCash { get; set; }
         public string TotalNFCEPay { get; set; }
+        public string TotalDueCash { get; set; }
+        public string TotalDueEPay { get; set; }
         public decimal Amount { get; set; }
        
     }

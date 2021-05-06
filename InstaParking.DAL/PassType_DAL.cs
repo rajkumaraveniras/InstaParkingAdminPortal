@@ -43,10 +43,12 @@ namespace InstaParking.DAL
                             passType_obj.PassName = Convert.ToString(dt.Rows[i]["PassName"]);
                             passType_obj.StationAccess = Convert.ToString(dt.Rows[i]["StationAccess"]);
                             passType_obj.Duration = Convert.ToString(dt.Rows[i]["Duration"]);
-                            passType_obj.StartDate = Convert.ToString(dt.Rows[i]["StartDate"]);
-                            passType_obj.EndDate = Convert.ToString(dt.Rows[i]["EndDate"]);
-                            passType_obj.NFCApplicable = Convert.ToBoolean(dt.Rows[i]["NFCApplicable"]);
-                            passType_obj.NFCCardPrice = Convert.ToString(dt.Rows[i]["NFCCardPrice"]);
+                            //passType_obj.StartDate = Convert.ToString(dt.Rows[i]["StartDate"]);
+                            //passType_obj.EndDate = Convert.ToString(dt.Rows[i]["EndDate"]);
+                            passType_obj.StartDate = Convert.ToDateTime(dt.Rows[i]["StartDate"]);
+                            passType_obj.EndDate = Convert.ToDateTime(dt.Rows[i]["EndDate"]);
+                            //passType_obj.NFCApplicable = Convert.ToBoolean(dt.Rows[i]["NFCApplicable"]);
+                            //passType_obj.NFCCardPrice = Convert.ToString(dt.Rows[i]["NFCCardPrice"]);
                             passType_obj.VehicleTypeID = Convert.ToInt32(dt.Rows[i]["VehicleTypeID"]);
                             passType_obj.VehicleTypeName = Convert.ToString(dt.Rows[i]["VehicleTypeName"]);
                             //passType_obj.StartRange = Convert.ToInt32(dt.Rows[i]["StartRange"]);
@@ -110,16 +112,16 @@ namespace InstaParking.DAL
                         {
                             sqlcmd_details_obj.Parameters.AddWithValue("@EndDate", passType_data.EndDate);
                         }
-                        if (passType_data.NFCApplicable.ToString() == "")
-                        {
-                            sqlcmd_details_obj.Parameters.AddWithValue("@NFCApplicable", true);
-                        }
-                        else
-                        {
-                            sqlcmd_details_obj.Parameters.AddWithValue("@NFCApplicable", Convert.ToBoolean(passType_data.NFCApplicable));
-                        }
+                        //if (passType_data.NFCApplicable.ToString() == "")
+                        //{
+                        //    sqlcmd_details_obj.Parameters.AddWithValue("@NFCApplicable", true);
+                        //}
+                        //else
+                        //{
+                        //    sqlcmd_details_obj.Parameters.AddWithValue("@NFCApplicable", Convert.ToBoolean(passType_data.NFCApplicable));
+                        //}
 
-                        sqlcmd_details_obj.Parameters.AddWithValue("@NFCCardPrice", String.IsNullOrEmpty(passType_data.NFCCardPrice) ? (object)DBNull.Value : passType_data.NFCCardPrice.Trim());
+                        //sqlcmd_details_obj.Parameters.AddWithValue("@NFCCardPrice", String.IsNullOrEmpty(passType_data.NFCCardPrice) ? (object)DBNull.Value : passType_data.NFCCardPrice.Trim());
                         sqlcmd_details_obj.Parameters.AddWithValue("@VehicleTypeID", passType_data.VehicleTypeID);
                         sqlcmd_details_obj.Parameters.AddWithValue("@Price", String.IsNullOrEmpty(Convert.ToString(passType_data.Price)) ? (object)DBNull.Value : Convert.ToString(passType_data.Price).Trim());
                         sqlcmd_details_obj.Parameters.AddWithValue("@PassDescription", String.IsNullOrEmpty(passType_data.PassDescription) ? (object)DBNull.Value : passType_data.PassDescription.Trim());
@@ -185,10 +187,13 @@ namespace InstaParking.DAL
                             passtype_obj.PassName = Convert.ToString(row["PassName"]);
                             passtype_obj.StationAccess = Convert.ToString(row["StationAccess"]);
                             passtype_obj.Duration = Convert.ToString(row["Duration"]);
-                            passtype_obj.StartDate = Convert.ToString(row["StartDate"]);
-                            passtype_obj.EndDate = Convert.ToString(row["EndDate"]);
-                            passtype_obj.NFCApplicable = Convert.ToBoolean(row["NFCApplicable"]);
-                            passtype_obj.NFCCardPrice = Convert.ToString(row["NFCCardPrice"]);
+                            passtype_obj.StartDate = Convert.ToDateTime(row["StartDate"]);
+                            passtype_obj.EndDate = Convert.ToDateTime(row["EndDate"]);
+                            //passtype_obj.StartDate = Convert.ToString(row["StartDate"]);
+                            //passtype_obj.EndDate = Convert.ToString(row["EndDate"]);
+
+                            // passtype_obj.NFCApplicable = Convert.ToBoolean(row["NFCApplicable"]);
+                            // passtype_obj.NFCCardPrice = Convert.ToString(row["NFCCardPrice"]);
                             passtype_obj.VehicleTypeID = Convert.ToInt32(row["VehicleTypeID"]);
                             passtype_obj.Price = row["Price"] == DBNull.Value ? 0 : Convert.ToDecimal(row["Price"]);
                             passtype_obj.PassDescription = Convert.ToString(row["PassDescription"]);

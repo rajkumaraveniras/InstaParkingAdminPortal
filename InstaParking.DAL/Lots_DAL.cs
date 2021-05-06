@@ -179,46 +179,46 @@ namespace InstaParking.DAL
                 throw ex;
             }
         }
-        public IList<LotVehicleAvailability> GetActiveLotVehicleAvailabilityList()
-        {
-            IList<LotVehicleAvailability> list = new List<LotVehicleAvailability>();
-            sqlhelper_obj = new SqlHelper();
-            try
-            {
-                using (SqlConnection sqlconn_obj = new SqlConnection())
-                {
-                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+        //public IList<LotVehicleAvailability> GetActiveLotVehicleAvailabilityList()
+        //{
+        //    IList<LotVehicleAvailability> list = new List<LotVehicleAvailability>();
+        //    sqlhelper_obj = new SqlHelper();
+        //    try
+        //    {
+        //        using (SqlConnection sqlconn_obj = new SqlConnection())
+        //        {
+        //            sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
 
-                    using (SqlCommand sqlcmd_getparkingBay_obj = new SqlCommand("PARK_PROC_GetLotVehicleAvailability", sqlconn_obj))
-                    {
-                        sqlcmd_getparkingBay_obj.CommandType = CommandType.StoredProcedure;
-                        sqlcmd_getparkingBay_obj.CommandTimeout = 0;
-                        DataSet ds;
-                        using (SqlDataAdapter da = new SqlDataAdapter(sqlcmd_getparkingBay_obj))
-                        {
-                            ds = new DataSet();
-                            da.Fill(ds);
-                        }
-                        DataTable dt = ds.Tables[0];
+        //            using (SqlCommand sqlcmd_getparkingBay_obj = new SqlCommand("PARK_PROC_GetLotVehicleAvailability", sqlconn_obj))
+        //            {
+        //                sqlcmd_getparkingBay_obj.CommandType = CommandType.StoredProcedure;
+        //                sqlcmd_getparkingBay_obj.CommandTimeout = 0;
+        //                DataSet ds;
+        //                using (SqlDataAdapter da = new SqlDataAdapter(sqlcmd_getparkingBay_obj))
+        //                {
+        //                    ds = new DataSet();
+        //                    da.Fill(ds);
+        //                }
+        //                DataTable dt = ds.Tables[0];
 
-                        for (int i = 0; i < dt.Rows.Count; i++)
-                        {
-                            LotVehicleAvailability obj = new LotVehicleAvailability();
-                            obj.LotVehicleAvailabilityID = Convert.ToInt32(dt.Rows[i]["LotVehicleAvailabilityID"]);
-                            obj.LotVehicleAvailabilityCode = Convert.ToString(dt.Rows[i]["LotVehicleAvailabilityCode"]);
-                            obj.LotVehicleAvailabilityName = Convert.ToString(dt.Rows[i]["LotVehicleAvailabilityName"]);
-                            list.Add(obj);
-                        }
-                    }
-                }
-                return list;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        public int InsertAndUpdateLot(Lots lot_data, string CreatedBy)
+        //                for (int i = 0; i < dt.Rows.Count; i++)
+        //                {
+        //                    LotVehicleAvailability obj = new LotVehicleAvailability();
+        //                    obj.LotVehicleAvailabilityID = Convert.ToInt32(dt.Rows[i]["LotVehicleAvailabilityID"]);
+        //                    obj.LotVehicleAvailabilityCode = Convert.ToString(dt.Rows[i]["LotVehicleAvailabilityCode"]);
+        //                    obj.LotVehicleAvailabilityName = Convert.ToString(dt.Rows[i]["LotVehicleAvailabilityName"]);
+        //                    list.Add(obj);
+        //                }
+        //            }
+        //        }
+        //        return list;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
+        public int InsertAndUpdateLot(Lots lot_data, string CreatedBy, List<VehicleType> VehicleTypeList)
         {
             sqlhelper_obj = new SqlHelper();
             string lot_data_status = string.Empty;
@@ -245,8 +245,8 @@ namespace InstaParking.DAL
 
                         sqlcmd_details_obj.Parameters.AddWithValue("@LocationID", lot_data.LocationID);
                         sqlcmd_details_obj.Parameters.AddWithValue("@ParkingTypeID", lot_data.ParkingTypeID);
-                        sqlcmd_details_obj.Parameters.AddWithValue("@LotVehicleAvailabilityID", lot_data.LotVehicleAvailabilityID);
-                        sqlcmd_details_obj.Parameters.AddWithValue("@LotVehicleAvailabilityName", lot_data.LotVehicleAvailabilityName);
+                        //sqlcmd_details_obj.Parameters.AddWithValue("@LotVehicleAvailabilityID", lot_data.LotVehicleAvailabilityID);
+                        //sqlcmd_details_obj.Parameters.AddWithValue("@LotVehicleAvailabilityName", lot_data.LotVehicleAvailabilityName);
                         //sqlcmd_details_obj.Parameters.AddWithValue("@ParkingBayID", lot_data.ParkingBayID);
 
                         sqlcmd_details_obj.Parameters.AddWithValue("@LocationParkingLotCode", String.IsNullOrEmpty(lot_data.LocationParkingLotCode) ? (object)DBNull.Value : lot_data.LocationParkingLotCode.Trim());
@@ -278,6 +278,19 @@ namespace InstaParking.DAL
                         sqlconn_obj.Open();
                         int res = sqlcmd_details_obj.ExecuteNonQuery();
                         result = Convert.ToInt32(sqlcmd_details_obj.Parameters["@Output_identity"].Value);
+
+                        if (lot_data.LocationParkingLotID.ToString() != "" && lot_data.LocationParkingLotID != 0)
+                        {
+                            string updateLotVehTyperesult = UpdateLotVehicleTypeMapper(VehicleTypeList, CreatedBy, lot_data.LocationParkingLotID);
+                            string parkingBayStatus = UpdateLotParkingBays(CreatedBy, lot_data.LocationParkingLotID);
+                            string inactivepricestatus = InactiveLotPricesByVehicleType(lot_data.LocationParkingLotID, CreatedBy);
+                            string updatepricestatus = UpdateLotPricesByVehicleType(lot_data.LocationParkingLotID, CreatedBy, VehicleTypeList);
+                        }
+                        else
+                        {
+                            string LotVehTyperesult = SaveLotVehicleTypeMapper(VehicleTypeList, CreatedBy, result);
+                        }
+
                         sqlconn_obj.Close();
                     }
                 }
@@ -285,7 +298,15 @@ namespace InstaParking.DAL
             }
             catch (Exception ex)
             {
-                throw ex;
+                if (ex.Message.Contains("Violation of UNIQUE KEY constraint 'UC_LotName'. Cannot insert duplicate key in object 'dbo.LocationParkingLot'."))
+                {
+                    result = -2;
+                    return result;
+                }
+                else
+                {
+                    throw ex;
+                }
             }
         }
         public List<Lots> ViewLot(int LotID)
@@ -325,8 +346,8 @@ namespace InstaParking.DAL
                             lots_obj.Lattitude = Convert.ToDecimal(row["Lattitude"]);
                             lots_obj.Longitude = Convert.ToDecimal(row["Longitude"]);
                             lots_obj.IsActive = Convert.ToBoolean(row["IsActive"]);
-                            lots_obj.LotVehicleAvailabilityID = Convert.ToInt32(row["LotVehicleAvailabilityID"]);
-                            lots_obj.LotVehicleAvailabilityName = Convert.ToString(row["LotVehicleAvailabilityName"]);
+                            //lots_obj.LotVehicleAvailabilityID = Convert.ToInt32(row["LotVehicleAvailabilityID"]);
+                            //lots_obj.LotVehicleAvailabilityName = Convert.ToString(row["LotVehicleAvailabilityName"]);
                             lots_obj.IsHoliday = Convert.ToBoolean(row["IsHoliday"]);
 
                             lots_obj.Address = Convert.ToString(row["Address"]);
@@ -507,6 +528,83 @@ namespace InstaParking.DAL
                         return new MemoryStream((byte[])img);
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string VerifyLotCode(Lots LotsData)
+        {
+            sqlhelper_obj = new SqlHelper();
+            string lot_data_status = string.Empty;
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+                    using (SqlCommand sqlcmd_details_obj = new SqlCommand("PARK_PROC_VerifyLotCode", sqlconn_obj))
+                    {
+                        sqlcmd_details_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_details_obj.CommandTimeout = 0;
+                        sqlcmd_details_obj.Parameters.AddWithValue("@LocationID", LotsData.LocationID);
+                        sqlcmd_details_obj.Parameters.AddWithValue("@LotCode", String.IsNullOrEmpty(LotsData.LocationParkingLotCode) ? (object)DBNull.Value : LotsData.LocationParkingLotCode.Trim());
+                        sqlconn_obj.Open();
+                        int result = Convert.ToInt32(sqlcmd_details_obj.ExecuteScalar());
+                        sqlconn_obj.Close();
+                        if (result == 0)
+                        {
+                            lot_data_status = "Not Exists";
+                        }
+                        else
+                        {
+                            lot_data_status = "Exists";
+                        }
+                    }
+                }
+                return lot_data_status;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string CheckLocationStatus(int LocationID)
+        {
+            sqlhelper_obj = new SqlHelper();
+            string location_data_status = string.Empty;
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+                    using (SqlCommand sqlcmd_details_obj = new SqlCommand("PARK_PROC_CheckLocationStatus", sqlconn_obj))
+                    {
+                        sqlcmd_details_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_details_obj.CommandTimeout = 0;
+                        sqlcmd_details_obj.Parameters.AddWithValue("@LocationID", LocationID);
+                        sqlconn_obj.Open();
+                        DataSet ds;
+                        using (SqlDataAdapter sql_dp = new SqlDataAdapter(sqlcmd_details_obj))
+                        {
+                            ds = new DataSet();
+                            sql_dp.Fill(ds);
+                        }
+                        DataTable dt_lot = ds.Tables[0];
+                        sqlconn_obj.Close();
+                        if (dt_lot.Rows.Count > 0)
+                        {
+                            location_data_status = "Success";
+                        }
+                        else
+                        {
+                            location_data_status = "Failed";
+                        }
+                    }
+                }
+                return location_data_status;
             }
             catch (Exception ex)
             {
@@ -1243,7 +1341,7 @@ namespace InstaParking.DAL
         #endregion
 
         #region Charges
-        public IList<Charges> GetChargesData()
+        public IList<Charges> GetChargesData(int VehicleTypeID)
         {
             IList<Charges> chargesList = new List<Charges>();
             sqlhelper_obj = new SqlHelper();
@@ -1257,6 +1355,7 @@ namespace InstaParking.DAL
                     {
                         sqlcmd_obj.CommandType = CommandType.StoredProcedure;
                         sqlcmd_obj.CommandTimeout = 0;
+                        sqlcmd_obj.Parameters.AddWithValue("@VehicleTypeID", VehicleTypeID);
                         DataSet ds;
                         using (SqlDataAdapter da = new SqlDataAdapter(sqlcmd_obj))
                         {
@@ -1270,13 +1369,21 @@ namespace InstaParking.DAL
                             Charges charges_obj = new Charges();
                             charges_obj.ChargesID = Convert.ToInt32(dt.Rows[i]["ChargesID"]);
                             charges_obj.ClampFee = dt.Rows[i]["ClampFee"] == DBNull.Value ? 0 : Convert.ToDecimal(dt.Rows[i]["ClampFee"]);
-                            charges_obj.ClampFeeLimit = dt.Rows[i]["ClampFeeLimit"] == DBNull.Value ? 0 : Convert.ToDecimal(dt.Rows[i]["ClampFeeLimit"]);
-                            charges_obj.ClampFeefor4W = dt.Rows[i]["ClampFeefor4W"] == DBNull.Value ? 0 : Convert.ToDecimal(dt.Rows[i]["ClampFeefor4W"]);
-                            charges_obj.ClampFeeLimitfor4W = dt.Rows[i]["ClampFeeLimitfor4W"] == DBNull.Value ? 0 : Convert.ToDecimal(dt.Rows[i]["ClampFeeLimitfor4W"]);
-                            charges_obj.PriceLimitForTwoWheller = dt.Rows[i]["PriceLimitForTwoWheller"] == DBNull.Value ? 0 : Convert.ToDecimal(dt.Rows[i]["PriceLimitForTwoWheller"]);
-                            charges_obj.PriceLimitForFourWheller = dt.Rows[i]["PriceLimitForFourWheller"] == DBNull.Value ? 0 : Convert.ToDecimal(dt.Rows[i]["PriceLimitForFourWheller"]);
+                            charges_obj.NFCTagPrice = dt.Rows[i]["NFCTagPrice"] == DBNull.Value ? 0 : Convert.ToDecimal(dt.Rows[i]["NFCTagPrice"]);
+                            charges_obj.BlueToothTagPrice = dt.Rows[i]["BlueToothTagPrice"] == DBNull.Value ? 0 : Convert.ToDecimal(dt.Rows[i]["BlueToothTagPrice"]);
                             charges_obj.IsActive = Convert.ToBoolean(dt.Rows[i]["IsActive"]);
                             charges_obj.UpdatedOn = dt.Rows[i]["UpdatedOn"] == DBNull.Value ? Convert.ToDateTime(null) : Convert.ToDateTime(dt.Rows[i]["UpdatedOn"]);
+                            chargesList.Add(charges_obj);
+                        }
+
+                        if(dt.Rows.Count==0)
+                        {
+                            Charges charges_obj = new Charges();
+                            charges_obj.ChargesID = 0;
+                            charges_obj.ClampFee = 0;
+                            charges_obj.NFCTagPrice = 0;
+                            charges_obj.BlueToothTagPrice = 0;
+                            charges_obj.IsActive = false;                            
                             chargesList.Add(charges_obj);
                         }
                     }
@@ -1313,13 +1420,10 @@ namespace InstaParking.DAL
                             sqlcmd_details_obj.Parameters.AddWithValue("@StmtType", "Insert");
                             sqlcmd_details_obj.Parameters.AddWithValue("@ChargesID", DBNull.Value);
                         }
-
+                        sqlcmd_details_obj.Parameters.AddWithValue("@VehicleTypeID", charges_data.VehicleTypeID);
                         sqlcmd_details_obj.Parameters.AddWithValue("@ClampFee", String.IsNullOrEmpty(charges_data.ClampFee.ToString()) ? (object)DBNull.Value : charges_data.ClampFee.ToString().Trim());
-                        sqlcmd_details_obj.Parameters.AddWithValue("@ClampFeeLimit", String.IsNullOrEmpty(charges_data.ClampFeeLimit.ToString()) ? (object)DBNull.Value : charges_data.ClampFeeLimit.ToString().Trim());
-                        sqlcmd_details_obj.Parameters.AddWithValue("@ClampFeefor4W", String.IsNullOrEmpty(charges_data.ClampFeefor4W.ToString()) ? (object)DBNull.Value : charges_data.ClampFeefor4W.ToString().Trim());
-                        sqlcmd_details_obj.Parameters.AddWithValue("@ClampFeeLimitfor4W", String.IsNullOrEmpty(charges_data.ClampFeeLimitfor4W.ToString()) ? (object)DBNull.Value : charges_data.ClampFeeLimitfor4W.ToString().Trim());
-                        sqlcmd_details_obj.Parameters.AddWithValue("@PriceLimitForTwoWheller", String.IsNullOrEmpty(charges_data.PriceLimitForTwoWheller.ToString()) ? (object)DBNull.Value : charges_data.PriceLimitForTwoWheller.ToString().Trim());
-                        sqlcmd_details_obj.Parameters.AddWithValue("@PriceLimitForFourWheller", String.IsNullOrEmpty(charges_data.PriceLimitForFourWheller.ToString()) ? (object)DBNull.Value : charges_data.PriceLimitForFourWheller.ToString().Trim());
+                        sqlcmd_details_obj.Parameters.AddWithValue("@NFCTagPrice", String.IsNullOrEmpty(charges_data.NFCTagPrice.ToString()) ? (object)DBNull.Value : charges_data.NFCTagPrice.ToString().Trim());
+                        sqlcmd_details_obj.Parameters.AddWithValue("@BlueToothTagPrice", String.IsNullOrEmpty(charges_data.BlueToothTagPrice.ToString()) ? (object)DBNull.Value : charges_data.BlueToothTagPrice.ToString().Trim());
                         sqlcmd_details_obj.Parameters.AddWithValue("@CreatedBy", Convert.ToInt32(CreatedBy));
                         sqlconn_obj.Open();
                         int res = sqlcmd_details_obj.ExecuteNonQuery();
@@ -1327,6 +1431,10 @@ namespace InstaParking.DAL
                         if (res > 0)
                         {
                             charges_data_status = "Success";
+                        }
+                        else if (res == 0)
+                        {
+                            charges_data_status = "You are trying to save the wrong data.";
                         }
                         else
                         {
@@ -1341,6 +1449,333 @@ namespace InstaParking.DAL
                 throw ex;
             }
         }
+        public IList<Charges> GetListofChargesData()
+        {
+            IList<Charges> chargesList = new List<Charges>();
+            sqlhelper_obj = new SqlHelper();
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+
+                    using (SqlCommand sqlcmd_obj = new SqlCommand("PARK_PROC_GetListofChargesData", sqlconn_obj))
+                    {
+                        sqlcmd_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_obj.CommandTimeout = 0;
+                        DataSet ds;
+                        using (SqlDataAdapter da = new SqlDataAdapter(sqlcmd_obj))
+                        {
+                            ds = new DataSet();
+                            da.Fill(ds);
+                        }
+                        DataTable dt = ds.Tables[0];
+
+                        for (int i = 0; i < dt.Rows.Count; i++)
+                        {
+                            Charges charges_obj = new Charges();
+                            charges_obj.ChargesID = Convert.ToInt32(dt.Rows[i]["ChargesID"]);
+                            charges_obj.VehicleTypeID= Convert.ToInt32(dt.Rows[i]["VehicleTypeID"]);
+                            charges_obj.VehicleTypeCode = Convert.ToString(dt.Rows[i]["VehicleTypeCode"]);
+                            charges_obj.ClampFee = dt.Rows[i]["ClampFee"] == DBNull.Value ? 0 : Convert.ToDecimal(dt.Rows[i]["ClampFee"]);
+                            charges_obj.NFCTagPrice = dt.Rows[i]["NFCTagPrice"] == DBNull.Value ? 0 : Convert.ToDecimal(dt.Rows[i]["NFCTagPrice"]);
+                            charges_obj.BlueToothTagPrice = dt.Rows[i]["BlueToothTagPrice"] == DBNull.Value ? 0 : Convert.ToDecimal(dt.Rows[i]["BlueToothTagPrice"]);
+                            chargesList.Add(charges_obj);
+                        }
+                    }
+                }
+                return chargesList;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IList<Charges> VieworEditChargesData(int ChargesID)
+        {
+            IList<Charges> chargesList = new List<Charges>();
+            sqlhelper_obj = new SqlHelper();
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+
+                    using (SqlCommand sqlcmd_obj = new SqlCommand("PARK_PROC_VieworEditChargesData", sqlconn_obj))
+                    {
+                        sqlcmd_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_obj.CommandTimeout = 0;
+                        sqlcmd_obj.Parameters.AddWithValue("@ChargesID", ChargesID);
+                        DataSet ds;
+                        using (SqlDataAdapter da = new SqlDataAdapter(sqlcmd_obj))
+                        {
+                            ds = new DataSet();
+                            da.Fill(ds);
+                        }
+                        DataTable dt = ds.Tables[0];
+
+                        for (int i = 0; i < dt.Rows.Count; i++)
+                        {
+                            Charges charges_obj = new Charges();
+                            charges_obj.ChargesID = Convert.ToInt32(dt.Rows[i]["ChargesID"]);
+                            charges_obj.VehicleTypeID = Convert.ToInt32(dt.Rows[i]["VehicleTypeID"]);
+                            charges_obj.ClampFee = dt.Rows[i]["ClampFee"] == DBNull.Value ? 0 : Convert.ToDecimal(dt.Rows[i]["ClampFee"]);
+                            charges_obj.NFCTagPrice = dt.Rows[i]["NFCTagPrice"] == DBNull.Value ? 0 : Convert.ToDecimal(dt.Rows[i]["NFCTagPrice"]);
+                            charges_obj.BlueToothTagPrice = dt.Rows[i]["BlueToothTagPrice"] == DBNull.Value ? 0 : Convert.ToDecimal(dt.Rows[i]["BlueToothTagPrice"]);
+                            chargesList.Add(charges_obj);
+                        }
+                    }
+                }
+                return chargesList;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion
+
+        //26022021 Start
+        public string SaveLotVehicleTypeMapper(List<VehicleType> VehicleTypeList, string CreatedBy, int LotID)
+        {
+            sqlhelper_obj = new SqlHelper();
+            string mapper_data_status = string.Empty;
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+                    for (var i = 0; i < VehicleTypeList.Count; i++)
+                    {
+                        using (SqlCommand sqlcmd_details_obj = new SqlCommand("PARK_PROC_SaveLotVehicleTypeMapper", sqlconn_obj))
+                        {
+                            sqlcmd_details_obj.CommandType = CommandType.StoredProcedure;
+                            sqlcmd_details_obj.CommandTimeout = 0;
+                            sqlcmd_details_obj.Parameters.AddWithValue("@StmtType", "Insert");
+                            sqlcmd_details_obj.Parameters.AddWithValue("@LotID", LotID);
+                            sqlcmd_details_obj.Parameters.AddWithValue("@VehicleTypeID", VehicleTypeList[i].VehicleTypeID);
+                            sqlcmd_details_obj.Parameters.AddWithValue("@IsActive", VehicleTypeList[i].selected);
+                            sqlcmd_details_obj.Parameters.AddWithValue("@CreatedBy", CreatedBy);
+                            sqlconn_obj.Open();
+                            int result = sqlcmd_details_obj.ExecuteNonQuery();
+                            sqlconn_obj.Close();
+                            if (result > 0)
+                            {
+                                mapper_data_status = "Success";
+                            }
+                            else
+                            {
+                                mapper_data_status = "Failed";
+                            }
+                        }
+                    }
+                }
+                return mapper_data_status;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public string UpdateLotVehicleTypeMapper(List<VehicleType> VehicleTypeList, string CreatedBy, int LotID)
+        {
+            sqlhelper_obj = new SqlHelper();
+            string mapper_data_status = string.Empty;
+
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+                    for (var i = 0; i < VehicleTypeList.Count; i++)
+                    {
+                        using (SqlCommand sqlcmd_details_obj = new SqlCommand("PARK_PROC_SaveLotVehicleTypeMapper", sqlconn_obj))
+                        {
+                            sqlcmd_details_obj.CommandType = CommandType.StoredProcedure;
+                            sqlcmd_details_obj.CommandTimeout = 0;
+                            sqlcmd_details_obj.Parameters.AddWithValue("@StmtType", "Update");
+                            sqlcmd_details_obj.Parameters.AddWithValue("@LotID", LotID);
+                            sqlcmd_details_obj.Parameters.AddWithValue("@VehicleTypeID", VehicleTypeList[i].VehicleTypeID);
+                            sqlcmd_details_obj.Parameters.AddWithValue("@IsActive", VehicleTypeList[i].selected);
+                            sqlcmd_details_obj.Parameters.AddWithValue("@CreatedBy", CreatedBy);
+                            sqlconn_obj.Open();
+                            int result = sqlcmd_details_obj.ExecuteNonQuery();
+                            sqlconn_obj.Close();
+                            if (result > 0)
+                            {
+                                mapper_data_status = "Success";
+                            }
+                            else
+                            {
+                                mapper_data_status = "Failed";
+                            }
+                        }
+                    }
+
+                }
+                return mapper_data_status;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public string UpdateLotParkingBays(string CreatedBy, int LotID)
+        {
+            sqlhelper_obj = new SqlHelper();
+            string status = string.Empty;
+
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+                    using (SqlCommand sqlcmd_details_obj = new SqlCommand("PARK_PROC_UpdateParkingBayByLotID", sqlconn_obj))
+                    {
+                        sqlcmd_details_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_details_obj.CommandTimeout = 0;
+                        sqlcmd_details_obj.Parameters.AddWithValue("@LotID", LotID);
+                        sqlcmd_details_obj.Parameters.AddWithValue("@CreatedBy", CreatedBy);
+                        sqlconn_obj.Open();
+                        int result = sqlcmd_details_obj.ExecuteNonQuery();
+                        sqlconn_obj.Close();
+                        if (result > 0)
+                        {
+                            status = "Success";
+                        }
+                        else
+                        {
+                            status = "Failed";
+                        }
+                    }
+                }
+                return status;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public string CheckVehicleTypeExistforLot(int LotID, int VehicleTypeID)
+        {
+            sqlhelper_obj = new SqlHelper();
+            string lot_data_status = string.Empty;
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+                    using (SqlCommand sqlcmd_details_obj = new SqlCommand("PARK_PROC_CheckVehicleTypeExistforLot", sqlconn_obj))
+                    {
+                        sqlcmd_details_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_details_obj.CommandTimeout = 0;
+                        sqlcmd_details_obj.Parameters.AddWithValue("@LotID", LotID);
+                        sqlcmd_details_obj.Parameters.AddWithValue("@VehicleTypeID", VehicleTypeID);
+                        sqlconn_obj.Open();
+                        DataTable dt;
+                        using (SqlDataAdapter da = new SqlDataAdapter(sqlcmd_details_obj))
+                        {
+                            dt = new DataTable();
+                            da.Fill(dt);
+                        }
+                        sqlconn_obj.Close();
+                        if (dt.Rows.Count > 0)
+                        {
+                            lot_data_status = "VehicleType Exists";
+                        }
+                        else
+                        {
+                            lot_data_status = "Not Exists";
+                        }
+                    }
+                }
+                return lot_data_status;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public string InactiveLotPricesByVehicleType(int LotID, string CreatedBy)
+        {
+            sqlhelper_obj = new SqlHelper();
+            string status = string.Empty;
+
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+                    using (SqlCommand sqlcmd_details_obj = new SqlCommand("PARK_PROC_InactiveLotPricesByVehicleType", sqlconn_obj))
+                    {
+                        sqlcmd_details_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_details_obj.CommandTimeout = 0;
+                        sqlcmd_details_obj.Parameters.AddWithValue("@LotID", LotID);
+                        sqlcmd_details_obj.Parameters.AddWithValue("@CreatedBy", CreatedBy);
+                        sqlconn_obj.Open();
+                        int result = sqlcmd_details_obj.ExecuteNonQuery();
+                        sqlconn_obj.Close();
+                        if (result > 0)
+                        {
+                            status = "Success";
+                        }
+                        else
+                        {
+                            status = "Failed";
+                        }
+                    }
+                }
+                return status;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public string UpdateLotPricesByVehicleType(int LotID, string CreatedBy, List<VehicleType> VehicleTypeList)
+        {
+            sqlhelper_obj = new SqlHelper();
+            string mapper_data_status = string.Empty;
+
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+                    for (var i = 0; i < VehicleTypeList.Count; i++)
+                    {
+                        if (VehicleTypeList[i].selected == true)
+                        {
+                            using (SqlCommand sqlcmd_details_obj = new SqlCommand("PARK_PROC_UpdateLotPricesByVehicleType", sqlconn_obj))
+                            {
+                                sqlcmd_details_obj.CommandType = CommandType.StoredProcedure;
+                                sqlcmd_details_obj.CommandTimeout = 0;
+                                sqlcmd_details_obj.Parameters.AddWithValue("@LotID", LotID);
+                                sqlcmd_details_obj.Parameters.AddWithValue("@VehicleTypeID", VehicleTypeList[i].VehicleTypeID);
+                                sqlcmd_details_obj.Parameters.AddWithValue("@CreatedBy", CreatedBy);
+                                sqlconn_obj.Open();
+                                int result = sqlcmd_details_obj.ExecuteNonQuery();
+                                sqlconn_obj.Close();
+                                if (result > 0)
+                                {
+                                    mapper_data_status = "Success";
+                                }
+                                else
+                                {
+                                    mapper_data_status = "Failed";
+                                }
+                            }
+                        }
+                    }
+
+                }
+                return mapper_data_status;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        //26022021 End
     }
 }

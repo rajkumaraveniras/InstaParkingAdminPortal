@@ -31,7 +31,7 @@
                                     </a>
                                 </div>
                             </md-toolbar>
-
+                            
                             <div>
                                 <div class="col-md-4 col-lg-3">
                                     <md-input-container class="md-block">
@@ -92,6 +92,47 @@
                                     <md-checkbox aria-label="Checkbox 1" style="margin-top: 20px;" ng-model="LocationsModel['IsActive']"> Active </md-checkbox>
                                 </div>
 
+                                <div class="col-md-6 col-lg-6" style="margin-top:1px;">
+                                    <md-input-container class="md-block">
+                                        <label>Pass Access</label>
+                                        <md-select ng-model="LocationsModel['PassAccess']" multiple required>
+                                            <md-option ng-value="pass.PassPriceID" ng-repeat="pass in PassesByVehicleTypeListModel track by pass.PassPriceID">
+                                                {{pass.PassName}}
+                                            </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+
+                                <div class="col-md-6 col-lg-6" style="margin-top:25px;" layout="row">
+                                    <label style="color:rgba(0,0,0,0.38);">Tag Type :  </label>
+                                    <md-radio-group ng-model="LocationsModel['TagType']" layout="row">
+                                        <md-radio-button ng-repeat="tag in ActiveTagTypeListModel" ng-value="tag.CardTypeID">
+                                            {{ tag.CardTypeCode }}
+                                        </md-radio-button>
+                                    </md-radio-group>
+                                </div>
+
+                                <div class="col-md-12 col-lg-12" style="margin-top:20px;">
+                                    <label style="color:rgba(0,0,0,0.38);">Vehicle Types :</label>
+                                    <md-checkbox ng-repeat="vehType in ActiveVehicleTypeListModel"
+                                                 ng-model="vehType['selected']"
+                                                 value="vehType.VehicleTypeID"
+                                                 aria-label="Checkbox"
+                                                 ng-change="GetPassesByVehicleType(ActiveVehicleTypeListModel)">
+                                        {{vehType.VehicleTypeCode}}
+                                    </md-checkbox>
+                                </div>
+                                @*<div class="col-md-12 col-lg-12" style="margin-top:22px;">
+                <label style="color:rgba(0,0,0,0.38);">Pass Access :</label>
+                <md-checkbox ng-repeat="pass in ActivePassListModel"
+                             ng-model="pass['selected']"
+                             value="pass.PassPriceID"
+                             aria-label="Checkbox">
+                    {{pass.PassName}}
+                </md-checkbox>
+            </div>*@
+
+
                                 <div class="col-md-12 text-center" style="margin: 20px 0px;">
                                     <md-button type="submit" class="md-button md-raised btn-w-md md-default custom-btn"
                                                name="myButton" [disabled]="formStation.$valid"
@@ -107,3 +148,8 @@
 </div>
 
 @Html.Hidden("SaveLocation", Url.Action("SaveLocation", "Parking"))
+@Html.Hidden("VerifyLocationCode", Url.Action("VerifyLocationCode", "Parking"))
+@Html.Hidden("GetListofActiveVehicleTypes", Url.Action("GetListofActiveVehicleTypes", "Parking"))
+@Html.Hidden("GetListofActiveTagTypes", Url.Action("GetListofActiveTagTypes", "Parking"))
+@Html.Hidden("GetListofActivePasses", Url.Action("GetListofActivePasses", "Parking"))
+@Html.Hidden("GetListofActivePassesByVehicleID", Url.Action("GetListofActivePassesByVehicleID", "Parking"))

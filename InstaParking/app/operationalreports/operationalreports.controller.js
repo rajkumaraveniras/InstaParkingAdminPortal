@@ -24,7 +24,7 @@
                 'SupervisorID': 'All',
                 'OperatorID': 'All'
                 , 'VehicleTypeID': 'All'
-                ,'FOCReasonID':'All'
+                , 'FOCReasonID': 'All'
             };
             $scope.CheckInReportListModel = [];
             $scope.CheckInGrandTotal = 0;
@@ -72,6 +72,27 @@
             $scope.days = 1;
 
             $scope.DuplicateEntriesListModel = [];
+
+            //18012021
+            $scope.AccountModel = {
+                'AccountID': '',
+                'AccountName': '',
+                'Address1': '',
+                'Address2': '',
+                'ContactNumber': '',
+                'AlternateNumber': '',
+                'Email': '',
+                'Website': '',
+                'GSTNumber': '',
+                'WhatsAppNumber': '',
+                'SupportContactNumber': '',
+                'SupportEmailID': '',
+                'CompanyLogo': '',
+                'IsActive': '',
+                'CreatedBy': ''
+            };
+
+            $scope.PassExpiryCustomersListModel = [];
         }
 
         function initMaxDate() {
@@ -279,7 +300,7 @@
                 $scope.ReportFilterModel.ToDate = $scope.todaydatestring;
 
                 $scope.printFromDate = new Date($scope.todaydatestring);
-                $scope.printToDate = new Date($scope.todaydatestring);      
+                $scope.printToDate = new Date($scope.todaydatestring);
 
                 $scope.days = 1;
             }
@@ -355,7 +376,7 @@
                 $scope.printToDate = new Date($scope.PrevlastDay);
 
                 $scope.days = Math.ceil(($scope.printToDate - $scope.printFromDate) / (1000 * 60 * 60 * 24)) + 1;
-            }            
+            }
             else {
                 $scope.disabled = false;
                 $scope.required = true;
@@ -365,19 +386,25 @@
 
                 $scope.printFromDate = $scope.ReportFilterModel.FromDate;
                 $scope.printToDate = $scope.ReportFilterModel.ToDate;
-            }          
+            }
         };
         $scope.AssignToDate = function () {
             $scope.printFromDate = $scope.ReportFilterModel.FromDate;
             $scope.printToDate = $scope.ReportFilterModel.ToDate;
 
-            $scope.days = Math.ceil(($scope.ReportFilterModel.ToDate - $scope.ReportFilterModel.FromDate) / (1000 * 60 * 60 * 24))+1;
+            $scope.days = Math.ceil(($scope.ReportFilterModel.ToDate - $scope.ReportFilterModel.FromDate) / (1000 * 60 * 60 * 24)) + 1;
         };
 
-        $scope.GetCheckInReport = function () {
-           
-            var url = $("#GetCheckInReport").val();
-            $scope.CheckInGrandTotal = 0;
+        //18012021 Start
+        GetAccoutDetails();
+        function UrlExists(url) {
+            var http = new XMLHttpRequest();
+            http.open('HEAD', url, false);
+            http.send();
+            return http.status != 404;
+        }
+        function GetAccoutDetails() {
+            var url = $("#GetAccountDetails").val();
 
             if (url != undefined) {
                 $('#loader-container').show();
@@ -385,17 +412,37 @@
                     $.ajax({
                         type: "POST",
                         url: url,
-                        data: "{'CheckInFilterData':" + JSON.stringify($scope.ReportFilterModel) + "}",
+                        data: "",
                         contentType: "application/json; charset=utf-8",
                         dataType: "json",
                         success: function (data) {
-                            if (data != "Failed") {
-                                $scope.CheckInReportListModel = data;
+                            if (data.length > 0) {
+                                for (var i = 0; i < data.length; i++) {
+                                    $scope.AccountModel.AccountID = data[i]["AccountID"];
+                                    $scope.AccountModel.AccountName = data[i]["AccountName"];
+                                    $scope.AccountModel.Address1 = data[i]["Address1"];
+                                    $scope.AccountModel.Address2 = data[i]["Address2"];
+                                    $scope.AccountModel.ContactNumber = data[i]["ContactNumber"];
+                                    $scope.AccountModel.AlternateNumber = data[i]["AlternateNumber"];
+                                    $scope.AccountModel.Email = data[i]["Email"];
+                                    $scope.AccountModel.Website = data[i]["Website"];
+                                    $scope.AccountModel.GSTNumber = data[i]["GSTNumber"];
+                                    $scope.AccountModel.WhatsAppNumber = data[i]["WhatsAppNumber"];
+                                    $scope.AccountModel.SupportContactNumber = data[i]["SupportContactNumber"];
+                                    $scope.AccountModel.SupportEmailID = data[i]["SupportEmailID"];
+                                    $scope.AccountModel.IsActive = data[i]["IsActive"];
 
-                                for (var i = 0; i < $scope.CheckInReportListModel.length; i++) {
-                                    $scope.CheckInGrandTotal += parseFloat($scope.CheckInReportListModel[i].Total);
+                                    if (data[i]["CompanyLogo"] != '') {
+                                        $("#CompanyImg").attr('src', 'Images/' + data[i]["CompanyLogo"]);
+                                        if (!UrlExists('Images/' + data[i]["CompanyLogo"])) {
+                                            $("#CompanyImg").attr('src', 'Images/default-logo.png');
+                                        }
+                                    }
+                                    else {
+                                        $("#CompanyImg").attr('src', 'Images/default-logo.png');
+                                    }
+                                    $scope.$apply();
                                 }
-                                $scope.$apply();
                             }
                             $('#loader-container').hide();
                         },
@@ -408,6 +455,60 @@
                     window.location.href = $("#LogOut").val();
                 }
             }
+        }
+        //18012021 End
+
+        $scope.GetCheckInReport = function () {
+
+            var url = $("#GetCheckInReport").val();
+            $scope.CheckInGrandTotal = 0;
+            //new
+            var fDate = $scope.ReportFilterModel.FromDate;
+            var tDate = $scope.ReportFilterModel.ToDate;
+            var validdateflag;
+            if (tDate != "" && tDate != null && tDate != undefined) {
+                if (new Date(tDate) < new Date(fDate)) {
+                    validdateflag = false;
+                }
+                else { validdateflag = true; }
+            }
+            //new
+
+            if (validdateflag) {//new
+                if (url != undefined) {
+                    $('#loader-container').show();
+                    if (CheckInSession()) {
+                        $.ajax({
+                            type: "POST",
+                            url: url,
+                            data: "{'CheckInFilterData':" + JSON.stringify($scope.ReportFilterModel) + "}",
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            success: function (data) {
+                                if (data != "Failed") {
+                                    $scope.CheckInReportListModel = data;
+
+                                    for (var i = 0; i < $scope.CheckInReportListModel.length; i++) {
+                                        $scope.CheckInGrandTotal += parseFloat($scope.CheckInReportListModel[i].Total);
+                                    }
+                                    $scope.$apply();
+                                }
+                                $('#loader-container').hide();
+                            },
+                            error: function (data) {
+                                $('#loader-container').hide();
+                            }
+                        });
+                    }
+                    else {
+                        window.location.href = $("#LogOut").val();
+                    }
+                }
+            }//new
+            else {//new
+                alert('Select valid To Date');//new
+                $scope.ReportFilterModel.ToDate = "";//new
+            }//new
         };
         $scope.DownloadCheckInReportPDF = function () {
             if ($scope.CheckInReportListModel.length > 0) {
@@ -510,7 +611,7 @@
         }
         function GetActiveLotsofOperators(operatorID) {
             var url = $("#GetOperatorLotsList").val();
-           
+
 
 
             if (url != undefined) {
@@ -580,7 +681,7 @@
                     if ($scope.SelectedItemModel.OperatorName == 'All') {
                         $scope.SelectedItemModel.OperatorName = 'All Operators';
                         $scope.SelectedItemModel.SelectedLot = 'All Lots';
-                       
+
                     }
                     else {
                         $scope.SelectedItemModel.SelectedLot = 'All Lots';
@@ -602,34 +703,54 @@
         };
 
         $scope.GetReportByOperator = function () {
-           
+
             var url = $("#GetReportByOperator").val();
-           
-            if (url != undefined) {
-                $('#loader-container').show();
-                if (CheckInSession()) {
-                    $.ajax({
-                        type: "POST",
-                        url: url,
-                        data: "{'operatorFilterData':" + JSON.stringify($scope.ReportFilterModel) + "}",
-                        contentType: "application/json; charset=utf-8",
-                        dataType: "json",
-                        success: function (data) {
-                            if (data != "Failed") {
-                                $scope.OperatorReportListModel = data;
-                                $scope.$apply();
-                            }
-                            $('#loader-container').hide();
-                        },
-                        error: function (data) {
-                            $('#loader-container').hide();
-                        }
-                    });
+            //new
+            var fDate = $scope.ReportFilterModel.FromDate;
+            var tDate = $scope.ReportFilterModel.ToDate;
+            var validdateflag;
+            if (tDate != "" && tDate != null && tDate != undefined) {
+                if (new Date(tDate) < new Date(fDate)) {
+                    validdateflag = false;
                 }
-                else {
-                    window.location.href = $("#LogOut").val();
-                }
+                else { validdateflag = true; }
             }
+            //new
+            if (validdateflag) {//new
+                if (url != undefined) {
+                    $('#loader-container').show();
+                    if (CheckInSession()) {
+                        $.ajax({
+                            type: "POST",
+                            url: url,
+                            data: "{'operatorFilterData':" + JSON.stringify($scope.ReportFilterModel) + "}",
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            success: function (data) {
+                                if (data != "Failed") {
+                                    $scope.OperatorReportListModel = data;
+                                    for (var i = 0; i < $scope.OperatorReportListModel.length; i++) {
+                                        $scope.OperatorReportListModel[i].TotalHours = parseFloat($scope.OperatorReportListModel[i].TotalHours);
+                                        $scope.OperatorReportListModel[i].TotalDays = parseFloat($scope.OperatorReportListModel[i].TotalDays);
+                                    }
+                                    $scope.$apply();
+                                }
+                                $('#loader-container').hide();
+                            },
+                            error: function (data) {
+                                $('#loader-container').hide();
+                            }
+                        });
+                    }
+                    else {
+                        window.location.href = $("#LogOut").val();
+                    }
+                }
+            }//new
+            else {//new
+                alert('Select valid To Date');//new
+                $scope.ReportFilterModel.ToDate = "";//new
+            }//new
         };
         $scope.DownloadOperatorReportPDF = function () {
             if ($scope.OperatorReportListModel.length > 0) {
@@ -689,6 +810,11 @@
                         success: function (data) {
                             if (data != "Failed") {
                                 $scope.OccupancyListModel = data;
+                                for (var i = 0; i < $scope.OccupancyListModel.length; i++) {
+                                    $scope.OccupancyListModel[i].Capacity = parseInt($scope.OccupancyListModel[i].Capacity);
+                                    $scope.OccupancyListModel[i].CurrentlyParked = parseInt($scope.OccupancyListModel[i].CurrentlyParked);
+                                    $scope.OccupancyListModel[i].Occupancy = parseInt($scope.OccupancyListModel[i].Occupancy);
+                                }
                                 $scope.$apply();
                             }
                             $('#loader-container').hide();
@@ -775,32 +901,52 @@
         }
         $scope.GetFOCReport = function () {
             var url = $("#GetFOCReport").val();
-
-            if (url != undefined) {
-                $('#loader-container').show();
-                if (CheckInSession()) {
-                    $.ajax({
-                        type: "POST",
-                        url: url,
-                        data: "{'focFilterData':" + JSON.stringify($scope.ReportFilterModel) + "}",
-                        contentType: "application/json; charset=utf-8",
-                        dataType: "json",
-                        success: function (data) {
-                            if (data != "Failed") {
-                                $scope.FOCReportListModel = data;
-                                $scope.$apply();
-                            }
-                            $('#loader-container').hide();
-                        },
-                        error: function (data) {
-                            $('#loader-container').hide();
-                        }
-                    });
+            //new
+            var fDate = $scope.ReportFilterModel.FromDate;
+            var tDate = $scope.ReportFilterModel.ToDate;
+            var validdateflag;
+            if (tDate != "" && tDate != null && tDate != undefined) {
+                if (new Date(tDate) < new Date(fDate)) {
+                    validdateflag = false;
                 }
-                else {
-                    window.location.href = $("#LogOut").val();
-                }
+                else { validdateflag = true; }
             }
+            //new
+            if (validdateflag) {//new
+                if (url != undefined) {
+                    $('#loader-container').show();
+                    if (CheckInSession()) {
+                        $.ajax({
+                            type: "POST",
+                            url: url,
+                            data: "{'focFilterData':" + JSON.stringify($scope.ReportFilterModel) + "}",
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            success: function (data) {
+                                if (data != "Failed") {
+                                    $scope.FOCReportListModel = data;
+                                    for (var i = 0; i < $scope.FOCReportListModel.length; i++) {
+                                        $scope.FOCReportListModel[i].FOCCount = parseInt($scope.FOCReportListModel[i].FOCCount);
+                                        $scope.FOCReportListModel[i].DueAmount = parseFloat($scope.FOCReportListModel[i].DueAmount);
+                                    }
+                                    $scope.$apply();
+                                }
+                                $('#loader-container').hide();
+                            },
+                            error: function (data) {
+                                $('#loader-container').hide();
+                            }
+                        });
+                    }
+                    else {
+                        window.location.href = $("#LogOut").val();
+                    }
+                }
+            }//new
+            else {//new
+                alert('Select valid To Date');//new
+                $scope.ReportFilterModel.ToDate = "";//new
+            }//new
         };
         $scope.DownloadFOCPDFReport = function () {
             if ($scope.FOCReportListModel.length > 0) {
@@ -845,7 +991,7 @@
                     $scope.SelectedItemModel.SupervisorName = $scope.SupervisorListModel[i].UserName;
                     if ($scope.SelectedItemModel.SupervisorName == 'All') {
                         $scope.SelectedItemModel.SupervisorName = 'All Supervisors';
-                    }                    
+                    }
                 }
             }
         };
@@ -881,11 +1027,11 @@
                 }
             }
         };
-        //Allocations Code End
 
-        //Duplicates Code Start
-        $scope.GetDuplicateEntriesReport = function () {
-            var url = $("#GetDuplicateEntries").val();
+        //18012021 start
+        $scope.LogoutEmployee = function (model) {
+            var url = $("#LogoutEmployeeurl").val();
+            //var hdnFlagVal = empid;
 
             if (url != undefined) {
                 $('#loader-container').show();
@@ -893,13 +1039,42 @@
                     $.ajax({
                         type: "POST",
                         url: url,
-                        data: "{'duplicateFilterData':" + JSON.stringify($scope.ReportFilterModel) + "}",
+                        data: "{'allocationsData':" + JSON.stringify(model) + "}",
                         contentType: "application/json; charset=utf-8",
                         dataType: "json",
-                        success: function (data) {
-                            if (data != "Failed") {
-                                $scope.DuplicateEntriesListModel = data;
-                                $scope.$apply();
+                        success: function (data) {   
+                            if (data == "Success") {
+                                alert("Logout Successfully");
+
+
+                                var urlget = $("#GetAllAllocations").val();
+
+                                if (urlget != undefined) {
+                                    $('#loader-container').show();
+                                    if (CheckInSession()) {
+                                        $.ajax({
+                                            type: "POST",
+                                            url: urlget,
+                                            data: "{'allocationsFilterData':" + JSON.stringify($scope.ReportFilterModel) + "}",
+                                            contentType: "application/json; charset=utf-8",
+                                            dataType: "json",
+                                            success: function (data) {
+                                                if (data != "Failed") {
+                                                    $scope.AllocationsListModel = data;
+                                                    $scope.$apply();
+                                                }
+                                                $('#loader-container').hide();
+                                            },
+                                            error: function (data) {
+                                                $('#loader-container').hide();
+                                            }
+                                        });
+                                    }
+                                    else {
+                                        window.location.href = $("#LogOut").val();
+                                    }
+                                }
+
                             }
                             $('#loader-container').hide();
                         },
@@ -912,6 +1087,55 @@
                     window.location.href = $("#LogOut").val();
                 }
             }
+        };
+        //18012021 end
+        //Allocations Code End
+
+        //Duplicates Code Start
+        $scope.GetDuplicateEntriesReport = function () {
+            var url = $("#GetDuplicateEntries").val();
+            //new
+            var fDate = $scope.ReportFilterModel.FromDate;
+            var tDate = $scope.ReportFilterModel.ToDate;
+            var validdateflag;
+            if (tDate != "" && tDate != null && tDate != undefined) {
+                if (new Date(tDate) < new Date(fDate)) {
+                    validdateflag = false;
+                }
+                else { validdateflag = true; }
+            }
+            //new
+            if (validdateflag) {//new
+                if (url != undefined) {
+                    $('#loader-container').show();
+                    if (CheckInSession()) {
+                        $.ajax({
+                            type: "POST",
+                            url: url,
+                            data: "{'duplicateFilterData':" + JSON.stringify($scope.ReportFilterModel) + "}",
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            success: function (data) {
+                                if (data != "Failed") {
+                                    $scope.DuplicateEntriesListModel = data;
+                                    $scope.$apply();
+                                }
+                                $('#loader-container').hide();
+                            },
+                            error: function (data) {
+                                $('#loader-container').hide();
+                            }
+                        });
+                    }
+                    else {
+                        window.location.href = $("#LogOut").val();
+                    }
+                }
+            }//new
+            else {//new
+                alert('Select valid To Date');//new
+                $scope.ReportFilterModel.ToDate = "";//new
+            }//new
         };
         $scope.DownloadDuplicatesPDFReport = function () {
             if ($scope.DuplicateEntriesListModel.length > 0) {
@@ -950,12 +1174,116 @@
                 }
             }
         };
+
+        //03052021
+        $scope.DeleteDuplicateEntries = function () {
+            var url = $("#DeleteDuplicateEntries").val();
+            if (url != undefined) {
+                $('#loader-container').show();
+                if (CheckInSession()) {
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: "{'duplicateList':" + JSON.stringify($scope.DuplicateEntriesListModel) + "}",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (data) {
+                            if (data == "Success") {
+                                alert("Duplicates Deleted Successfully");
+                                $scope.GetDuplicateEntriesReport();
+                                $scope.ReportFilterModel.FromDate = '';
+                                $scope.ReportFilterModel.ToDate='';
+                                $scope.ReportFilterModel.Duration = 'Today';
+                            }
+                            $('#loader-container').hide();
+                        },
+                        error: function (data) {
+                            $('#loader-container').hide();
+                        }
+                    });
+                }
+                else {
+                    window.location.href = $("#LogOut").val();
+                }
+            }
+        };
+        //03052021
         //Duplicates Code End
+
+        
+        //Pass Expiry Customer  Code Start
+        $scope.GetPassExpiryReport = function () {
+            var url = $("#GetPassExpiredCustomersList").val();
+
+            if (url != undefined) {
+                $('#loader-container').show();
+                if (CheckInSession()) {
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: "{'passExpiryFilterData':" + JSON.stringify($scope.ReportFilterModel) + "}",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (data) {
+                            if (data != "Failed") {
+                                $scope.PassExpiryCustomersListModel = data;
+                                $scope.$apply();
+                            }
+                            $('#loader-container').hide();
+                        },
+                        error: function (data) {
+                            $('#loader-container').hide();
+                        }
+                    });
+                }
+                else {
+                    window.location.href = $("#LogOut").val();
+                }
+            }
+        };
+        $scope.DownloadPassExpiryReportPDF = function () {
+            if ($scope.PassExpiryCustomersListModel.length > 0) {
+                if (CheckInSession()) {
+                    $scope.SelectedItemModel.Duration = $scope.ReportFilterModel.Duration;
+                    $scope.SelectedItemModel.VehicleTypeID = $scope.ReportFilterModel.VehicleTypeID;
+                    window.location = 'OperationalReports/PassExpiryReportPDFDownload?SelectedItems=' + JSON.stringify($scope.SelectedItemModel);
+                }
+                else {
+                    window.location.href = $("#LogOut").val();
+                }
+            }
+        };
+        $scope.DownloadPassExpiryReportExcel = function () {
+            if ($scope.PassExpiryCustomersListModel.length > 0) {
+                if (CheckInSession()) {
+                    $scope.SelectedItemModel.Duration = $scope.ReportFilterModel.Duration;
+                    $scope.SelectedItemModel.VehicleTypeID = $scope.ReportFilterModel.VehicleTypeID;
+                    window.location = 'OperationalReports/PassExpiryReportExcelDownload?SelectedItems=' + JSON.stringify($scope.ReportFilterModel);
+
+                } else {
+                    window.location.href = $("#LogOut").val();
+                }
+            }
+        };
+        $scope.PassExpiryReportPrint = function (divName) {
+            if ($scope.PassExpiryCustomersListModel.length > 0) {
+                if (CheckInSession()) {
+                    var printContents = document.getElementById(divName).innerHTML;
+                    var popupWin = window.open('', '_blank', 'width=500,height=500');
+                    popupWin.document.open();
+                    popupWin.document.write('<html><head><link rel="stylesheet" type="text/css" href="style.css" /></head><body style="font-size:12px; line-height: 18px; color: #000000; margin: 0px; padding: 0px; font-family: pnregular; letter-spacing: 0.5px;" onload="window.print()">' + printContents + '</body></html>');
+                    popupWin.document.close();
+                } else {
+                    window.location.href = $("#LogOut").val();
+                }
+            }
+        };
+        //Pass Expiry Customer Code End
 
         // table code
 
         $scope.selected = [];
-        $scope.limitOptions = [5, 10, 15];
+        $scope.limitOptions = [15, 30, 45];
 
         $scope.options = {
             rowSelection: true,
@@ -970,7 +1298,7 @@
 
         $scope.query = {
             order: 'name',
-            limit: 5,
+            limit: 15,
             page: 1
         };
 
@@ -995,7 +1323,7 @@
         };
 
         $scope.toggleLimitOptions = function () {
-            $scope.limitOptions = $scope.limitOptions ? undefined : [5, 10, 15];
+            $scope.limitOptions = $scope.limitOptions ? undefined : [15, 30, 45];
         };
 
         $scope.getTypes = function () {
@@ -1016,6 +1344,13 @@
             { 'name': 'Day Before Yesterday', 'value': 'Day Before Yesterday' },
             { 'name': 'Current Month', 'value': 'Current Month' },
             { 'name': 'Previous Month', 'value': 'Previous Month' }];
+
+        $scope.DurationModelForPassExpiry = [
+            { 'name': 'Select', 'value': '0' },
+            { 'name': 'Today', 'value': 'Today' },
+            { 'name': 'Tomorrow', 'value': 'Tomorrow' },
+            { 'name': 'Day after Tomorrow', 'value': 'Day after Tomorrow' },
+            { 'name': 'This Week', 'value': 'This Week' }];
     }
     function CheckInSession() {
         var url = $("#CheckSessionValue").val();
@@ -1048,6 +1383,24 @@
     angular.module('app').config(function ($mdDateLocaleProvider) {
         $mdDateLocaleProvider.formatDate = function (date) {
             return date ? moment(date).format('DD-MM-YYYY') : '';
+        };
+    });
+    angular.module('app').directive('readonly', function () {
+        return {
+            restrict: 'EAC',
+            link: function (scope, elem, attr) {
+                // $('#FromDate').attr('readonly', true);
+                //$('#ToDate').attr('readonly', true);
+                document.querySelectorAll("#FromDate input")[0].setAttribute("readonly", "readonly");
+                document.querySelectorAll("#ToDate input")[0].setAttribute("readonly", "readonly");
+                angular.element(".md-datepicker-button").each(function () {
+                    var el = this;
+                    var ip = angular.element(el).parent().find("input").bind('click', function (e) {
+                        angular.element(el).click();
+                    });
+                    angular.element(this).css('display', 'none');
+                });
+            }
         };
     });
 })(); 

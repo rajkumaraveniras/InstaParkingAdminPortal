@@ -70,7 +70,8 @@
                                             <label style="visibility: hidden;">From Date</label>
                                             <md-datepicker ng-model="ReportFilterModel['FromDate']" md-placeholder="From Date" name="FromDate"
                                                            ng-disabled="disabled" ng-required="required"
-                                                           ng-change="ChangeToDate()" md-open-on-focus id="FromDate" required></md-datepicker>
+                                                           ng-change="ChangeToDate()" md-open-on-focus id="FromDate" required
+                                                           readonly md-max-date="TomaxDate"></md-datepicker>
                                         </md-input-container>
                                     </div>
                                     <div class="col-md-3" ng-if="ReportFilterModel.Duration!=''">
@@ -79,7 +80,7 @@
                                             <md-datepicker ng-model="ReportFilterModel['ToDate']" md-placeholder="To Date" name="ToDate"
                                                            ng-disabled="disabled" ng-required="required"
                                                            ng-change="AssignToDate()" id="ToDate"
-                                                           md-max-date="TomaxDate"></md-datepicker>
+                                                           md-max-date="TomaxDate" readonly></md-datepicker>
                                         </md-input-container>
                                     </div>
                                     <div class="col-md-3" ng-if="ReportFilterModel.Duration==''">
@@ -89,7 +90,7 @@
                                                            ng-disabled="disabled" ng-required="required"
                                                            md-min-date="ReportFilterModel.FromDate"
                                                            ng-change="AssignToDate()" id="ToDate"
-                                                           md-max-date="TomaxDate"></md-datepicker>
+                                                           md-max-date="TomaxDate" readonly></md-datepicker>
                                         </md-input-container>
                                     </div>
 
@@ -176,7 +177,7 @@
                             <table class="table-striped" md-table>
                                 <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
                                     <tr md-row>
-                                        <th md-column md-order-by="Channel"><span>Reason</span></th>
+                                        <th md-column md-order-by="Reason"><span>Reason</span></th>
                                         <th md-column md-order-by="Station"><span>Station</span></th>
                                         <th md-column md-order-by="ParkingLot"><span>Parking Lot</span></th>
                                         @*<th md-column md-order-by="ParkingLot"><span>Lot Code</span></th>*@
@@ -210,6 +211,15 @@
                                             {{GrandTotalforViolation}}
                                         </td>
                                     </tr>
+                                    @*<tr md-row class="gst-row" ng-if="ReportByViolationListModel.length>0">
+                                        <td md-cell></td>
+                                        <td md-cell></td>
+                                        <td md-cell></td>
+                                        <td md-cell></td>
+                                        <td md-cell></td>
+                                        <td md-cell style="font-weight: bold; text-align: right !important;">GST</td>
+                                        <td md-cell style="font-weight: bold; text-align: right !important;">{{ViolationGST}}</td>
+                                    </tr>*@
                                     <tr md-row ng-if="ReportByViolationListModel.length==0">
                                         <td md-cell colspan="7" style="text-align: center;">No Data Available</td>
                                     </tr>
@@ -228,27 +238,27 @@
 
                             <!--header start-->
                             <div>
-                                <div style="width: 48%; padding: 10px 1%; float: left;">
-                                    <img src="~/assets/images/Logo4.png" style="padding-top:15px;" alt="logo" />
+                                <div style="width:48%;padding: 5px 1%; float: left;">
+                                    @*<img src="~/assets/images/Logo4.png" style="padding-top:15px;" alt="logo" />*@
+                                    <img id="CompanyImg" style="padding-top:5px;width:80px; height: 72px;" alt="logo" />
                                 </div>
                                 <div style="width: 48%; padding: 10px 1%; float: left; text-align: left; color:#353535;">
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Unit #3A, Plot No:847, Pacific Towers,<br />
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    Madhapur, Hyderabad – 500081, TS<br />
+                                    @*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*@
+                                    @*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Unit #3A, Plot No:847, Pacific Towers,<br />*@
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{AccountModel.Address1}}<br />
+                                    @*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*@
+                                    @*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*@
+                                    @*Madhapur, Hyderabad – 500081, TS<br />*@
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{AccountModel.Address2}}<br />
                                     <strong style="font-family: pnbold;">
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GSTIN:
-                                    </strong> 36AABCT3518Q1ZX<br />
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GSTIN:
+                                    </strong> {{AccountModel.GSTNumber}}<br />
                                     <strong style="font-family: pnbold;">
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ph:
-                                    </strong> +91 8143143143 <br />
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ph:
+                                    </strong> +91 {{AccountModel.ContactNumber}} <br />
                                     <strong style="font-family: pnbold;">
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Email:
-                                    </strong> support@hmrl.com<br />
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Email:
+                                    </strong> {{AccountModel.SupportEmailID}}<br />
                                 </div>
                                 <div style="clear:both;"></div>
                             </div>
@@ -328,6 +338,17 @@
                                     <td style=" border: 1px solid #000000; font-size: 13px; font-weight: bold; text-align: right;">{{ReportByViolationListModel[0].TotalEPay}}</td>
                                     <td style=" border: 1px solid #000000;font-size: 13px; font-weight: bold; text-align: right;">{{GrandTotalforViolation}}</td>
                                 </tr>
+                                @*<tr style=" font-family: pnbold;">
+                                    <td style=" border: 1px solid #000000;">&nbsp;</td>
+                                    <td style=" border: 1px solid #000000;">&nbsp;</td>
+                                    <td style=" border: 1px solid #000000;">&nbsp;</td>
+                                    <td style=" border: 1px solid #000000;">&nbsp;</td>
+                                    <td style=" border: 1px solid #000000;">&nbsp;</td>
+                                    <td style=" border: 1px solid #000000; font-size: 13px; font-weight: bold; text-align: right !important;">GST</td>
+                                    <td style=" border: 1px solid #000000; font-size: 13px; font-weight: bold; text-align: right;">
+                                        {{ViolationGST}}
+                                    </td>
+                                </tr>*@
                             </table>
                             <!--table close-->
 
@@ -344,3 +365,4 @@
 @Html.Hidden("GetActiveVehicleTypesList", Url.Action("GetActiveVehicleTypesList", "Parking"))
 @Html.Hidden("GetReportByViolation", Url.Action("GetReportByViolation", "RevenueReports"))
 @Html.Hidden("GetActiveReasonsList", Url.Action("GetActiveReasonsList", "RevenueReports"))
+@Html.Hidden("GetAccountDetails", Url.Action("GetAccountDetails", "CompanyInfo"))

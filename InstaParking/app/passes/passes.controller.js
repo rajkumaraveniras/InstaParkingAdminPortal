@@ -18,8 +18,8 @@
                 'Duration': '',
                 'StartDate': '',
                 'EndDate': '',
-                'NFCApplicable': '',
-                'NFCCardPrice': '',
+                //'NFCApplicable': '',
+                // 'NFCCardPrice': '',
                 'VehicleTypeID': '',
                 'Price': '',
                 'IsActive': '',
@@ -42,10 +42,10 @@
             };
         }
 
-        $scope.StationAccessModel = [
-            { 'name': 'Single Station' },
-            { 'name': 'Multi Stations' },
-            { 'name': 'All Stations' }];
+        //$scope.StationAccessModel = [
+        //    { 'name': 'Single Station' },
+        //    { 'name': 'Multi Stations' },
+        //    { 'name': 'All Stations' }];
         $scope.DurationModel = [
             { 'name': '1 Day(s)' },
             { 'name': '5 Days' },
@@ -57,7 +57,7 @@
 
 
         GetPassList();
-        ViewPassTypeByID();
+        
         function GetPassList() {
             var url = $("#GetPassTypeList").val();
             if (url != undefined) {
@@ -161,6 +161,7 @@
         }
 
         $scope.SubmitPassType = function () {
+
             var url = $("#SavePassType").val();
             var PassPriceID;
             if ($scope.PassTypeModel.PassPriceID == "") {
@@ -170,6 +171,11 @@
                 PassPriceID = $scope.PassTypeModel.PassPriceID;
             }
             $scope.PassTypeModel.PassPriceID = PassPriceID;
+
+
+
+
+
             $('#loader-container').show();
             if (CheckInSession()) {
                 $.ajax({
@@ -194,6 +200,7 @@
                 window.location.href = $("#LogOut").val();
             }
         };
+        ViewPassTypeByID();
         function ViewPassTypeByID() {
             var url = $("#ViewPassType").val();
             var hdnFlagVal = $stateParams.passtypeid;
@@ -215,12 +222,37 @@
                                     $scope.PassTypeModel.PassTypeID = data[i]["PassTypeID"];
                                     $scope.PassTypeModel.PassCode = data[i]["PassCode"];
                                     $scope.PassTypeModel.PassName = data[i]["PassName"];
+
+                                    var passtypename;
+                                    for (var k = 0; k < $scope.PassTypeListModel.length; k++) {
+                                        if ($scope.PassTypeListModel[k].PassTypeID == $scope.PassTypeModel.PassTypeID) {
+                                            passtypename = $scope.PassTypeListModel[k].PassTypeName;
+                                        }
+                                    }
+                                    if (passtypename == 'Event Pass') {
+                                        $scope.StationAccessModel = [
+                                            { 'name': 'Single Station' }];
+                                    }
+                                    else {
+                                        $scope.StationAccessModel = [
+                                            { 'name': 'Single Station' },
+                                            { 'name': 'Multi Stations' },
+                                            { 'name': 'All Stations' }];
+                                    }
                                     $scope.PassTypeModel.StationAccess = data[i]["StationAccess"];
                                     $scope.PassTypeModel.Duration = data[i]["Duration"];
-                                    $scope.PassTypeModel.StartDate = new Date(data[i]["StartDate"]);
-                                    $scope.PassTypeModel.EndDate = new Date(data[i]["EndDate"]);
-                                    $scope.PassTypeModel.NFCApplicable = data[i]["NFCApplicable"];
-                                    $scope.PassTypeModel.NFCCardPrice = data[i]["NFCCardPrice"];
+
+                                    $scope.PassTypeModel.StartDate = new Date(parseInt(data[i]["StartDate"].substr(6)));
+                                    $scope.PassTypeModel.EndDate = new Date(parseInt(data[i]["EndDate"].substr(6)));
+
+
+                                    //$scope.PassTypeModel.StartDate = new Date(data[i]["StartDate"]);
+                                    //$scope.PassTypeModel.EndDate = new Date(data[i]["EndDate"]);
+
+
+
+                                    // $scope.PassTypeModel.NFCApplicable = data[i]["NFCApplicable"];
+                                    // $scope.PassTypeModel.NFCCardPrice = data[i]["NFCCardPrice"];
                                     $scope.PassTypeModel.VehicleTypeID = data[i]["VehicleTypeID"];
                                     $scope.PassTypeModel.Price = data[i]["Price"];
                                     $scope.PassTypeModel.PassDescription = data[i]["PassDescription"];
@@ -247,22 +279,24 @@
             if (url != undefined) {
                 $('#loader-container').show();
                 if (CheckInSession()) {
-                    var startDate;
-                    var endDate;
-                    if (typeof $scope.PassTypeModel.StartDate == "string") {
-                        startDate = $scope.PassTypeModel.StartDate;
-                    }
-                    else {
-                        startDate = $scope.PassTypeModel.StartDate.toLocaleDateString();
-                    }
-                    if (typeof $scope.PassTypeModel.EndDate == "string") {
-                        endDate = $scope.PassTypeModel.EndDate;
-                    }
-                    else {
-                        endDate = $scope.PassTypeModel.EndDate.toLocaleDateString();
-                    }
-                    $scope.PassTypeModel.StartDate = startDate;
-                    $scope.PassTypeModel.EndDate = endDate;
+                    //var startDate;
+                    //var endDate;
+                    //if (typeof $scope.PassTypeModel.StartDate == "string") {
+                    //    startDate = $scope.PassTypeModel.StartDate;
+                    //}
+                    //else {
+                    //    startDate = $scope.PassTypeModel.StartDate.toLocaleDateString();
+                    //}
+                    //if (typeof $scope.PassTypeModel.EndDate == "string") {
+                    //    endDate = $scope.PassTypeModel.EndDate;
+                    //}
+                    //else {
+                    //    endDate = $scope.PassTypeModel.EndDate.toLocaleDateString();
+                    //}
+                    //$scope.PassTypeModel.StartDate = startDate;
+                    //$scope.PassTypeModel.EndDate = endDate;
+
+                    
 
 
                     $.ajax({
@@ -304,6 +338,26 @@
             }
         }
 
+        $scope.GetStationAccessByPassType = function (passtype) {
+            $scope.PassTypeModel.StationAccess = '';
+            var passtypename;
+            for (var i = 0; i < $scope.PassTypeListModel.length; i++) {
+                if ($scope.PassTypeListModel[i].PassTypeID == passtype) {
+                    passtypename = $scope.PassTypeListModel[i].PassTypeName;
+                }
+            }
+            if (passtypename == 'Event Pass') {
+                $scope.StationAccessModel = [
+                    { 'name': 'Single Station' }];                   
+            }
+            else {
+                $scope.StationAccessModel = [
+                    { 'name': 'Single Station' },
+                    { 'name': 'Multi Stations' },
+                    { 'name': 'All Stations' }];
+            }
+        };
+
         //PassSale Limit Code Start
         GetPassSaleLimitList();
         function GetPassSaleLimitList() {
@@ -319,14 +373,14 @@
                         dataType: "json",
                         success: function (data) {
                             if (data.length > 0) {
-                                $scope.PassSaleLimitListModel = data;   
+                                $scope.PassSaleLimitListModel = data;
                                 for (var items = 0; items < $scope.PassSaleLimitListModel.length; items++) {
                                     if ($scope.PassSaleLimitListModel[items].IsActive == true) {
                                         $scope.PassSaleLimitListModel[items].IsActive = 'Active';
                                     }
                                     else {
                                         $scope.PassSaleLimitListModel[items].IsActive = 'Inactive';
-                                    }                                    
+                                    }
                                 }
 
                                 $scope.sortpropertyName = 'PassTypeName';
@@ -410,7 +464,7 @@
                                 for (var i = 0; i < data.length; i++) {
                                     $scope.PassSaleLimitModel.PassSaleLimitID = data[i]["PassSaleLimitID"];
                                     $scope.PassSaleLimitModel.PassTypeID = data[i]["PassTypeID"];
-                                    $scope.PassSaleLimitModel.VehicleTypeID = data[i]["VehicleTypeID"];                                    
+                                    $scope.PassSaleLimitModel.VehicleTypeID = data[i]["VehicleTypeID"];
                                     $scope.PassSaleLimitModel.LimitPercentage = data[i]["LimitPercentage"];
                                     $scope.PassSaleLimitModel.IsActive = data[i]["IsActive"];
                                     $scope.$apply();//16122020
@@ -431,7 +485,7 @@
         $scope.DeletePassSaleLimit = function (passsaleid) {
             var url = $("#DeletePassSaleLimit").val();
             var hdnFlagVal = passsaleid;
-           
+
             if (hdnFlagVal != undefined && url != undefined) {
                 $('#loader-container').show();
                 if (CheckInSession()) {
@@ -473,7 +527,7 @@
         // table code
 
         $scope.selected = [];
-        $scope.limitOptions = [5, 10, 15];
+        $scope.limitOptions = [10, 20, 30];
 
         $scope.options = {
             rowSelection: true,
@@ -488,7 +542,7 @@
 
         $scope.query = {
             order: 'name',
-            limit: 5,
+            limit: 10,
             page: 1
         };
 
@@ -513,7 +567,7 @@
         };
 
         $scope.toggleLimitOptions = function () {
-            $scope.limitOptions = $scope.limitOptions ? undefined : [5, 10, 15];
+            $scope.limitOptions = $scope.limitOptions ? undefined : [10, 20, 30];
         };
 
         $scope.getTypes = function () {

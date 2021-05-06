@@ -63,7 +63,8 @@
                                             <label style="visibility: hidden;">From Date</label>
                                             <md-datepicker ng-model="ReportFilterModel['FromDate']" md-placeholder="From Date" name="FromDate"
                                                            ng-disabled="disabled" ng-required="required"
-                                                           ng-change="ChangeToDate()" md-open-on-focus id="FromDate"></md-datepicker>
+                                                           ng-change="ChangeToDate()" md-open-on-focus id="FromDate" readonly
+                                                           md-max-date="TomaxDate"></md-datepicker>
                                         </md-input-container>
                                     </div>
                                     <div class="col-md-3" ng-if="ReportFilterModel.Duration!=''">
@@ -72,7 +73,7 @@
                                             <md-datepicker ng-model="ReportFilterModel['ToDate']" md-placeholder="To Date" name="ToDate"
                                                            ng-disabled="disabled" ng-required="required"
                                                            ng-change="AssignToDate()" id="ToDate"
-                                                           md-max-date="TomaxDate"></md-datepicker>
+                                                           md-max-date="TomaxDate" readonly></md-datepicker>
                                         </md-input-container>
                                     </div>
                                     <div class="col-md-3" ng-if="ReportFilterModel.Duration==''">
@@ -82,7 +83,7 @@
                                                            ng-disabled="disabled" ng-required="required"
                                                            md-min-date="ReportFilterModel.FromDate"
                                                            ng-change="AssignToDate()" id="ToDate"
-                                                           md-max-date="TomaxDate"></md-datepicker>
+                                                           md-max-date="TomaxDate" readonly></md-datepicker>
                                         </md-input-container>
                                     </div>
                                     <div class="col-md-3">
@@ -172,27 +173,27 @@
 
                             <!--header start-->
                             <div>
-                                <div style="width: 48%; padding: 10px 1%; float: left;">
-                                    <img src="~/assets/images/Logo4.png" style="padding-top:15px;" alt="logo" />
+                                <div style="width:48%;padding: 5px 1%; float: left;">
+                                    @*<img src="~/assets/images/Logo4.png" style="padding-top:15px;" alt="logo" />*@
+                                    <img id="CompanyImg" style="padding-top:5px;width:80px; height: 72px;" alt="logo" />
                                 </div>
                                 <div style="width: 48%; padding: 10px 1%; float: left; text-align: left; color:#353535;">
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Unit #3A, Plot No:847, Pacific Towers,<br />
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    Madhapur, Hyderabad – 500081, TS<br />
+                                    @*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*@
+                                    @*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Unit #3A, Plot No:847, Pacific Towers,<br />*@
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{AccountModel.Address1}}<br />
+                                    @*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*@
+                                    @*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*@
+                                    @*Madhapur, Hyderabad – 500081, TS<br />*@
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{AccountModel.Address2}}<br />
                                     <strong style="font-family: pnbold;">
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GSTIN:
-                                    </strong> 36AABCT3518Q1ZX<br />
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GSTIN:
+                                    </strong> {{AccountModel.GSTNumber}}<br />
                                     <strong style="font-family: pnbold;">
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ph:
-                                    </strong> +91 8143143143 <br />
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ph:
+                                    </strong> +91 {{AccountModel.ContactNumber}} <br />
                                     <strong style="font-family: pnbold;">
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Email:
-                                    </strong> support@hmrl.com<br />
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Email:
+                                    </strong> {{AccountModel.SupportEmailID}}<br />
                                 </div>
                                 <div style="clear:both;"></div>
                             </div>
@@ -280,3 +281,4 @@
 @Html.Hidden("GetActiveLotssList", Url.Action("GetActiveLotssList", "Employee"))
 @Html.Hidden("GetActiveFOCReasonList", Url.Action("GetActiveFOCReasonList", "OperationalReports"))
 @Html.Hidden("GetFOCReport", Url.Action("GetFOCReport", "OperationalReports"))
+@Html.Hidden("GetAccountDetails", Url.Action("GetAccountDetails", "CompanyInfo"))

@@ -35,8 +35,10 @@
                                 <div class="col-md-3">
                                     <md-input-container class="md-block">
                                         <label>Pass Type</label>
-                                        <md-select ng-model="PassTypeModel['PassTypeID']" aria-label="select" name="PassTypeID" required>
-                                            <md-option ng-repeat="passtype in PassTypeListModel" value="{{passtype.PassTypeID}}"> {{passtype.PassTypeName}} </md-option>
+                                        <md-select ng-model="PassTypeModel['PassTypeID']" aria-label="select" name="PassTypeID" required 
+                                                    ng-change="GetStationAccessByPassType(PassTypeModel.PassTypeID)">
+                                            <md-option ng-repeat="passtype in PassTypeListModel" value="{{passtype.PassTypeID}}"
+                                                      > {{passtype.PassTypeName}} </md-option>
                                         </md-select>
                                     </md-input-container>
                                 </div>
@@ -93,7 +95,7 @@
                                     </md-input-container>
                                 </div>
 
-                                <div class="col-md-3">
+                                @*<div class="col-md-3">
                                     <md-checkbox aria-label="Checkbox 1" style="margin-top: 20px;" ng-model="PassTypeModel['NFCApplicable']"> NFC Applicable </md-checkbox>
                                 </div>
 
@@ -102,7 +104,7 @@
                                         <label>NFC Card  Price</label>
                                         <input ng-model="PassTypeModel['NFCCardPrice']" name="NFCCardPrice" valid-number>
                                     </md-input-container>
-                                </div>
+                                </div>*@
 
                                 <div class="col-md-3">
                                     <md-checkbox aria-label="Checkbox 1" style="margin-top: 20px;" ng-model="PassTypeModel['IsActive']"> Active </md-checkbox>

@@ -42,7 +42,8 @@
                 'AadharNumber': '',
                 'PANNumber': ''
                 , 'IsOperator': ''
-                ,'UserTypeName':''
+                , 'UserTypeName': ''
+              
             };
             $scope.ModulesList = [];
 
@@ -570,6 +571,7 @@
 
                                     if (data[i]["Photo"] != '') {
                                         $("#EmployeeImg").attr('src', 'EmployeeImages/' + data[i]["Photo"]);
+                                       // $scope.EmployeesModel.EmpPhoto = data[i]["Photo"];
                                         if (!UrlExists('EmployeeImages/' + data[i]["Photo"])) {
                                             $("#EmployeeImg").attr('src', 'assets/images/picture-upload.jpg');
                                         }
@@ -951,6 +953,8 @@
                 //    filesizeflag = false;
                 //}
             }
+            
+
             var AadharLogo = $("#Aadharupload").get(0);
             var files2 = AadharLogo.files;
             if (files2.length > 0) {
@@ -1267,7 +1271,7 @@
         // table code
 
         $scope.selected = [];
-        $scope.limitOptions = [5, 10, 15];
+        $scope.limitOptions = [10, 20, 30];
 
         $scope.options = {
             rowSelection: true,
@@ -1282,7 +1286,7 @@
 
         $scope.query = {
             order: 'name',
-            limit: 5,
+            limit: 10,
             page: 1
         };
 
@@ -1307,7 +1311,7 @@
         };
 
         $scope.toggleLimitOptions = function () {
-            $scope.limitOptions = $scope.limitOptions ? undefined : [5, 10, 15];
+            $scope.limitOptions = $scope.limitOptions ? undefined : [10, 20,30];
         };
 
         $scope.getTypes = function () {
@@ -1457,6 +1461,23 @@
                 };
                 modelCtrl.$parsers.push(capitalize);
                 capitalize(scope[attrs.ngModel]); // capitalize initial value
+            }
+        };
+    });
+
+    angular.module('app').directive('readonly', function () {
+        return {
+            restrict: 'EAC',
+            link: function (scope, elem, attr) {
+               // $('#JoiningDate').attr('readonly', true);
+                document.querySelectorAll("#JoiningDate input")[0].setAttribute("readonly", "readonly");
+                angular.element(".md-datepicker-button").each(function () {
+                    var el = this;
+                    var ip = angular.element(el).parent().find("input").bind('click', function (e) {
+                        angular.element(el).click();
+                    });
+                    angular.element(this).css('display', 'none');
+                });
             }
         };
     });

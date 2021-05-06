@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
 
 namespace InstaParking.DAL
 {
@@ -217,7 +216,7 @@ namespace InstaParking.DAL
                             sqlcmdException.CommandType = CommandType.StoredProcedure;
                             sqlcmdException.CommandTimeout = 0;
                             sqlcmdException.Parameters.AddWithValue("@ApplicationType", "Parking");
-                            sqlcmdException.Parameters.AddWithValue("@ExceptionMessage", string.Concat(stationFilterData.LocationID,",", stationFilterData.LocationParkingLotID,",", stationFilterData.FromDate,",", stationFilterData.ToDate));
+                            sqlcmdException.Parameters.AddWithValue("@ExceptionMessage", string.Concat(stationFilterData.LocationID, ",", stationFilterData.LocationParkingLotID, ",", stationFilterData.FromDate, ",", stationFilterData.ToDate));
                             sqlcmdException.Parameters.AddWithValue("@Model", "ReportModel");
                             sqlcmdException.Parameters.AddWithValue("@Procedure", "PARK_PROC_GetReportByStation");
                             sqlcmdException.Parameters.AddWithValue("@ApplicationMethod", "GetReportByStation");
@@ -407,8 +406,8 @@ namespace InstaParking.DAL
                         {
                             RevenueByPaymentType payment_obj = new RevenueByPaymentType();
                             payment_obj.PaymentType = Convert.ToString(dt_location.Rows[i]["PaymentTypeName"]);
-                           // payment_obj.In = Convert.ToString(dt_location.Rows[i]["In"]);
-                           // payment_obj.Out = Convert.ToString(dt_location.Rows[i]["Out"]);
+                            // payment_obj.In = Convert.ToString(dt_location.Rows[i]["In"]);
+                            // payment_obj.Out = Convert.ToString(dt_location.Rows[i]["Out"]);
                             //payment_obj.FOC = Convert.ToString(dt_location.Rows[i]["FOC"]);
                             payment_obj.OperatorIn = Convert.ToString(dt_location.Rows[i]["OperatorIn"]);
                             payment_obj.AppIn = Convert.ToString(dt_location.Rows[i]["AppIn"]);
@@ -811,8 +810,10 @@ namespace InstaParking.DAL
                             supervisor_obj.Amount = dt_location.Rows[i]["Amount"] == DBNull.Value ? 0 : Convert.ToDecimal(dt_location.Rows[i]["Amount"]);
                             supervisor_obj.ClampCash = dt_location.Rows[i]["ClampCash"] == DBNull.Value ? 0 : Convert.ToDecimal(dt_location.Rows[i]["ClampCash"]);
                             supervisor_obj.ClampEPay = dt_location.Rows[i]["ClampEPay"] == DBNull.Value ? 0 : Convert.ToDecimal(dt_location.Rows[i]["ClampEPay"]);
-                            supervisor_obj.NFCCash= dt_location.Rows[i]["NFCCash"] == DBNull.Value ? 0 : Convert.ToDecimal(dt_location.Rows[i]["NFCCash"]);
+                            supervisor_obj.NFCCash = dt_location.Rows[i]["NFCCash"] == DBNull.Value ? 0 : Convert.ToDecimal(dt_location.Rows[i]["NFCCash"]);
                             supervisor_obj.NFCEPay = dt_location.Rows[i]["NFCEPay"] == DBNull.Value ? 0 : Convert.ToDecimal(dt_location.Rows[i]["NFCEPay"]);
+                            supervisor_obj.DueCash = dt_location.Rows[i]["DueCash"] == DBNull.Value ? 0 : Convert.ToDecimal(dt_location.Rows[i]["DueCash"]);
+                            supervisor_obj.DueEPay = dt_location.Rows[i]["DueEPay"] == DBNull.Value ? 0 : Convert.ToDecimal(dt_location.Rows[i]["DueEPay"]);
                             if (i == 0)
                             {
                                 supervisor_obj.TotalClampCash = Convert.ToString(dt_location.Compute("Sum(ClampCash)", ""));
@@ -823,6 +824,8 @@ namespace InstaParking.DAL
                                 supervisor_obj.TotalPassesEPay = Convert.ToString(dt_location.Compute("Sum(PassesEPay)", ""));
                                 supervisor_obj.TotalNFCCash = Convert.ToString(dt_location.Compute("Sum(NFCCash)", ""));
                                 supervisor_obj.TotalNFCEPay = Convert.ToString(dt_location.Compute("Sum(NFCEPay)", ""));
+                                supervisor_obj.TotalDueCash = Convert.ToString(dt_location.Compute("Sum(DueCash)", ""));
+                                supervisor_obj.TotalDueEPay = Convert.ToString(dt_location.Compute("Sum(DueEPay)", ""));
                             }
                             revenue_List.Add(supervisor_obj);
                         }
@@ -907,6 +910,138 @@ namespace InstaParking.DAL
                                 time_obj.TotalEPay = Convert.ToString(dt_location.Compute("Sum(Epay)", ""));
                             }
                             revenue_List.Add(time_obj);
+                        }
+                    }
+                }
+                return revenue_List;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public Account GetCompanyInfoDetails()
+        {
+            Account account_obj;
+            sqlhelper_obj = new SqlHelper();
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+
+                    using (SqlCommand sqlcmd_obj = new SqlCommand("PARK_PROC_GetCompanyDetails", sqlconn_obj))
+                    {
+                        sqlcmd_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_obj.CommandTimeout = 0;
+                        DataTable dt;
+                        using (SqlDataAdapter da = new SqlDataAdapter(sqlcmd_obj))
+                        {
+                            dt = new DataTable();
+                            da.Fill(dt);
+                        }
+
+                        account_obj = new Account();
+                        account_obj.AccountName = Convert.ToString(dt.Rows[0]["AccountName"]);
+                        account_obj.Address1 = Convert.ToString(dt.Rows[0]["Address1"]);
+                        account_obj.Address2 = Convert.ToString(dt.Rows[0]["Address2"]);
+                        account_obj.GSTNumber = Convert.ToString(dt.Rows[0]["GSTNumber"]);
+                        account_obj.ContactNumber = Convert.ToString(dt.Rows[0]["ContactNumber"]);
+                        account_obj.SupportEmailID = Convert.ToString(dt.Rows[0]["SupportEmailID"]);
+                        account_obj.CompanyLogo = Convert.ToString(dt.Rows[0]["CompanyLogo"]);
+                    }
+                }
+                return account_obj;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        //04032021
+        public List<RevenueByDueAmount> GetDueAmountReport(SearchFilters filterData)
+        {
+            sqlhelper_obj = new SqlHelper();
+            List<RevenueByDueAmount> revenue_List = new List<RevenueByDueAmount>();
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+                    using (SqlCommand sqlcmd_details_obj = new SqlCommand("PARK_PROC_GetReportByDueAmount", sqlconn_obj))
+                    {
+                        sqlcmd_details_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_details_obj.CommandTimeout = 0;
+                        sqlcmd_details_obj.Parameters.AddWithValue("@Company", filterData.Company);
+                        sqlcmd_details_obj.Parameters.AddWithValue("@LocationID", filterData.LocationID);
+                        sqlcmd_details_obj.Parameters.AddWithValue("@LocationParkingLotID", filterData.LocationParkingLotID);
+                        sqlcmd_details_obj.Parameters.AddWithValue("@ApplicationTypeID", filterData.ApplicationTypeID);
+                        sqlcmd_details_obj.Parameters.AddWithValue("@VehicleTypeID", filterData.VehicleTypeID);
+                        if (filterData.Duration != "0" && filterData.Duration != null)
+                        {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@Duration", filterData.Duration);
+                        }
+                        else
+                        {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@Duration", DBNull.Value);
+                        }
+                        if (String.IsNullOrEmpty(filterData.FromDate.ToString()))
+                        {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@FromDate", DBNull.Value);
+                        }
+                        else
+                        {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@FromDate", filterData.FromDate);
+                        }
+                        if (String.IsNullOrEmpty(filterData.ToDate.ToString()))
+                        {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@ToDate", DBNull.Value);
+                        }
+                        else
+                        {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@ToDate", filterData.ToDate);
+                        }
+                        DataSet ds;
+                        using (SqlDataAdapter sql_dp = new SqlDataAdapter(sqlcmd_details_obj))
+                        {
+                            ds = new DataSet();
+                            sql_dp.Fill(ds);
+                        }
+                        DataTable dt_location = ds.Tables[0];
+                        if (dt_location.Rows.Count == 0)
+                        {
+                            SqlCommand sqlcmdException = new SqlCommand("PARK_PROC_SaveLog", sqlconn_obj);
+                            sqlcmdException.CommandType = CommandType.StoredProcedure;
+                            sqlcmdException.CommandTimeout = 0;
+                            sqlcmdException.Parameters.AddWithValue("@ApplicationType", "Parking");
+                            sqlcmdException.Parameters.AddWithValue("@ExceptionMessage", string.Concat(filterData.LocationID, ",", filterData.LocationParkingLotID, ",", filterData.FromDate, ",", filterData.ToDate));
+                            sqlcmdException.Parameters.AddWithValue("@Model", "ReportModel");
+                            sqlcmdException.Parameters.AddWithValue("@Procedure", "PARK_PROC_GetReportByDueAmount");
+                            sqlcmdException.Parameters.AddWithValue("@ApplicationMethod", "GetDueCollectedReport");
+                            sqlconn_obj.Open();
+                            sqlcmdException.ExecuteNonQuery();
+                            sqlconn_obj.Close();
+                        }
+                        else
+                        {
+                            for (int i = 0; i < dt_location.Rows.Count; i++)
+                            {
+                                RevenueByDueAmount due_obj = new RevenueByDueAmount();
+                                due_obj.Station = Convert.ToString(dt_location.Rows[i]["LocationName"]);
+                                due_obj.ParkingLot = Convert.ToString(dt_location.Rows[i]["LocationParkingLotName"]);
+                                due_obj.Cash = Convert.ToString(dt_location.Rows[i]["Cash"]);
+                                due_obj.EPay = Convert.ToString(dt_location.Rows[i]["Epay"]);
+                                due_obj.Amount = Convert.ToDecimal(dt_location.Rows[i]["Amount"]);
+
+                                if (i == 0)
+                                {
+                                    due_obj.TotalCash = Convert.ToString(dt_location.Compute("Sum(Cash)", ""));
+                                    due_obj.TotalEPay = Convert.ToString(dt_location.Compute("Sum(Epay)", ""));
+                                }
+
+                                revenue_List.Add(due_obj);
+                            }
                         }
                     }
                 }

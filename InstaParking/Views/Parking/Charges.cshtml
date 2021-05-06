@@ -4,67 +4,90 @@
 }
 <div class="page page-create-zone">
     <div data-ng-controller="ParkingCtrl">
-        <form name="formCharges">
-            <div class="row ui-section">
-                <div class="col-md-12">
-                    <article class="article">
-                        <md-card class="no-margin-h">
-                            <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
-                                <div class="md-toolbar-tools">
-                                    <span>Create Charges(In Rupees)</span>
-                                </div>
-                            </md-toolbar>
+        <div class="row ui-section">
+            <div class="col-md-12">
+                <article class="article">
+                    <md-card class="no-margin-h">
+                        <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>Create Charges(In Rupees)</span>
+                            </div>
+                        </md-toolbar>
 
+                        <form name="formCharges">
                             <div>
-                                <div class="col-md-4 col-lg-3">
+                                <div class="col-md-3 col-lg-3">
                                     <md-input-container class="md-block">
-                                        <label>Clamp Fee for 2W</label>
+                                        <label>Vehicle Type</label>
+
+                                        @*ng-change="GetChargesByVehicleType(ChargesModel.VehicleTypeID)"*@
+                                        <md-select ng-model="ChargesModel['VehicleTypeID']" aria-label="select" name="VehicleTypeID" required class="type">
+                                            <md-option ng-repeat="vehType in VehicleTypeListModelforCharges" value="{{vehType.VehicleTypeID}}"> {{vehType.VehicleTypeCode}} </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+                                <div class="col-md-2 col-lg-2">
+                                    <md-input-container class="md-block">
+                                        <label>Clamp Fee</label>
                                         <input type="text" ng-model="ChargesModel['ClampFee']" name="ClampFee" required valid-number>
                                     </md-input-container>
                                 </div>
-                                <div class="col-md-4 col-lg-3">
+                                <div class="col-md-2 col-lg-2">
                                     <md-input-container class="md-block">
-                                        <label>GO Clamp Fee Limit for 2W</label>
-                                        <input type="text" ng-model="ChargesModel['ClampFeeLimit']" name="ClampFeeLimit" required valid-number>
+                                        <label>NFC Tag Price</label>
+                                        <input type="text" ng-model="ChargesModel['NFCTagPrice']" name="NFCTagPrice" required valid-number>
                                     </md-input-container>
                                 </div>
-                                <div class="col-md-4 col-lg-3">
-                                    <md-input-container class="md-block">
-                                        <label>Clamp Fee for 4W</label>
-                                        <input type="text" ng-model="ChargesModel['ClampFeefor4W']" name="ClampFeefor4W" required valid-number>
+                                <div class="col-md-2 col-lg-2">
+                                    <md-input-container>
+                                        <label>Blue Tooth Tag Price</label>
+                                        <input type="text" ng-model="ChargesModel['BlueToothTagPrice']" name="BlueToothTagPrice" required valid-number>
                                     </md-input-container>
                                 </div>
-                                <div class="col-md-4 col-lg-3">
-                                    <md-input-container class="md-block">
-                                        <label>GO Clamp Fee Limit for 4W</label>
-                                        <input type="text" ng-model="ChargesModel['ClampFeeLimitfor4W']" name="ClampFeeLimitfor4W" required valid-number>
-                                    </md-input-container>
-                                </div>
-                                <div class="col-md-4 col-lg-3">
-                                    <md-input-container class="md-block">
-                                        <label>GO Price Limit 2 Wheeler</label>
-                                        <input type="text" ng-model="ChargesModel['PriceLimitForTwoWheller']" name="PriceLimitForTwoWheller" valid-number disabled>
-                                    </md-input-container>
-                                </div>
-                                <div class="col-md-4 col-lg-3">
-                                    <md-input-container class="md-block">
-                                        <label>GO Price Limit 4 Wheeler</label>
-                                        <input type="text" ng-model="ChargesModel['PriceLimitForFourWheller']" name="PriceLimitForFourWheller" valid-number disabled>
-                                    </md-input-container>
-                                </div>
-
-                                <div class="col-md-12 text-center" style="margin: 20px 0px;">
+                                <div class="col-md-3 col-lg-2" style="margin: 15px 0px;">
                                     <md-button type="submit" class="md-button md-raised btn-w-md md-default custom-btn"
                                                name="myButton" [disabled]="formCharges.$valid"
                                                data-ng-click="formCharges.$valid && EditCharges()">Save Charges</md-button>
                                 </div>
                             </div>
-                        </md-card>
-                    </article>
-                </div>
+                        </form>
+
+                        <div class="charges-table">
+                            <md-table-container>
+                                <table md-table>
+                                    <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
+                                        <tr md-row style="background-color: #f4f4f4;">
+                                            <th md-column><span>Actions</span></th>
+                                            <th md-column md-order-by="VehicleTypeCode"><span>Vehicle Type</span></th>
+                                            <th md-column md-order-by="ClampFee"><span>Clamp Fee</span></th>
+                                            <th md-column md-order-by="NFCTagPrice"><span>NFC Tag Price</span></th>
+                                            <th md-column md-order-by="BlueToothTagPrice"><span>BlueTooth Tag Price</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody md-body>
+                                        <tr md-row md-select="chargesdata" ng-repeat="chargesdata in AllChargesListModel | orderBy: query.order">
+                                            <td md-cell class="actions">
+                                                <a title="EDIT CHARGE" ng-click="VieworEditChargeData(chargesdata.ChargesID)">
+                                                    <md-icon>edit</md-icon>
+                                                </a>
+                                            </td>
+                                            <td md-cell>{{chargesdata.VehicleTypeCode}}</td>
+                                            <td md-cell>{{chargesdata.ClampFee}}</td>
+                                            <td md-cell>{{chargesdata.NFCTagPrice}}</td>
+                                            <td md-cell>{{chargesdata.BlueToothTagPrice}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </md-table-container>
+                        </div>
+                    </md-card>
+                </article>
             </div>
-        </form>
+        </div>
     </div>
 </div>
+@Html.Hidden("GetAllVehicleTypesforCharges", Url.Action("GetAllVehicleTypesforCharges", "Parking"))
 @Html.Hidden("GetChargesData", Url.Action("GetChargesData", "Parking"))
 @Html.Hidden("SaveCharges", Url.Action("SaveCharges", "Parking"))
+@Html.Hidden("GetListofChargesData", Url.Action("GetListofChargesData", "Parking"))
+@Html.Hidden("VieworEditChargesData", Url.Action("VieworEditChargesData", "Parking"))

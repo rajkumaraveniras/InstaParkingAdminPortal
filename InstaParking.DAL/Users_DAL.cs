@@ -562,7 +562,7 @@ namespace InstaParking.DAL
             }
         }
 
-        public string InsertEmployeeFiles(string EmpPhotoData, string AadharData, string PANData, User user)
+        public string InsertEmployeeFiles(string EmpPhotoData, string AadharData, string PANData, User user,byte[] EmpPhotoBytes)
         {
             sqlhelper_obj = new SqlHelper();
             string message = string.Empty;
@@ -577,14 +577,7 @@ namespace InstaParking.DAL
 
                         sqlcmd_details_obj.CommandType = CommandType.StoredProcedure;
                         sqlcmd_details_obj.Parameters.AddWithValue("@UserID", user.UserID);
-                        //if (EmpPhotoData.ToString() != "" && EmpPhotoData.ToString() != null)
-                        //{
-                        //    sqlcmd_details_obj.Parameters.AddWithValue("@Photo", EmpPhotoData);
-                        //}
-                        //else
-                        //{
-                        //    sqlcmd_details_obj.Parameters.AddWithValue("@Photo", DBNull.Value);
-                        //}
+                       
                         //if (AadharData.ToString() != "" && AadharData.ToString() != null)
                         //{
                         //    sqlcmd_details_obj.Parameters.AddWithValue("@AadharProof", AadharData);
@@ -604,6 +597,14 @@ namespace InstaParking.DAL
                         sqlcmd_details_obj.Parameters.AddWithValue("@EmpPhoto", String.IsNullOrEmpty(EmpPhotoData) ? (object)DBNull.Value : EmpPhotoData.Trim());
                         sqlcmd_details_obj.Parameters.AddWithValue("@EmpAadharPhoto", String.IsNullOrEmpty(AadharData) ? (object)DBNull.Value : AadharData.Trim());
                         sqlcmd_details_obj.Parameters.AddWithValue("@EmpPANPhoto", String.IsNullOrEmpty(PANData) ? (object)DBNull.Value : PANData.Trim());
+                        if (EmpPhotoBytes.ToString() != "" && EmpPhotoBytes.ToString() != null)
+                        {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@Photo", EmpPhotoBytes);
+                        }
+                        else
+                        {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@Photo", DBNull.Value);
+                        }
 
                         sqlconn_obj.Open();
                         int result = sqlcmd_details_obj.ExecuteNonQuery();
@@ -876,6 +877,53 @@ namespace InstaParking.DAL
             {
                 throw ex;
             }
+        }
+
+        public string UpdateEmployeePhoto(User user, byte[] EmpPhotoBytes)
+        {
+            sqlhelper_obj = new SqlHelper();
+            string message = string.Empty;
+
+            try
+            {
+                using (SqlConnection sqlconn_obj = new SqlConnection())
+                {
+                    sqlconn_obj.ConnectionString = sqlhelper_obj.GetConnectionSrting();
+                    using (SqlCommand sqlcmd_details_obj = new SqlCommand("PARK_PROC_UpdateEmployeePhoto", sqlconn_obj))
+                    {
+
+                        sqlcmd_details_obj.CommandType = CommandType.StoredProcedure;
+                        sqlcmd_details_obj.Parameters.AddWithValue("@UserID", user.UserID);
+                        if (EmpPhotoBytes.ToString() != "" && EmpPhotoBytes.ToString() != null)
+                        {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@Photo", EmpPhotoBytes);
+                        }
+                        else
+                        {
+                            sqlcmd_details_obj.Parameters.AddWithValue("@Photo", DBNull.Value);
+                        }
+
+                        sqlconn_obj.Open();
+                        int result = sqlcmd_details_obj.ExecuteNonQuery();
+                        sqlconn_obj.Close();
+                        if (result > 0)
+                        {
+                            message = "Record Sucessfully Created.";
+                        }
+                        else
+                        {
+                            message = "Failed To Insert.";
+                        }
+                    }
+                }
+                return message;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+
         }
     }
 }

@@ -13,6 +13,8 @@
         public string Clamps { get; set; }
         public string Cash { get; set; }
         public string EPay { get; set; }
+        //public decimal Cash { get; set; }
+        //public decimal EPay { get; set; }
         public string TotalOperatorIn { get; set; }
         public string TotalPassesIn { get; set; }
         public string TotalAppIn { get; set; }
@@ -22,6 +24,6 @@
         public string TotalClamps { get; set; }
         public string TotalCash { get; set; }
         public string TotalEPay { get; set; }
-        public decimal Amount { get; set; }        
+        public decimal Amount { get; set; }          
     }
 }

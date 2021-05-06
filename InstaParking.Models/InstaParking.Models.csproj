@@ -44,6 +44,7 @@
     <Compile Include="Allocations.cs" />
     <Compile Include="ApplicationType.cs" />
     <Compile Include="AssignUserStation.cs" />
+    <Compile Include="CardType.cs" />
     <Compile Include="Charges.cs" />
     <Compile Include="CheckInReport.cs" />
     <Compile Include="City.cs" />
@@ -51,6 +52,7 @@
     <Compile Include="FOCReport.cs" />
     <Compile Include="GetLogo.cs" />
     <Compile Include="Locations.cs" />
+    <Compile Include="LocationVehicleTypeMapper.cs" />
     <Compile Include="LotPrice.cs" />
     <Compile Include="Lots.cs" />
     <Compile Include="LotVehicleAvailability.cs" />
@@ -62,11 +64,13 @@
     <Compile Include="ParkingLotTiming.cs" />
     <Compile Include="ParkingType.cs" />
     <Compile Include="Passes.cs" />
+    <Compile Include="PassExpiredCustomer.cs" />
     <Compile Include="PassSaleLimit.cs" />
     <Compile Include="PassType.cs" />
     <Compile Include="PasswordEncryptDecrypt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RevenueByChannel.cs" />
+    <Compile Include="RevenueByDueAmount.cs" />
     <Compile Include="RevenueByPasses.cs" />
     <Compile Include="RevenueByPaymentType.cs" />
     <Compile Include="RevenueByStation.cs" />

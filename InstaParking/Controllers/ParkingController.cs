@@ -11,7 +11,7 @@ namespace InstaParking.Controllers
         Zones_DAL zonesDAL_obj = new Zones_DAL();
         Locations_DAL locationsDAL_obj = new Locations_DAL();
         Lots_DAL lotsDAL_obj = new Lots_DAL();
-
+        VehicleType_DAL vehicleTypeDAL_obj = new VehicleType_DAL();
 
         #region Zones
         public ActionResult Index()
@@ -131,12 +131,12 @@ namespace InstaParking.Controllers
         }
 
         [HttpPost]
-        public JsonResult SaveLocation(Locations LocationData)
+        public JsonResult SaveLocation(Locations LocationData,List<VehicleType> VehicleTypeList,List<int> PassList)
         {
             string success = "";
             try
             {
-                success = locationsDAL_obj.InsertAndUpdateLocation(LocationData, Convert.ToString(Session["UserID"]));
+                success = locationsDAL_obj.InsertAndUpdateLocation(LocationData, Convert.ToString(Session["UserID"]), VehicleTypeList, PassList);
             }
             catch (Exception ex)
             {
@@ -170,6 +170,22 @@ namespace InstaParking.Controllers
             }
 
         }
+
+        [HttpPost]
+        public JsonResult VerifyLocationCode(Locations LocationData)
+        {
+            string success = "";
+            try
+            {
+                success = locationsDAL_obj.VerifyLocationCode(LocationData);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return Json(success, JsonRequestBehavior.AllowGet);
+        }
+
         #endregion
 
         #region Lots
@@ -266,29 +282,29 @@ namespace InstaParking.Controllers
                 return new JsonNetResult { Data = "Failed" };
             }
         }
-        public JsonNetResult GetActiveLotVehicleAvailabilityList()
-        {
-            IList<LotVehicleAvailability> list = lotsDAL_obj.GetActiveLotVehicleAvailabilityList();
-            try
-            {
-                return new JsonNetResult()
-                {
-                    Data = list,
-                    MaxJsonLength = 2147483647
-                };
-            }
-            catch (Exception ex)
-            {
-                return new JsonNetResult { Data = "Failed" };
-            }
-        }
+        //public JsonNetResult GetActiveLotVehicleAvailabilityList()
+        //{
+        //    IList<LotVehicleAvailability> list = lotsDAL_obj.GetActiveLotVehicleAvailabilityList();
+        //    try
+        //    {
+        //        return new JsonNetResult()
+        //        {
+        //            Data = list,
+        //            MaxJsonLength = 2147483647
+        //        };
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new JsonNetResult { Data = "Failed" };
+        //    }
+        //}
         [HttpPost]
-        public JsonResult SaveLot(Lots LotsData)
+        public JsonResult SaveLot(Lots LotsData,List<VehicleType> VehicleTypeList)
         {
             string success = "";
             try
             {
-                int result = lotsDAL_obj.InsertAndUpdateLot(LotsData, Convert.ToString(Session["UserID"]));
+                int result = lotsDAL_obj.InsertAndUpdateLot(LotsData, Convert.ToString(Session["UserID"]), VehicleTypeList);
                 System.Web.HttpContext.Current.Session["LotID"] = result;
                 if (result > 0)
                 {
@@ -302,10 +318,10 @@ namespace InstaParking.Controllers
                 {
                     success = "Data Exists";
                 }
-                //if (result == -2)
-                //{
-                //    success = "Please Change Location Status to Active.";
-                //}
+                if (result == -2)
+                {
+                    success = "Location - Lot Combination already exist in System.";
+                }
                 return Json(success, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -338,8 +354,39 @@ namespace InstaParking.Controllers
 
         }
 
+        [HttpPost]
+        public JsonResult VerifyLotCode(Lots LotsData)
+        {
+            string success = "";
+            try
+            {
+                success = lotsDAL_obj.VerifyLotCode(LotsData);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return Json(success, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult CheckLocationStatus(int LocationID)
+        {
+            string success = "";
+            try
+            {
+                success = lotsDAL_obj.CheckLocationStatus(LocationID);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return Json(success, JsonRequestBehavior.AllowGet);
+        }
+
+
         #endregion
-        
+
         #region Lot Timing
         [HttpPost]
         public JsonResult SaveLotTimings(ParkingLotTiming timingsData)
@@ -624,9 +671,9 @@ namespace InstaParking.Controllers
             ViewBag.Menu = "Parking";
             return View();
         }
-        public JsonNetResult GetChargesData()
+        public JsonNetResult GetChargesData(int VehicleTypeID)
         {
-            IList<Charges> chargesData = lotsDAL_obj.GetChargesData();
+            IList<Charges> chargesData = lotsDAL_obj.GetChargesData(VehicleTypeID);
 
             try
             {
@@ -656,6 +703,194 @@ namespace InstaParking.Controllers
                 return Json("Fail", JsonRequestBehavior.AllowGet);
             }
         }
+        public JsonNetResult GetListofChargesData()
+        {
+            IList<Charges> chargesData = lotsDAL_obj.GetListofChargesData();
+
+            try
+            {
+                return new JsonNetResult()
+                {
+                    Data = chargesData,
+                    MaxJsonLength = 2147483647
+                };
+            }
+            catch (Exception ex)
+            {
+                return new JsonNetResult { Data = "Failed" };
+            }
+        }
+        public JsonNetResult VieworEditChargesData(int ChargesID)
+        {
+            IList<Charges> chargesData = lotsDAL_obj.VieworEditChargesData(ChargesID);
+
+            try
+            {
+                return new JsonNetResult()
+                {
+                    Data = chargesData,
+                    MaxJsonLength = 2147483647
+                };
+            }
+            catch (Exception ex)
+            {
+                return new JsonNetResult { Data = "Failed" };
+            }
+        }
+        #endregion
+
+        #region Vehicle Types
+        public JsonNetResult GetListofActiveVehicleTypes()
+        {
+            IList<VehicleType> VehTypeList = vehicleTypeDAL_obj.GetListofActiveVehicleTypes();
+
+            try
+            {
+                return new JsonNetResult()
+                {
+                    Data = VehTypeList,
+                    MaxJsonLength = 2147483647
+                };
+            }
+            catch (Exception ex)
+            {
+                return new JsonNetResult { Data = "Failed" };
+            }
+        }
+        public JsonNetResult GetVehicleTypesByLocationID(int LocationID)
+        {
+             IList<VehicleType> VehTypeList = vehicleTypeDAL_obj.GetListofLocationVehicleTypesByID(LocationID);
+
+            try
+            {
+                return new JsonNetResult()
+                {
+                    Data = VehTypeList,
+                    MaxJsonLength = 2147483647
+                };
+            }
+            catch (Exception ex)
+            {
+                return new JsonNetResult { Data = "Failed" };
+            }
+        }
+        public JsonNetResult GetVehicleTypesByLotID(int LotID)
+        {
+            IList<VehicleType> VehTypeList = vehicleTypeDAL_obj.GetVehicleTypesByLotID(LotID);
+
+            try
+            {
+                return new JsonNetResult()
+                {
+                    Data = VehTypeList,
+                    MaxJsonLength = 2147483647
+                };
+            }
+            catch (Exception ex)
+            {
+                return new JsonNetResult { Data = "Failed" };
+            }
+        }
+        [HttpPost]
+        public JsonResult CheckVehicleTypeExistforLot(int LotID,int VehicleTypeID)
+        {
+            string success = "";
+            try
+            {
+                success = lotsDAL_obj.CheckVehicleTypeExistforLot(LotID, VehicleTypeID);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return Json(success, JsonRequestBehavior.AllowGet);
+        }
+        public JsonNetResult GetListofActiveTagTypes()
+        {
+            IList<CardType> tagTypeList = locationsDAL_obj.GetListofActiveTagTypes();
+
+            try
+            {
+                return new JsonNetResult()
+                {
+                    Data = tagTypeList,
+                    MaxJsonLength = 2147483647
+                };
+            }
+            catch (Exception ex)
+            {
+                return new JsonNetResult { Data = "Failed" };
+            }
+        }
+        public JsonNetResult GetListofActivePasses()
+        {
+            IList<Passes> passList = locationsDAL_obj.GetListofActivePasses();
+
+            try
+            {
+                return new JsonNetResult()
+                {
+                    Data = passList,
+                    MaxJsonLength = 2147483647
+                };
+            }
+            catch (Exception ex)
+            {
+                return new JsonNetResult { Data = "Failed" };
+            }
+        }
+        public JsonNetResult GetPassesByLocationID(int LocationID)
+        {
+            IList<int> passList = locationsDAL_obj.GetPassesByLocationID(LocationID);
+
+            try
+            {
+                return new JsonNetResult()
+                {
+                    Data = passList,
+                    MaxJsonLength = 2147483647
+                };
+            }
+            catch (Exception ex)
+            {
+                return new JsonNetResult { Data = "Failed" };
+            }
+        }
+        public JsonNetResult GetListofActivePassesByVehicleID(string VehicleTypeIDs)
+        {
+            IList<Passes> passList = locationsDAL_obj.GetListofActivePassesByVehicleID(VehicleTypeIDs);
+
+            try
+            {
+                return new JsonNetResult()
+                {
+                    Data = passList,
+                    MaxJsonLength = 2147483647
+                };
+            }
+            catch (Exception ex)
+            {
+                return new JsonNetResult { Data = "Failed" };
+            }
+        }
+        public JsonNetResult GetAllVehicleTypesforCharges()
+        {
+            IList<VehicleType> VehTypeList = vehicleTypeDAL_obj.GetListofActiveVehicleTypes();
+
+            try
+            {
+                return new JsonNetResult()
+                {
+                    Data = VehTypeList,
+                    MaxJsonLength = 2147483647
+                };
+            }
+            catch (Exception ex)
+            {
+                return new JsonNetResult { Data = "Failed" };
+            }
+        }
+
         #endregion
 
         [HttpPost]

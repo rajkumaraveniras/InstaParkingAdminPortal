@@ -32,7 +32,9 @@
                 'IsDeleted': '',
                 'UpdatedBy': '',
                 'Lattitude': '',
-                'Longitude': ''
+                'Longitude': '',
+                'TagType': '',
+                'PassAccess':[]
             };
             $scope.LotsListModel = [];
             $scope.LotsModel = {
@@ -55,8 +57,8 @@
                 'UpdatedBy': '',
                 'Address': '',
                 'PhoneNumber': ''
-                , 'LotVehicleAvailabilityID': ''
-                , 'LotVehicleAvailabilityName': ''
+                //, 'LotVehicleAvailabilityID': ''
+                //, 'LotVehicleAvailabilityName': ''
                 , 'IsHoliday': ''
             };
             $scope.ActiveLocationsListModel = [];
@@ -123,12 +125,10 @@
 
             $scope.ChargesModel = {
                 'ChargesID': '',
+                'VehicleTypeID':'',
                 'ClampFee': '',
-                'ClampFeeLimit': '',
-                'ClampFeefor4W': '',
-                'ClampFeeLimitfor4W':'',
-                'PriceLimitForTwoWheller': '',
-                'PriceLimitForFourWheller': '',
+                'NFCTagPrice': '',
+                'BlueToothTagPrice': '',
                 'IsActive': '',
                 'UpdatedOn': '',
                 'UpdatedBy': ''
@@ -179,11 +179,23 @@
             $scope.TwoWheelerCapacity = 0;
             $scope.FourWheelerCapacity = 0;
 
-            $scope.LotVehicleAvailabilityModel = [];
+            //$scope.LotVehicleAvailabilityModel = [];
 
             //$scope.lotvehAvailabilityName = '';
             //$scope.parkingVehicleTypeName = '';
             $scope.activeCheckboxDisabled = false;
+
+            //26022021 Start
+            $scope.ActiveVehicleTypeListModel = [];
+            $scope.ActiveTagTypeListModel = [];
+
+            $scope.LocationVehicleAvailabilityListModel = [];
+            $scope.ActivePassListModel = [];
+            $scope.PassListModelforSave = [];
+            $scope.PassesByVehicleTypeListModel = [];
+            $scope.VehicleTypeListModelforCharges = [];
+            $scope.AllChargesListModel = [];
+            //26022021 End
         }
 
         //Location Code Start
@@ -203,7 +215,7 @@
                         success: function (data) {
                             if (data.length > 0) {
                                 $scope.LocationsListModel = data;
-                               // $scope.$apply();
+                                // $scope.$apply();
                                 for (var items = 0; items < $scope.LocationsListModel.length; items++) {
                                     if ($scope.LocationsListModel[items].IsActive == true) {
                                         $scope.LocationsListModel[items].IsActive = 'Active';
@@ -228,6 +240,12 @@
             }
         }
         $scope.SubmitStation = function () {
+
+            for (var m = 0; m < $scope.LocationsModel.PassAccess.length; m++) {
+                $scope.PassListModelforSave[m] = $scope.LocationsModel.PassAccess[m];
+            }
+
+            var urlVerifyLocationCode = $("#VerifyLocationCode").val();
             var url = $("#SaveLocation").val();
             var LocationID;
             if ($scope.LocationsModel.LocationID == "") {
@@ -237,30 +255,79 @@
                 LocationID = $scope.LocationsModel.LocationID;
             }
             $scope.LocationsModel.LocationID = LocationID;
+
+            //vehicleType Validation manadateory 01032021 Start
+            var Vehicleflag = false;
+            for (var k = 0; k < $scope.ActiveVehicleTypeListModel.length; k++) {
+                if ($scope.ActiveVehicleTypeListModel[k].selected == true) {
+                    Vehicleflag = true;
+                }
+            }
+            //vehicleType Validation manadateory 01032021 End
+
             $('#loader-container').show();
             if (CheckInSession()) {
+                if (LocationValidation()) {
+                    if (Vehicleflag) {
+                        $.ajax({
+                            type: "POST",
+                            url: urlVerifyLocationCode,
+                            data: "{'LocationData':" + JSON.stringify($scope.LocationsModel) + "}",
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            success: function (data) {
+                                if (data == "Not Exists") {
 
-                if (!Number.isInteger($scope.LocationsModel.Longitude) && !Number.isInteger($scope.LocationsModel.Lattitude)) {
-                    $.ajax({
-                        type: "POST",
-                        url: url,
-                        data: "{'LocationData':" + JSON.stringify($scope.LocationsModel) + "}",
-                        contentType: "application/json; charset=utf-8",
-                        dataType: "json",
-                        success: function (data) {
-                            if (data != "Failed") {
-                                alert("Location Created Successfully");
-                                $state.go("parking/stations");
+                                    if (!Number.isInteger($scope.LocationsModel.Longitude) && !Number.isInteger($scope.LocationsModel.Lattitude)) {
+                                        $.ajax({
+                                            type: "POST",
+                                            url: url,
+                                            data: "{'LocationData':" + JSON.stringify($scope.LocationsModel) + ",'VehicleTypeList':" + JSON.stringify($scope.ActiveVehicleTypeListModel) + ",'PassList':" + JSON.stringify($scope.PassListModelforSave) + "}",
+                                            contentType: "application/json; charset=utf-8",
+                                            dataType: "json",
+                                            success: function (data) {
+                                                if (data == "Success") {
+                                                    alert("Location Created Successfully");
+                                                    $state.go("parking/stations");
+                                                }
+                                                else {
+                                                    alert(data);
+                                                    $('#loader-container').hide();
+                                                    //return false;
+                                                }
+                                                $('#loader-container').hide();
+                                            },
+                                            error: function (data) {
+                                                $('#loader-container').hide();
+                                            }
+                                        });
+                                    }
+                                    else {
+                                        alert("Latitude/Longitude must be a decimal value.");
+                                        $('#loader-container').hide();
+                                        return false;
+                                    }
+
+                                }
+                                else {
+                                    alert($scope.LocationsModel.LocationCode + ' already exist in System.');
+                                    $('#loader-container').hide();
+                                }
+                                $('#loader-container').hide();
+                            },
+                            error: function (data) {
+                                $('#loader-container').hide();
                             }
-                            $('#loader-container').hide();
-                        },
-                        error: function (data) {
-                            $('#loader-container').hide();
-                        }
-                    });
+                        });
+                    }
+                    else {
+                        alert('Please choose Vehicle Type');
+                        $('#loader-container').hide();
+                        return false;
+                    }
                 }
                 else {
-                    alert("Latitude/Longitude must be a decimal value.");
+                    alert('Please choose Tag Type');
                     $('#loader-container').hide();
                     return false;
                 }
@@ -293,6 +360,10 @@
                                     $scope.LocationsModel.Lattitude = data[i]["Lattitude"];
                                     $scope.LocationsModel.Longitude = data[i]["Longitude"];
                                     $scope.LocationsModel.IsActive = data[i]["IsActive"];
+                                    $scope.LocationsModel.TagType = data[i]["TagType"];
+                                    GetListofActiveVehicleTypesforUpdate($scope.LocationsModel.LocationID);
+                                    GetListofActivePassesLocation($scope.LocationsModel.LocationID);
+
                                     $scope.$apply();
                                 }
                             }
@@ -309,66 +380,104 @@
             }
         }
         $scope.UpdateStation = function () {
+
+            for (var m = 0; m < $scope.LocationsModel.PassAccess.length; m++) {
+                $scope.PassListModelforSave[m] = $scope.LocationsModel.PassAccess[m];
+            }
+
             var url = $("#UpdateLocation").val();
             $scope.LocationsModel.LocationID = $stateParams.locationid;
+
+            //vehicleType Validation manadateory 01032021 Start
+            var Vehicleflag = false;
+            for (var k = 0; k < $scope.ActiveVehicleTypeListModel.length; k++) {
+                if ($scope.ActiveVehicleTypeListModel[k].selected == true) {
+                    Vehicleflag = true;
+                }
+            }
+            //vehicleType Validation manadateory 01032021 End
 
             if (url != undefined) {
                 $('#loader-container').show();
                 if (CheckInSession()) {
 
-                    if (!Number.isInteger($scope.LocationsModel.Longitude) && !Number.isInteger($scope.LocationsModel.Lattitude)) {
+                    if (LocationValidation()) {
+                        if (Vehicleflag) {
 
-                        if ($scope.LocationsModel.IsActive == false) {
-                            if (confirm('All Lots under this location will be deactivated?')) {
+                            if (!Number.isInteger($scope.LocationsModel.Longitude) && !Number.isInteger($scope.LocationsModel.Lattitude)) {
 
-                                $.ajax({
-                                    type: "POST",
-                                    url: url,
-                                    data: "{'LocationData':" + JSON.stringify($scope.LocationsModel) + "}",
-                                    contentType: "application/json; charset=utf-8",
-                                    dataType: "json",
-                                    success: function (data) {
-                                        if (data != "Failed") {
-                                            alert("Location Updated Successfully");
-                                            $state.go("parking/stations");
-                                        }
-                                        $('#loader-container').hide();
-                                    },
-                                    error: function (data) {
-                                        $('#loader-container').hide();
+                                if ($scope.LocationsModel.IsActive == false) {
+                                    if (confirm('All Lots under this location will be deactivated?')) {
+
+                                        $.ajax({
+                                            type: "POST",
+                                            url: url,
+                                            data: "{'LocationData':" + JSON.stringify($scope.LocationsModel) + ",'VehicleTypeList':" + JSON.stringify($scope.ActiveVehicleTypeListModel) + ",'PassList':" + JSON.stringify($scope.PassListModelforSave) + "}",
+                                            contentType: "application/json; charset=utf-8",
+                                            dataType: "json",
+                                            success: function (data) {
+                                                if (data == "Success") {
+                                                    alert("Location Updated Successfully");
+                                                    $state.go("parking/stations");
+                                                }
+                                                else {
+                                                    alert(data);
+                                                    $('#loader-container').hide();
+                                                }
+                                                $('#loader-container').hide();
+                                            },
+                                            error: function (data) {
+                                                $('#loader-container').hide();
+                                            }
+                                        });
+
                                     }
-                                });
+                                    else {
+                                        $('#loader-container').hide();
+                                        return false;
+                                    }
+                                }
+                                else {
+
+                                    $.ajax({
+                                        type: "POST",
+                                        url: url,
+                                        data: "{'LocationData':" + JSON.stringify($scope.LocationsModel) + ",'VehicleTypeList':" + JSON.stringify($scope.ActiveVehicleTypeListModel) + ",'PassList':" + JSON.stringify($scope.PassListModelforSave) + "}",
+                                        contentType: "application/json; charset=utf-8",
+                                        dataType: "json",
+                                        success: function (data) {
+                                            if (data == "Success") {
+                                                alert("Location Updated Successfully");
+                                                $state.go("parking/stations");
+                                            }
+                                            else {
+                                                alert(data);
+                                                $('#loader-container').hide();
+                                            }
+                                            $('#loader-container').hide();
+                                        },
+                                        error: function (data) {
+                                            $('#loader-container').hide();
+                                        }
+                                    });
+                                }
 
                             }
                             else {
+                                alert("Latitude/Longitude must be a decimal value.");
                                 $('#loader-container').hide();
                                 return false;
                             }
+
                         }
                         else {
-
-                            $.ajax({
-                                type: "POST",
-                                url: url,
-                                data: "{'LocationData':" + JSON.stringify($scope.LocationsModel) + "}",
-                                contentType: "application/json; charset=utf-8",
-                                dataType: "json",
-                                success: function (data) {
-                                    if (data != "Failed") {
-                                        alert("Location Updated Successfully");
-                                        $state.go("parking/stations");
-                                    }
-                                    $('#loader-container').hide();
-                                },
-                                error: function (data) {
-                                    $('#loader-container').hide();
-                                }
-                            });
+                            alert('Please choose Vehcile Type');
+                            $('#loader-container').hide();
+                            return false;
                         }
-
                     }
                     else {
-                        alert("Latitude/Longitude must be a decimal value.");
+                        alert('Please choose Tag Type');
                         $('#loader-container').hide();
                         return false;
                     }
@@ -378,6 +487,7 @@
                 }
             }
         };
+
         //Location Code End
 
         //Lots Code Start
@@ -426,7 +536,7 @@
         GetActiveParkingTypesList();
         GetActiveVehicleTypesList();
         GetActiveParkingBayList();
-        GetActiveVehicleAvailabilityList();
+        //GetActiveVehicleAvailabilityList();
 
         function GetActiveLocationsList() {
             var url = $("#GetActiveLocationList").val();
@@ -540,36 +650,13 @@
                 }
             }
         }
-        function GetActiveVehicleAvailabilityList() {
-            var url = $("#GetActiveLotVehicleAvailabilityList").val();
-            if (url != undefined) {
-                $('#loader-container').show();
-                if (CheckInSession()) {
-                    $.ajax({
-                        type: "POST",
-                        url: url,
-                        data: "",
-                        contentType: "application/json; charset=utf-8",
-                        dataType: "json",
-                        success: function (data) {
-                            if (data.length > 0) {
-                                $scope.LotVehicleAvailabilityModel = data;
-                                $scope.$apply();
-                            }
-                            $('#loader-container').hide();
-                        },
-                        error: function (data) {
-                            $('#loader-container').hide();
-                        }
-                    });
-                }
-                else {
-                    window.location.href = $("#LogOut").val();
-                }
-            }
-        }
+
+        $scope.GetAvailableVehicleTypesByLocation = function (LocationID) {
+            GetListofAvailableVehicleTypesinLocation(LocationID);
+        };
 
         $scope.SubmitLot = function () {
+            var urlVerifyLotCode = $("#VerifyLotCode").val();
             var url = $("#SaveLot").val();
             var LocationParkingLotID;
             if ($scope.LotsModel.LocationParkingLotID == "") {
@@ -580,6 +667,14 @@
             }
             $scope.LotsModel.LocationParkingLotID = LocationParkingLotID;
 
+            //vehicleType Validation manadateory 01032021 Start
+            var Vehicleflag = false;
+            for (var a = 0; a < $scope.ActiveVehicleTypeListModel.length; a++) {
+                if ($scope.ActiveVehicleTypeListModel[a].selected == true) {
+                    Vehicleflag = true;
+                }
+            }
+            //vehicleType Validation manadateory 01032021 End
 
             var size = 0;
             var size2 = 0;
@@ -624,72 +719,112 @@
                 $('#loader-container').show();
                 if (CheckInSession()) {
 
+                    if (Vehicleflag) {
 
-                    if (!Number.isInteger($scope.LotsModel.Longitude) && !Number.isInteger($scope.LotsModel.Lattitude)) {
+                        if (ValidateLocationLotVehicleTypes()) {
 
-                        if (files1.length == 0 && files2.length == 0 && files3.length == 0) {
-                            alert("Upload Atleast one Lot Image");
-                            $('#loader-container').hide();
+                            $.ajax({
+                                type: "POST",
+                                url: urlVerifyLotCode,
+                                data: "{'LotsData':" + JSON.stringify($scope.LotsModel) + "}",
+                                contentType: "application/json; charset=utf-8",
+                                dataType: "json",
+                                success: function (data) {
+                                    if (data == "Not Exists") {
 
-                        } else {
-                            if (size <= 20480 && size2 <= 20480 && size3 <= 20480) {
-                                $.ajax({
-                                    type: "POST",
-                                    url: url,
-                                    data: "{'LotsData':" + JSON.stringify($scope.LotsModel) + "}",
-                                    contentType: "application/json; charset=utf-8",
-                                    dataType: "json",
-                                    success: function (data) {
-                                        if (data != "Failed" && data != "Data Exists") {
-                                            var sucessdata = data;
-                                            var profidenity;
-                                            if (sucessdata.length > 0) {
-                                                profidenity = sucessdata.split('@')[1];
+                                        if (!Number.isInteger($scope.LotsModel.Longitude) && !Number.isInteger($scope.LotsModel.Lattitude)) {
+
+                                            if (files1.length == 0 && files2.length == 0 && files3.length == 0) {
+                                                alert("Upload Atleast one Lot Image");
+                                                $('#loader-container').hide();
+
+                                            } else {
+                                                if (size <= 20480 && size2 <= 20480 && size3 <= 20480) {
+                                                    $.ajax({
+                                                        type: "POST",
+                                                        url: url,
+                                                        data: "{'LotsData':" + JSON.stringify($scope.LotsModel) + ",'VehicleTypeList':" + JSON.stringify($scope.ActiveVehicleTypeListModel) + "}",
+                                                        contentType: "application/json; charset=utf-8",
+                                                        dataType: "json",
+                                                        success: function (data) {
+                                                            if (data != "Failed" && data != "Data Exists" && data != "Location - Lot Combination already exist in System.") {
+                                                                var sucessdata = data;
+                                                                var profidenity;
+                                                                if (sucessdata.length > 0) {
+                                                                    profidenity = sucessdata.split('@')[1];
+                                                                }
+                                                                $scope.LotsModel.LocationParkingLotID = profidenity;
+                                                                fdata.append('LotDetails', JSON.stringify($scope.LotsModel));
+
+                                                                var options = {};
+                                                                options.url = "Handlers/LotImageUploadHandler.ashx";
+                                                                options.type = "POST";
+                                                                options.data = fdata;
+                                                                options.contentType = false;
+                                                                options.processData = false;
+                                                                options.success = function (result) {
+                                                                };
+                                                                options.error = function (err) {
+                                                                };
+
+                                                                $.ajax(options);
+
+                                                                alert("Lot Created Successfully");
+                                                                GetSavedLotDetailsByID($scope.LotsModel.LocationParkingLotID);
+                                                                GetLotTimingsList($scope.LotsModel.LocationParkingLotID);//New
+                                                                GetLotPriceList($scope.LotsModel.LocationParkingLotID);//New
+                                                                // LotCapacityByVehicleType($scope.LotsModel.LocationParkingLotID);//New
+                                                                //$("input[id=hdnLotID]").val($scope.LotsModel.LocationParkingLotID);
+                                                                $("#lotButton").attr("disabled", true);
+                                                                $('input[type="file"]').attr("disabled", true);
+                                                                //$(".type").attr("disabled", true);
+                                                                //$('input[type="text"],input[type="checkbox"],input[type="file"]').attr("disabled", true);
+                                                                //  $state.go("parking/lots");
+                                                            }
+                                                            else if (data == "Location - Lot Combination already exist in System.") {
+                                                                alert(data);
+                                                                $('#loader-container').hide();
+                                                            }
+
+                                                            $('#loader-container').hide();
+                                                        },
+                                                        error: function (data) {
+                                                            $('#loader-container').hide();
+                                                        }
+                                                    });
+                                                }
+                                                else {
+                                                    alert('Lot Image Size should be less than or equal to 20KB');
+                                                    $('#loader-container').hide();
+                                                }
                                             }
-                                            $scope.LotsModel.LocationParkingLotID = profidenity;
-                                            fdata.append('LotDetails', JSON.stringify($scope.LotsModel));
 
-                                            var options = {};
-                                            options.url = "Handlers/LotImageUploadHandler.ashx";
-                                            options.type = "POST";
-                                            options.data = fdata;
-                                            options.contentType = false;
-                                            options.processData = false;
-                                            options.success = function (result) {
-                                            };
-                                            options.error = function (err) {
-                                            };
-
-                                            $.ajax(options);
-
-                                            alert("Lot Created Successfully");
-                                            GetSavedLotDetailsByID($scope.LotsModel.LocationParkingLotID);
-                                            GetLotTimingsList($scope.LotsModel.LocationParkingLotID);//New
-                                            GetLotPriceList($scope.LotsModel.LocationParkingLotID);//New
-                                            // LotCapacityByVehicleType($scope.LotsModel.LocationParkingLotID);//New
-                                            //$("input[id=hdnLotID]").val($scope.LotsModel.LocationParkingLotID);
-                                            $("#lotButton").attr("disabled", true);
-                                            $('input[type="file"]').attr("disabled", true);
-                                            //$(".type").attr("disabled", true);
-                                            //$('input[type="text"],input[type="checkbox"],input[type="file"]').attr("disabled", true);
-                                            //  $state.go("parking/lots");
                                         }
-                                        $('#loader-container').hide();
-                                    },
-                                    error: function (data) {
+                                        else {
+                                            alert("Latitude/Longitude must be a decimal value.");
+                                            $('#loader-container').hide();
+                                            return false;
+                                        }
+                                    }
+                                    else {
+                                        alert('Location - Lot Combination already exist in System.');
                                         $('#loader-container').hide();
                                     }
-                                });
-                            }
-                            else {
-                                alert('Lot Image Size should be less than or equal to 20KB');
-                                $('#loader-container').hide();
-                            }
-                        }
+                                    $('#loader-container').hide();
+                                },
+                                error: function (data) {
+                                    $('#loader-container').hide();
+                                }
+                            });
 
+                        }
+                        else {
+                            $('#loader-container').hide();
+                            return false;
+                        }
                     }
                     else {
-                        alert("Latitude/Longitude must be a decimal value.");
+                        alert('Please Choose Vehicle Type');
                         $('#loader-container').hide();
                         return false;
                     }
@@ -736,7 +871,7 @@
                                     $scope.LotsModel.IsActive = data[i]["IsActive"];
                                     $scope.LotsModel.LotVehicleAvailabilityID = data[i]["LotVehicleAvailabilityID"];
                                     $scope.LotsModel.LotVehicleAvailabilityName = data[i]["LotVehicleAvailabilityName"];
-                                                                       
+
 
                                     $scope.LotsModel.IsHoliday = data[i]["IsHoliday"];
 
@@ -788,6 +923,10 @@
                                         $("#LotImageName3").attr('src', 'assets/images/lot.jpg');
                                         $("#LotImg3").val(data[i]["LotImageName3"]);//New
                                     }
+
+
+                                    GetListofAvailableVehicleTypesinLocation($scope.LotsModel.LocationID);
+
                                     $scope.$apply();
                                     // $scope.GetLotVehicleAvailabilityText($scope.LotsModel.LotVehicleAvailabilityID);
                                 }
@@ -820,6 +959,11 @@
                 GetLotBaysList(hdnFlagVal);
                 // LotCapacityByVehicleType(hdnFlagVal);//New
                 //NEW
+
+                //26022021 Start
+                GetLotVehicleTypesforUpdate(hdnFlagVal);
+
+                //26022021 End
                 $('#loader-container').hide();
             }
 
@@ -864,12 +1008,20 @@
             var url = $("#UpdateLot").val();
             $scope.LotsModel.LocationParkingLotID = $stateParams.lotid;
 
-            for (var i = 0; i < $scope.LotVehicleAvailabilityModel.length; i++) {
-                if ($scope.LotVehicleAvailabilityModel[i].LotVehicleAvailabilityID === parseInt($scope.LotsModel.LotVehicleAvailabilityID)) {
-                    $scope.LotsModel.LotVehicleAvailabilityName = $scope.LotVehicleAvailabilityModel[i].LotVehicleAvailabilityName;
+            //for (var i = 0; i < $scope.LotVehicleAvailabilityModel.length; i++) {
+            //    if ($scope.LotVehicleAvailabilityModel[i].LotVehicleAvailabilityID === parseInt($scope.LotsModel.LotVehicleAvailabilityID)) {
+            //        $scope.LotsModel.LotVehicleAvailabilityName = $scope.LotVehicleAvailabilityModel[i].LotVehicleAvailabilityName;
+            //    }
+            //}
+
+            //vehicleType Validation manadateory 01032021 Start
+            var Vehicleflag = false;
+            for (var a = 0; a < $scope.ActiveVehicleTypeListModel.length; a++) {
+                if ($scope.ActiveVehicleTypeListModel[a].selected == true) {
+                    Vehicleflag = true;
                 }
             }
-
+            //vehicleType Validation manadateory 01032021 End
 
             var filesizeflag = true;
 
@@ -915,82 +1067,125 @@
             }
 
 
-            if (url != undefined) {
-                $('#loader-container').show();
-                if (CheckInSession()) {
+            var urlCheckLocation = $("#CheckLocationStatus").val();
+            $.ajax({
+                type: "POST",
+                url: urlCheckLocation,
+                data: "{'LocationID':'" + $scope.LotsModel.LocationID + "'}",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    if (data == "Success") {
 
 
-                    if (!Number.isInteger($scope.LotsModel.Longitude) && !Number.isInteger($scope.LotsModel.Lattitude)) {
+                        if (url != undefined) {
+                            $('#loader-container').show();
+                            if (CheckInSession()) {
 
-                        if ((files1.length == 0 && files2.length == 0 && files3.length == 0) &&
-                            ($("#LotImg").val() == '' && $("#LotImg2").val() == '' && $("#LotImg3").val() == '')) {
-                            alert("Upload Atleast one Lot Image");
-                            $('#loader-container').hide();
+                                if (Vehicleflag) {
 
-                        }
-                        else {
-                            if (filesizeflag) {
-                                $.ajax({
-                                    type: "POST",
-                                    url: url,
-                                    data: "{'LotsData':" + JSON.stringify($scope.LotsModel) + "}",
-                                    contentType: "application/json; charset=utf-8",
-                                    dataType: "json",
-                                    success: function (data) {
-                                        if (data != "Failed" && data != "Data Exists") {
-                                            var sucessdata = data;
-                                            var profidenity;
-                                            if (sucessdata.length > 0) {
-                                                profidenity = sucessdata.split('@')[1];
+                                    if (ValidateLocationLotVehicleTypes()) {
+                                        if (!Number.isInteger($scope.LotsModel.Longitude) && !Number.isInteger($scope.LotsModel.Lattitude)) {
+
+                                            if ((files1.length == 0 && files2.length == 0 && files3.length == 0) &&
+                                                ($("#LotImg").val() == '' && $("#LotImg2").val() == '' && $("#LotImg3").val() == '')) {
+                                                alert("Upload Atleast one Lot Image");
+                                                $('#loader-container').hide();
+
                                             }
-                                            $scope.LotsModel.LocationParkingLotID = profidenity;
-                                            fdata.append('LotDetails', JSON.stringify($scope.LotsModel));
+                                            else {
+                                                if (filesizeflag) {
+                                                    $.ajax({
+                                                        type: "POST",
+                                                        url: url,
+                                                        data: "{'LotsData':" + JSON.stringify($scope.LotsModel) + ",'VehicleTypeList':" + JSON.stringify($scope.ActiveVehicleTypeListModel) + "}",
+                                                        contentType: "application/json; charset=utf-8",
+                                                        dataType: "json",
+                                                        success: function (data) {
+                                                            if (data != "Failed" && data != "Data Exists" && data != "Location - Lot Combination already exist in System.") {
+                                                                var sucessdata = data;
+                                                                var profidenity;
+                                                                if (sucessdata.length > 0) {
+                                                                    profidenity = sucessdata.split('@')[1];
+                                                                }
+                                                                $scope.LotsModel.LocationParkingLotID = profidenity;
+                                                                fdata.append('LotDetails', JSON.stringify($scope.LotsModel));
 
-                                            var options = {};
-                                            options.url = "Handlers/LotImageUploadHandler.ashx";
-                                            options.type = "POST";
-                                            options.data = fdata;
-                                            options.contentType = false;
-                                            options.processData = false;
-                                            options.success = function (result) {
-                                            };
-                                            options.error = function (err) {
-                                            };
+                                                                var options = {};
+                                                                options.url = "Handlers/LotImageUploadHandler.ashx";
+                                                                options.type = "POST";
+                                                                options.data = fdata;
+                                                                options.contentType = false;
+                                                                options.processData = false;
+                                                                options.success = function (result) {
+                                                                };
+                                                                options.error = function (err) {
+                                                                };
 
-                                            $.ajax(options);
+                                                                $.ajax(options);
 
-                                            alert("Lot Updated Successfully");
-                                            GetSavedLotDetailsByID($scope.LotsModel.LocationParkingLotID);
-                                            GetLotBaysList($scope.LotsModel.LocationParkingLotID);
-                                            // GetLotTimingsList($scope.LotsModel.LocationParkingLotID);//New
-                                            // GetLotPriceList($scope.LotsModel.LocationParkingLotID);//New
-                                            // LotCapacityByVehicleType($scope.LotsModel.LocationParkingLotID);
+                                                                alert("Lot Updated Successfully");
+                                                                GetSavedLotDetailsByID($scope.LotsModel.LocationParkingLotID);
+                                                                GetLotBaysList($scope.LotsModel.LocationParkingLotID);
+                                                                // GetLotTimingsList($scope.LotsModel.LocationParkingLotID);//New
+                                                                // GetLotPriceList($scope.LotsModel.LocationParkingLotID);//New
+                                                                // LotCapacityByVehicleType($scope.LotsModel.LocationParkingLotID);
+                                                                GetLotPriceList($scope.LotsModel.LocationParkingLotID);
+
+                                                            }
+                                                            else if (data == "Location - Lot Combination already exist in System.") {
+                                                                alert(data);
+                                                                $('#loader-container').hide();
+                                                            }
+                                                            $('#loader-container').hide();
+                                                        },
+                                                        error: function (data) {
+                                                            $('#loader-container').hide();
+                                                        }
+                                                    });
+                                                }
+                                                else {
+                                                    alert('Lot Image Size should be less than or equal to 20KB');
+                                                    $('#loader-container').hide();
+                                                }
+                                            }
+
+                                        } else {
+                                            alert("Latitude/Longitude must be a decimal value.");
+                                            $('#loader-container').hide();
+                                            return false;
                                         }
-                                        $('#loader-container').hide();
-                                    },
-                                    error: function (data) {
-                                        $('#loader-container').hide();
                                     }
-                                });
+                                    else {
+                                        $('#loader-container').hide();
+                                        return false;
+                                    }
+                                }
+                                else {
+                                    alert('Please Choose Vehicle Type');
+                                    $('#loader-container').hide();
+                                    return false;
+                                }
+
                             }
                             else {
-                                alert('Lot Image Size should be less than or equal to 20KB');
-                                $('#loader-container').hide();
+                                window.location.href = $("#LogOut").val();
                             }
                         }
 
-                    } else {
-                        alert("Latitude/Longitude must be a decimal value.");
-                        $('#loader-container').hide();
-                        return false;
                     }
+                    else {
+                        alert("Location for this Lot is InActive.");
+                    }
+                  
+                },
+                error: function (data) {                  
+                }
+            });
+
+           
 
 
-                }
-                else {
-                    window.location.href = $("#LogOut").val();
-                }
-            }
         };
 
         //Lot Timings Start        
@@ -1612,22 +1807,22 @@
             else {
                 ParkingBayID = $scope.LotBaysModel.ParkingBayID;
             }
-            $scope.LotBaysModel.ParkingBayID = ParkingBayID;
 
+            $scope.LotBaysModel.ParkingBayID = ParkingBayID;
 
             var lotVehicleAvailability;
             var parkingBayVehicleType;
 
-            if ($scope.LotsModel.LotVehicleAvailabilityName == "" || $scope.LotsModel.LotVehicleAvailabilityName == undefined) {
-                for (var i = 0; i < $scope.LotVehicleAvailabilityModel.length; i++) {
-                    if ($scope.LotVehicleAvailabilityModel[i].LotVehicleAvailabilityID === $scope.LotsModel.LotVehicleAvailabilityID) {
-                        lotVehicleAvailability = $scope.LotVehicleAvailabilityModel[i].LotVehicleAvailabilityName;
-                    }
-                }
-            }
-            else {
-                lotVehicleAvailability = $scope.LotsModel.LotVehicleAvailabilityName;
-            }
+            //if ($scope.LotsModel.LotVehicleAvailabilityName == "" || $scope.LotsModel.LotVehicleAvailabilityName == undefined) {
+            //    for (var i = 0; i < $scope.LotVehicleAvailabilityModel.length; i++) {
+            //        if ($scope.LotVehicleAvailabilityModel[i].LotVehicleAvailabilityID === $scope.LotsModel.LotVehicleAvailabilityID) {
+            //            lotVehicleAvailability = $scope.LotVehicleAvailabilityModel[i].LotVehicleAvailabilityName;
+            //        }
+            //    }
+            //}
+            //else {
+            //    lotVehicleAvailability = $scope.LotsModel.LotVehicleAvailabilityName;
+            //}
             for (var j = 0; j < $scope.ActiveVehicleTypesListModel.length; j++) {
                 if ($scope.ActiveVehicleTypesListModel[j].VehicleTypeID === parseInt($scope.LotBaysModel.VehicleTypeID)) {
                     parkingBayVehicleType = $scope.ActiveVehicleTypesListModel[j].VehicleTypeName;
@@ -1635,64 +1830,95 @@
             }
 
 
-            var flag = false;
-            if ((lotVehicleAvailability === 'TWO WHEELER') && (parkingBayVehicleType === '2 Wheeler')) {
-                flag = true;
-            }
-            else if ((lotVehicleAvailability === 'FOUR WHEELER') && (parkingBayVehicleType === '4 Wheeler')) {
-                flag = true;
-            }
-            else if (lotVehicleAvailability === 'BOTH') {
-                flag = true;
-            }
+
+
+            //var flag = false;
+            //if ((lotVehicleAvailability === 'TWO WHEELER') && (parkingBayVehicleType === '2 Wheeler')) {
+            //    flag = true;
+            //}
+            //else if ((lotVehicleAvailability === 'FOUR WHEELER') && (parkingBayVehicleType === '4 Wheeler')) {
+            //    flag = true;
+            //}
+            //else if (lotVehicleAvailability === 'BOTH') {
+            //    flag = true;
+            //}
 
             if ($scope.LotBaysModel.LocationParkingLotID != "" && $scope.LotBaysModel.LocationParkingLotID != undefined) {
 
-                if (flag) {
 
-                    if (url != undefined) {
-                        $('#loader-container').show();
-                        if (CheckInSession()) {
-                            $.ajax({
-                                type: "POST",
-                                url: url,
-                                data: "{'lotBaysData':" + JSON.stringify($scope.LotBaysModel) + "}",
-                                contentType: "application/json; charset=utf-8",
-                                dataType: "json",
-                                success: function (data) {
-                                    if (data != "Failed") {
-                                        GetLotBaysList($scope.LotBaysModel.LocationParkingLotID);
-                                        // LotCapacityByVehicleType($scope.LotBaysModel.LocationParkingLotID);
-                                        $scope.LotBaysModel = {
-                                            'ParkingBayID': '',
-                                            'LocationParkingLotID': '',
-                                            'VehicleTypeID': '',
-                                            'ParkingBayCode': '',
-                                            'ParkingBayName': '',
-                                            'NumberOfBays': '',
-                                            'ParkingBayRange': '',
-                                            'IsActive': '',
-                                            'IsDeleted': '',
-                                            'UpdatedBy': ''
-                                        };
-                                        $scope.$apply();
-                                    }
-                                    $('#loader-container').hide();
-                                },
-                                error: function (data) {
-                                    $('#loader-container').hide();
+
+                var url_Check = $("#CheckVehicleTypeExistforLot").val();
+
+                //if (flag) {
+                //if (VehicleTypeExistforLot($scope.LotBaysModel.LocationParkingLotID)) {
+
+                if (url != undefined && url_Check != undefined) {
+                    $('#loader-container').show();
+                    if (CheckInSession()) {
+
+                        $.ajax({
+                            type: "POST",
+                            url: url_Check,
+                            data: "{'LotID':" + $scope.LotBaysModel.LocationParkingLotID + ",'VehicleTypeID':" + $scope.LotBaysModel.VehicleTypeID + "}",
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            success: function (data) {
+                                if (data == 'VehicleType Exists') {
+                                    $.ajax({
+                                        type: "POST",
+                                        url: url,
+                                        data: "{'lotBaysData':" + JSON.stringify($scope.LotBaysModel) + "}",
+                                        contentType: "application/json; charset=utf-8",
+                                        dataType: "json",
+                                        success: function (data) {
+                                            if (data != "Failed") {
+                                                GetLotBaysList($scope.LotBaysModel.LocationParkingLotID);
+                                                // LotCapacityByVehicleType($scope.LotBaysModel.LocationParkingLotID);
+                                                $scope.LotBaysModel = {
+                                                    'ParkingBayID': '',
+                                                    'LocationParkingLotID': '',
+                                                    'VehicleTypeID': '',
+                                                    'ParkingBayCode': '',
+                                                    'ParkingBayName': '',
+                                                    'NumberOfBays': '',
+                                                    'ParkingBayRange': '',
+                                                    'IsActive': '',
+                                                    'IsDeleted': '',
+                                                    'UpdatedBy': ''
+                                                };
+                                                $scope.$apply();
+                                            }
+                                            $('#loader-container').hide();
+                                        },
+                                        error: function (data) {
+                                            $('#loader-container').hide();
+                                        }
+                                    });
                                 }
-                            });
-                        }
-                        else {
-                            window.location.href = $("#LogOut").val();
-                        }
-                    }
+                                else {
+                                    alert('Parking Not Available for this Vehicle Type in this Lot');
+                                }
 
+                                $('#loader-container').hide();
+                            }, error: function (data) {
+                                $('#loader-container').hide();
+                            }
+                        });
+
+
+
+
+
+                    }
+                    else {
+                        window.location.href = $("#LogOut").val();
+                    }
                 }
-                else {
-                    alert('Only ' + lotVehicleAvailability+' Parking Available in Lot');
-                }
+
+                //}
+                //else {
+                //    alert('Parking Not Available for this Vehicle Type in this Lot');
+                //}
             }
             else {
                 alert('you need to create Lot');
@@ -1839,6 +2065,8 @@
                 }
             }
         }
+
+
         //LotParking Bay End
 
         $scope.ChangeActiveCheckboxByHoliday = function (isHoliday) {
@@ -1853,10 +2081,11 @@
         };
         //Lots Code End
 
-        //Charges COde Start
-        GetChargesData();
-        function GetChargesData() {
-            var url = $("#GetChargesData").val();
+        //Charges Code Start 
+        GetAllVehicleTypesforCharges();
+        GetListofCharges();
+        function GetAllVehicleTypesforCharges() {
+            var url = $("#GetAllVehicleTypesforCharges").val();
             if (url != undefined) {
                 $('#loader-container').show();
                 if (CheckInSession()) {
@@ -1868,13 +2097,40 @@
                         dataType: "json",
                         success: function (data) {
                             if (data.length > 0) {
+                                $scope.VehicleTypeListModelforCharges = data;                               
+                                $scope.$apply();
+                            }
+                            $('#loader-container').hide();
+                        }, error: function (data) {
+                            $('#loader-container').hide();
+                        }
+                    });
+                }
+                else {
+                    window.location.href = $("#LogOut").val();
+                }
+            }
+        }
+        $scope.GetChargesByVehicleType = function (VehicleTypeID) {
+            GetChargesData(VehicleTypeID);
+        };
+        function GetChargesData(VehicleTypeID) {
+            var url = $("#GetChargesData").val();
+            if (url != undefined) {
+                $('#loader-container').show();
+                if (CheckInSession()) {
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: "{'VehicleTypeID':" + VehicleTypeID + "}",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.length > 0) {
                                 $scope.ChargesModel.ChargesID = data[0]["ChargesID"];
                                 $scope.ChargesModel.ClampFee = data[0]["ClampFee"];
-                                $scope.ChargesModel.ClampFeeLimit = data[0]["ClampFeeLimit"];
-                                $scope.ChargesModel.ClampFeefor4W = data[0]["ClampFeefor4W"];
-                                $scope.ChargesModel.ClampFeeLimitfor4W = data[0]["ClampFeeLimitfor4W"];
-                                $scope.ChargesModel.PriceLimitForTwoWheller = data[0]["PriceLimitForTwoWheller"];
-                                $scope.ChargesModel.PriceLimitForFourWheller = data[0]["PriceLimitForFourWheller"];
+                                $scope.ChargesModel.NFCTagPrice = data[0]["NFCTagPrice"];
+                                $scope.ChargesModel.BlueToothTagPrice = data[0]["BlueToothTagPrice"];
                                 $scope.$apply();
                             }
                             $('#loader-container').hide();
@@ -1909,8 +2165,8 @@
             if (url != undefined) {
                 $('#loader-container').show();
                 if (CheckInSession()) {
-                    if (parseFloat(clampfee) <= parseFloat(limitclampfee)) {
-                        if (parseFloat(clampfeefor4w) <= parseFloat(limitclampfeefor4w)) {
+                   // if (parseFloat(clampfee) <= parseFloat(limitclampfee)) {
+                        //if (parseFloat(clampfeefor4w) <= parseFloat(limitclampfeefor4w)) {
 
                             $.ajax({
                                 type: "POST",
@@ -1919,10 +2175,23 @@
                                 contentType: "application/json; charset=utf-8",
                                 dataType: "json",
                                 success: function (data) {
-                                    if (data != "Failed") {
+                                    if (data == "Success") {
                                         alert('Charges Saved Successfully')
-                                        GetChargesData();
+                                        //GetChargesData();
+                                        $scope.ChargesModel = {
+                                            'ChargesID': '',
+                                            'VehicleTypeID': '',
+                                            'ClampFee': '',
+                                            'NFCTagPrice': '',
+                                            'BlueToothTagPrice': ''
+                                        };
+                                        GetListofCharges();
+                                        // window.location.reload();
                                         $scope.$apply();
+                                    }
+                                    else if (data == "You are trying to save the wrong data.") {
+                                        alert('You are trying to save the wrong data.');
+
                                     }
                                     $('#loader-container').hide();
                                 },
@@ -1931,18 +2200,76 @@
                                 }
                             });
 
-                        } else {
-                            alert('Clamp Fee for 4W must be less than or equal to GO Clamp Fee Limit for 4W.');
-                            $('#loader-container').hide();
-                            return false;
-                        }
+                        //} else {
+                        //    alert('Clamp Fee for 4W must be less than or equal to GO Clamp Fee Limit for 4W.');
+                        //    $('#loader-container').hide();
+                        //    return false;
+                        //}
 
-                    }
-                    else {
-                        alert('Clamp Fee for 2W must be less than or equal to GO Clamp Fee Limit for 2W.');
-                        $('#loader-container').hide();
-                        return false;
-                    }
+                    //}
+                    //else {
+                    //    alert('Clamp Fee for 2W must be less than or equal to GO Clamp Fee Limit for 2W.');
+                    //    $('#loader-container').hide();
+                    //    return false;
+                    //}
+                }
+                else {
+                    window.location.href = $("#LogOut").val();
+                }
+            }
+        };
+        function GetListofCharges() {
+            var url = $("#GetListofChargesData").val();
+            if (url != undefined) {
+                $('#loader-container').show();
+                if (CheckInSession()) {
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: "",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.length > 0) {
+                                $scope.AllChargesListModel = data;
+                                $scope.$apply();
+                            }
+                            $('#loader-container').hide();
+                        }, error: function (data) {
+                            $('#loader-container').hide();
+                        }
+                    });
+                }
+                else {
+                    window.location.href = $("#LogOut").val();
+                }
+            }
+        }
+        $scope.VieworEditChargeData = function (chargesID) {
+            var url = $("#VieworEditChargesData").val();
+            if (url != undefined) {
+                $('#loader-container').show();
+                if (CheckInSession()) {
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: "{'ChargesID':" + chargesID + "}",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.length > 0) {
+                                $scope.ChargesModel.ChargesID = data[0]["ChargesID"];
+                                $scope.ChargesModel.VehicleTypeID = data[0]["VehicleTypeID"];
+                                $scope.ChargesModel.ClampFee = data[0]["ClampFee"];
+                                $scope.ChargesModel.NFCTagPrice = data[0]["NFCTagPrice"];
+                                $scope.ChargesModel.BlueToothTagPrice = data[0]["BlueToothTagPrice"];
+                                $scope.$apply();
+                            }
+                            $('#loader-container').hide();
+                        }, error: function (data) {
+                            $('#loader-container').hide();
+                        }
+                    });
                 }
                 else {
                     window.location.href = $("#LogOut").val();
@@ -1951,225 +2278,562 @@
         };
         //Charges Code End
 
+        //26022021 Start
+        GetListofActiveVehicleTypes();
+        GetListofActiveTagTypes();
+        GetListofActivePasses();
 
-        //$scope.CheckDecimal = function (value) {
-        //    if (Number.isInteger(value)) {
-        //        alert("Latitude/Longitude must be a decimal value.");
-        //        return false;
-        //    }
-        //};
-
-
-        // table code
-
-        $scope.selected = [];
-        $scope.limitOptions = [10, 20, 30];
-
-        $scope.options = {
-            rowSelection: true,
-            multiSelect: true,
-            autoSelect: true,
-            decapitate: false,
-            largeEditDialog: false,
-            boundaryLinks: false,
-            limitSelect: true,
-            pageSelect: true
-        };
-
-        $scope.query = {
-            order: 'name',
-            limit: 10,
-            page: 1
-        };
-
-        $scope.editComment = function (event, zonedata) {
-            event.stopPropagation(); // in case autoselect is enabled            
-
-            var promise;
-
-            if ($scope.options.largeEditDialog) {
-                promise = $mdEditDialog.large(editDialog);
-            } else {
-                promise = $mdEditDialog.small(editDialog);
-            }
-
-            promise.then(function (ctrl) {
-                var input = ctrl.getInput();
-
-                input.$viewChangeListeners.push(function () {
-                    input.$setValidity('test', input.$modelValue !== 'test');
-                });
-            });
-        };
-
-        $scope.toggleLimitOptions = function () {
-            $scope.limitOptions = $scope.limitOptions ? undefined : [10, 20, 30];
-        };
-
-        $scope.getTypes = function () {
-            return ['Candy', 'Ice cream', 'Other', 'Pastry'];
-        };
-
-        $scope.loadStuff = function () {
-            $scope.promise = $timeout(function () {
-                // loading
-            }, 2000);
-        }
-
-        $scope.logItem = function (item) {
-            console.log(item.name, 'was selected');
-        };
-
-        $scope.logOrder = function (order) {
-            console.log('order: ', order);
-        };
-
-        $scope.logPagination = function (page, limit) {
-            console.log('page: ', page);
-            console.log('limit: ', limit);
-        };
-
-        //select fields        
-
-    }
-
-    function CheckInSession() {
-        var url = $("#CheckSessionValue").val();
-        var flagVal = false;
-        // $("#loadingDiv").show();
-
-        $.ajax({
-            type: "POST",
-            contentType: "application/json;",
-            url: url,
-            data: "{}",
-            async: false,
-            dataType: "text",
-            success: function (data) {
-                if (data == 'true') {
-                    flagVal = true;
+        function GetListofActiveVehicleTypes() {
+            var url = $("#GetListofActiveVehicleTypes").val();
+            if (url != undefined) {
+                $('#loader-container').show();
+                if (CheckInSession()) {
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: "",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.length > 0) {
+                                $scope.ActiveVehicleTypeListModel = data;
+                                $scope.$apply();
+                            }
+                            $('#loader-container').hide();
+                        }, error: function (data) {
+                            $('#loader-container').hide();
+                        }
+                    });
                 }
                 else {
-                    flagVal = false;
-                    // window.location.href = $("#LogOut").val();
+                    window.location.href = $("#LogOut").val();
                 }
-            }, error: function (xhr) {
-                flagVal = false;
+            }
+        }
+        function GetListofActiveVehicleTypesforUpdate(LocationID) {
+            var url = $("#GetVehicleTypesByLocationID").val();
+            if (url != undefined) {
+                $('#loader-container').show();
+                if (CheckInSession()) {
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: "{'LocationID':" + LocationID + "}",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.length > 0) {
+                                $scope.ActiveVehicleTypeListModel = data;
+                                $scope.$apply();
+                            }
+                            $('#loader-container').hide();
+                        }, error: function (data) {
+                            $('#loader-container').hide();
+                        }
+                    });
+                }
+                else {
+                    window.location.href = $("#LogOut").val();
+                }
+            }
+        }
+        function GetLotVehicleTypesforUpdate(LotID) {
+            var url = $("#GetVehicleTypesByLotID").val();
+            if (url != undefined) {
+                $('#loader-container').show();
+                if (CheckInSession()) {
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: "{'LotID':" + LotID + "}",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.length > 0) {
+                                $scope.ActiveVehicleTypeListModel = data;
+                                $scope.$apply();
+                            }
+                            $('#loader-container').hide();
+                        }, error: function (data) {
+                            $('#loader-container').hide();
+                        }
+                    });
+                }
+                else {
+                    window.location.href = $("#LogOut").val();
+                }
+            }
+        }
+        function GetListofActiveTagTypes() {
+            var url = $("#GetListofActiveTagTypes").val();
+            if (url != undefined) {
+                $('#loader-container').show();
+                if (CheckInSession()) {
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: "",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.length > 0) {
+                                $scope.ActiveTagTypeListModel = data;
+                                $scope.$apply();
+                            }
+                            $('#loader-container').hide();
+                        }, error: function (data) {
+                            $('#loader-container').hide();
+                        }
+                    });
+                }
+                else {
+                    window.location.href = $("#LogOut").val();
+                }
+            }
+        }
+        function LocationValidation() {
+            var flag = false;
+            var tagType = $scope.LocationsModel.TagType;
+            if (tagType != null && tagType != undefined && tagType != 0) {
+                flag = true;
+            }
+            return flag;
+        }
+        function GetListofAvailableVehicleTypesinLocation(LocationID) {
+            var url = $("#GetAvailableVehTypesLocation").val();
+            if (url != undefined) {
+                $('#loader-container').show();
+                if (CheckInSession()) {
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: "{'LocationID':" + LocationID + "}",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.length > 0) {
+                                $scope.LocationVehicleAvailabilityListModel = data;
+                                $scope.$apply();
+                            }
+                            $('#loader-container').hide();
+                        }, error: function (data) {
+                            $('#loader-container').hide();
+                        }
+                    });
+                }
+                else {
+                    window.location.href = $("#LogOut").val();
+                }
+            }
+        }
+        function ValidateLocationLotVehicleTypes() {
+            var mainflag = false;
+            var strVehicleTypes='';
+            for (var i = 0; i < $scope.LocationVehicleAvailabilityListModel.length; i++) {
+                if ($scope.LocationVehicleAvailabilityListModel[i].selected == true) {
+                    strVehicleTypes = strVehicleTypes +','+ $scope.LocationVehicleAvailabilityListModel[i].VehicleTypeCode;
+                }                
+            }
+            strVehicleTypes = strVehicleTypes.substring(1);
+
+            if ($scope.ActiveVehicleTypeListModel.length > 0) {
+                var LLFlag = false;
+                for (var x = 0; x < $scope.LocationVehicleAvailabilityListModel.length; x++) {
+                    if ($scope.LocationVehicleAvailabilityListModel[x] == false) {
+                        LLFlag = false;
+                    }
+                    else {
+                        LLFlag = true;
+                        break;
+                    }
+                }
+                if (LLFlag) {
+                    for (var j = 0; j < $scope.ActiveVehicleTypeListModel.length; j++) {
+                        if ($scope.ActiveVehicleTypeListModel[j].selected == true) {
+                            for (var k = 0; k < $scope.LocationVehicleAvailabilityListModel.length; k++) {
+                                if ($scope.ActiveVehicleTypeListModel[j].VehicleTypeCode == $scope.LocationVehicleAvailabilityListModel[k].VehicleTypeCode) {
+                                    if ($scope.ActiveVehicleTypeListModel[j].selected != $scope.LocationVehicleAvailabilityListModel[k].selected) {
+                                        mainflag = false;
+                                        if (strVehicleTypes != '') {
+                                            alert('Location accept ' + strVehicleTypes + ' Only');
+                                            return false;
+                                        }
+                                        else {
+                                            alert('Please Provide Vehicle Types for the Location first.');
+                                            return false;
+                                        }                                       
+                                    }
+                                    else {
+                                        mainflag = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return mainflag;
+        }
+        function GetListofActivePasses() {
+            var url = $("#GetListofActivePasses").val();
+            if (url != undefined) {
+                $('#loader-container').show();
+                if (CheckInSession()) {
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: "",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.length > 0) {
+                                $scope.ActivePassListModel = data;
+                                $scope.$apply();
+                            }
+                            $('#loader-container').hide();
+                        }, error: function (data) {
+                            $('#loader-container').hide();
+                        }
+                    });
+                }
+                else {
+                    window.location.href = $("#LogOut").val();
+                }
+            }
+        }
+        function GetListofActivePassesLocation(LocationID) {
+            var url = $("#GetPassesByLocationID").val();
+            if (url != undefined) {
+                $('#loader-container').show();
+                if (CheckInSession()) {
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: "{'LocationID':" + LocationID + "}",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.length > 0) {
+                                $scope.LocationsModel.PassAccess =  data;
+                                $scope.$apply();
+                            }
+                            $('#loader-container').hide();
+                        }, error: function (data) {
+                            $('#loader-container').hide();
+                        }
+                    });
+                }
+                else {
+                    window.location.href = $("#LogOut").val();
+                }
+            }
+        }
+        $scope.GetPassesByVehicleType = function (VehicleTypesModel) {
+            //$scope.PassesByVehicleTypeListModel = [];
+            var strVehicleTypes = '';
+            for (var i = 0; i < VehicleTypesModel.length; i++) {
+                if (VehicleTypesModel[i].selected == true) {
+                    strVehicleTypes = strVehicleTypes + ',' + VehicleTypesModel[i].VehicleTypeID;
+                }
+            }
+            strVehicleTypes = strVehicleTypes.substring(1);
+            //alert(strVehicleTypes);
+
+            if (strVehicleTypes != "") {
+                var url = $("#GetListofActivePassesByVehicleID").val();
+                if (url != undefined) {
+                    $('#loader-container').show();
+                    if (CheckInSession()) {
+                        $.ajax({
+                            type: "POST",
+                            url: url,
+                            data: "{'VehicleTypeIDs':'" + strVehicleTypes + "'}",
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            success: function (data) {
+                                if (data.length > 0) {
+                                    $scope.PassesByVehicleTypeListModel = data;
+                                    $scope.$apply();
+                                }
+                                $('#loader-container').hide();
+                            }, error: function (data) {
+                                $('#loader-container').hide();
+                            }
+                        });
+                    }
+                    else {
+                        window.location.href = $("#LogOut").val();
+                    }
+                }
+            }
+            else {
+                $scope.PassesByVehicleTypeListModel = [];
+                $scope.$apply();
+            }
+        };
+        $scope.GetPassesByVehicleTypeEdit = function (VehicleTypesModel) {
+            var strVehicleTypes = '';
+            for (var i = 0; i < VehicleTypesModel.length; i++) {
+                if (VehicleTypesModel[i].selected == true) {
+                    strVehicleTypes = strVehicleTypes + ',' + VehicleTypesModel[i].VehicleTypeID;
+                }
+            }
+            strVehicleTypes = strVehicleTypes.substring(1);
+            //alert(strVehicleTypes);
+
+            if (strVehicleTypes != "") {
+                var url = $("#GetListofActivePassesByVehicleID").val();
+                if (url != undefined) {
+                    $('#loader-container').show();
+                    if (CheckInSession()) {
+                        $.ajax({
+                            type: "POST",
+                            url: url,
+                            data: "{'VehicleTypeIDs':'" + strVehicleTypes + "'}",
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            success: function (data) {
+                                if (data.length > 0) {
+                                    $scope.ActivePassListModel = data;
+                                    $scope.$apply();
+                                }
+                                $('#loader-container').hide();
+                            }, error: function (data) {
+                                $('#loader-container').hide();
+                            }
+                        });
+                    }
+                    else {
+                        window.location.href = $("#LogOut").val();
+                    }
+                }
+            }
+            else {
+                $scope.ActivePassListModel = [];
+                $scope.$apply();
+            }
+        };
+            //26022021 End
+
+
+            //$scope.CheckDecimal = function (value) {
+            //    if (Number.isInteger(value)) {
+            //        alert("Latitude/Longitude must be a decimal value.");
+            //        return false;
+            //    }
+            //};
+
+
+            // table code
+
+            $scope.selected = [];
+            $scope.limitOptions = [10, 20, 30];
+
+            $scope.options = {
+                rowSelection: true,
+                multiSelect: true,
+                autoSelect: true,
+                decapitate: false,
+                largeEditDialog: false,
+                boundaryLinks: false,
+                limitSelect: true,
+                pageSelect: true
+            };
+
+            $scope.query = {
+                order: 'name',
+                limit: 10,
+                page: 1
+            };
+
+            $scope.editComment = function (event, zonedata) {
+                event.stopPropagation(); // in case autoselect is enabled            
+
+                var promise;
+
+                if ($scope.options.largeEditDialog) {
+                    promise = $mdEditDialog.large(editDialog);
+                } else {
+                    promise = $mdEditDialog.small(editDialog);
+                }
+
+                promise.then(function (ctrl) {
+                    var input = ctrl.getInput();
+
+                    input.$viewChangeListeners.push(function () {
+                        input.$setValidity('test', input.$modelValue !== 'test');
+                    });
+                });
+            };
+
+            $scope.toggleLimitOptions = function () {
+                $scope.limitOptions = $scope.limitOptions ? undefined : [10, 20, 30];
+            };
+
+            $scope.getTypes = function () {
+                return ['Candy', 'Ice cream', 'Other', 'Pastry'];
+            };
+
+            $scope.loadStuff = function () {
+                $scope.promise = $timeout(function () {
+                    // loading
+                }, 2000);
+            }
+
+            $scope.logItem = function (item) {
+                console.log(item.name, 'was selected');
+            };
+
+            $scope.logOrder = function (order) {
+                console.log('order: ', order);
+            };
+
+            $scope.logPagination = function (page, limit) {
+                console.log('page: ', page);
+                console.log('limit: ', limit);
+            };
+
+            //select fields        
+
+        }
+
+        function CheckInSession() {
+            var url = $("#CheckSessionValue").val();
+            var flagVal = false;
+            // $("#loadingDiv").show();
+
+            $.ajax({
+                type: "POST",
+                contentType: "application/json;",
+                url: url,
+                data: "{}",
+                async: false,
+                dataType: "text",
+                success: function (data) {
+                    if (data == 'true') {
+                        flagVal = true;
+                    }
+                    else {
+                        flagVal = false;
+                        // window.location.href = $("#LogOut").val();
+                    }
+                }, error: function (xhr) {
+                    flagVal = false;
+                }
+            });
+
+            // alert(flagVal)
+            return flagVal;
+        }
+
+        angular.module('app').directive('allowNumbers', function () {
+            return {
+                require: 'ngModel',
+                link: function (scope, element, attr, ngModelCtrl) {
+                    function fromUser(text) {
+                        if (text) {
+                            var transformedInput = text.replace(/[^0-9]/g, '');
+
+                            if (transformedInput !== text) {
+                                ngModelCtrl.$setViewValue(transformedInput);
+                                ngModelCtrl.$render();
+                            }
+                            return transformedInput;
+                        }
+                        return undefined;
+                    }
+                    ngModelCtrl.$parsers.push(fromUser);
+                }
+            };
+        });
+
+        angular.module('app').directive('allowDecimalNumbers', function () {
+            return {
+                restrict: 'A',
+                link: function (scope, elm, attrs, ctrl) {
+                    elm.on('keydown', function (event) {
+                        var $input = $(this);
+                        var value = $input.val();
+                        value = value.replace(/[^0-9\.]/g, '')
+                        var findsDot = new RegExp(/\./g)
+                        var containsDot = value.match(findsDot)
+                        if (containsDot != null && ([46, 110, 190].indexOf(event.which) > -1)) {
+                            event.preventDefault();
+                            return false;
+                        }
+                        $input.val(value);
+                        if (event.which == 64 || event.which == 16) {
+                            // numbers
+                            return false;
+                        } if ([8, 9, 13, 27, 37, 38, 39, 40, 110, 17, 67, 86, 65].indexOf(event.which) > -1) {
+                            // backspace, enter, escape, arrows
+                            return true;
+                        } else if (event.which >= 48 && event.which <= 57) {
+                            // numbers
+                            return true;
+                        } else if (event.which >= 96 && event.which <= 105) {
+                            // numpad number
+                            return true;
+                        } else if ([46, 110, 190].indexOf(event.which) > -1) {
+                            // dot and numpad dot
+                            return true;
+                        } else {
+                            event.preventDefault();
+                            return false;
+                        }
+                    });
+                }
             }
         });
 
-        // alert(flagVal)
-        return flagVal;
-    }
+        angular.module('app').directive('validNumber', function () {
+            return {
+                require: '?ngModel',
+                link: function (scope, element, attrs, ngModelCtrl) {
+                    if (!ngModelCtrl) {
+                        return;
+                    }
 
-    angular.module('app').directive('allowNumbers', function () {
-        return {
-            require: 'ngModel',
-            link: function (scope, element, attr, ngModelCtrl) {
-                function fromUser(text) {
-                    if (text) {
-                        var transformedInput = text.replace(/[^0-9]/g, '');
+                    ngModelCtrl.$parsers.push(function (val) {
+                        if (angular.isUndefined(val)) {
+                            var val = '';
+                        }
 
-                        if (transformedInput !== text) {
-                            ngModelCtrl.$setViewValue(transformedInput);
+                        var clean = val.replace(/[^-0-9\.]/g, '');
+                        var negativeCheck = clean.split('-');
+                        var decimalCheck = clean.split('.');
+                        if (!angular.isUndefined(negativeCheck[1])) {
+                            negativeCheck[1] = negativeCheck[1].slice(0, negativeCheck[1].length);
+                            clean = negativeCheck[0] + '-' + negativeCheck[1];
+                            if (negativeCheck[0].length > 0) {
+                                clean = negativeCheck[0];
+                            }
+
+                        }
+
+                        if (!angular.isUndefined(decimalCheck[0])) {
+                            decimalCheck[0] = decimalCheck[0].slice(0, 4);
+                            clean = decimalCheck[0];
+                        }
+
+                        if (!angular.isUndefined(decimalCheck[1])) {
+                            decimalCheck[1] = decimalCheck[1].slice(0, 2);
+                            clean = decimalCheck[0] + '.' + decimalCheck[1];
+                        }
+
+                        if (val !== clean) {
+                            ngModelCtrl.$setViewValue(clean);
                             ngModelCtrl.$render();
                         }
-                        return transformedInput;
-                    }
-                    return undefined;
-                }
-                ngModelCtrl.$parsers.push(fromUser);
-            }
-        };
-    });
+                        return clean;
+                    });
 
-    angular.module('app').directive('allowDecimalNumbers', function () {
-        return {
-            restrict: 'A',
-            link: function (scope, elm, attrs, ctrl) {
-                elm.on('keydown', function (event) {
-                    var $input = $(this);
-                    var value = $input.val();
-                    value = value.replace(/[^0-9\.]/g, '')
-                    var findsDot = new RegExp(/\./g)
-                    var containsDot = value.match(findsDot)
-                    if (containsDot != null && ([46, 110, 190].indexOf(event.which) > -1)) {
-                        event.preventDefault();
-                        return false;
-                    }
-                    $input.val(value);
-                    if (event.which == 64 || event.which == 16) {
-                        // numbers
-                        return false;
-                    } if ([8, 9, 13, 27, 37, 38, 39, 40, 110, 17, 67, 86, 65].indexOf(event.which) > -1) {
-                        // backspace, enter, escape, arrows
-                        return true;
-                    } else if (event.which >= 48 && event.which <= 57) {
-                        // numbers
-                        return true;
-                    } else if (event.which >= 96 && event.which <= 105) {
-                        // numpad number
-                        return true;
-                    } else if ([46, 110, 190].indexOf(event.which) > -1) {
-                        // dot and numpad dot
-                        return true;
-                    } else {
-                        event.preventDefault();
-                        return false;
-                    }
-                });
-            }
-        }
-    });
-
-    angular.module('app').directive('validNumber', function () {
-        return {
-            require: '?ngModel',
-            link: function (scope, element, attrs, ngModelCtrl) {
-                if (!ngModelCtrl) {
-                    return;
-                }
-
-                ngModelCtrl.$parsers.push(function (val) {
-                    if (angular.isUndefined(val)) {
-                        var val = '';
-                    }
-
-                    var clean = val.replace(/[^-0-9\.]/g, '');
-                    var negativeCheck = clean.split('-');
-                    var decimalCheck = clean.split('.');
-                    if (!angular.isUndefined(negativeCheck[1])) {
-                        negativeCheck[1] = negativeCheck[1].slice(0, negativeCheck[1].length);
-                        clean = negativeCheck[0] + '-' + negativeCheck[1];
-                        if (negativeCheck[0].length > 0) {
-                            clean = negativeCheck[0];
+                    element.bind('keypress', function (event) {
+                        if (event.keyCode === 32) {
+                            event.preventDefault();
                         }
-
-                    }
-
-                    if (!angular.isUndefined(decimalCheck[0])) {
-                        decimalCheck[0] = decimalCheck[0].slice(0, 4);
-                        clean = decimalCheck[0];
-                    }
-
-                    if (!angular.isUndefined(decimalCheck[1])) {
-                        decimalCheck[1] = decimalCheck[1].slice(0, 2);
-                        clean = decimalCheck[0] + '.' + decimalCheck[1];
-                    }
-
-                    if (val !== clean) {
-                        ngModelCtrl.$setViewValue(clean);
-                        ngModelCtrl.$render();
-                    }
-                    return clean;
-                });
-
-                element.bind('keypress', function (event) {
-                    if (event.keyCode === 32) {
-                        event.preventDefault();
-                    }
-                });
-            }
-        };
-    });
-})(); 
+                    });
+                }
+            };
+        });
+    }) (); 

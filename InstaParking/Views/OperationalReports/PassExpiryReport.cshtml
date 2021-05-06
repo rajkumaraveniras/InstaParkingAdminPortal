@@ -1,0 +1,193 @@
+﻿@{
+    ViewBag.Title = "PassExpiryReport";
+    Layout = null;
+}
+<div class="page page-operatorreports">
+    <div data-ng-controller="OperationalreportsCtrl">
+        <div class="row ui-section">
+            <div class="col-md-12">
+                <article class="article">
+                    <form name="formPassExpiry">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"><i class="fa fa-filter" aria-hidden="true"></i> Filters</h3>
+                            </div>
+                            <div class="panel-body">
+
+                                <div class="row">
+
+                                    <div class="col-md-3">
+                                        <md-input-container class="md-block">
+                                            <label>Duration</label>
+                                            <md-select ng-model="ReportFilterModel['Duration']" aria-label="select" required>
+                                                <md-option ng-repeat="rbsduration in DurationModelForPassExpiry" value="{{rbsduration.value}}"> {{rbsduration.name}} </md-option>
+                                            </md-select>
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <md-input-container class="md-block">
+                                            <label>Vehicle Type</label>
+                                            <md-select ng-model="ReportFilterModel['VehicleTypeID']" aria-label="select" required name="VehicleTypeID"
+                                                       ng-change="GetSelectedVehicleWithAll(ReportFilterModel.VehicleTypeID)">
+                                                <md-option ng-repeat="vehicle in ActiveVehicleTypesListModelWithAll" value="{{vehicle.VehicleTypeID}}"> {{vehicle.VehicleTypeName}} </md-option>
+                                            </md-select>
+                                        </md-input-container>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <md-button type="submit" class="md-button md-raised btn-w-md md-default custom-btn" style="min-width: 50px; margin:12px 0px;"
+                                                   [disabled]="formPassExpiry.$valid" data-ng-click="formPassExpiry.$valid && GetPassExpiryReport()">Generate Report</md-button>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </form>
+                    <md-card class="no-margin-h">
+
+                        <md-toolbar class="md-table-toolbar md-default" ng-hide="options.rowSelection && selected.length">
+                            <div class="md-toolbar-tools">
+                                <span>Pass Expiry Customers Report</span>
+                                <div flex></div>
+                                <div class="search-box visible-md visible-lg">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="material-icons">search</i></span>
+                                        <input type="text" class="form-control" ng-model="filterTable" placeholder="{{ 'SEARCH' | translate }}">
+                                        <span class="input-bar"></span>
+                                    </div>
+                                </div>
+                                <div class="icons-set">
+                                    <span><a ng-click="DownloadPassExpiryReportPDF()"><img src="assets/images/pdf.png"></a></span>
+                                    <span><a ng-click="DownloadPassExpiryReportExcel()"><img src="assets/images/xl.png"></a></span>
+                                    <span><a ng-click="PassExpiryReportPrint('printcontent')"><img src="assets/images/print.png"></a></span>
+                                </div>
+                            </div>
+                        </md-toolbar>
+
+                        <div class="col-sm-12 selected-filters">
+                            <div class="selected-filters-list">
+                                Added Filters:
+                                <span class="label label-default">{{ReportFilterModel.Duration}}</span>
+                                <span class="label label-default">{{SelectedItemModel.SelectedVehicle}}</span>
+                            </div>
+                        </div>
+
+                        <md-table-container>
+                            <table class="table-striped" md-table>
+                                <thead ng-if="!options.decapitate" md-head md-order="query.order" md-on-reorder="logOrder">
+                                    <tr md-row>
+                                        <th md-column md-order-by="Name"><span>Name</span></th>
+                                        <th md-column md-order-by="PhoneNumber"><span>Phone Number</span></th>
+                                        <th md-column md-order-by="VehicleType"><span>Vehicle Type</span></th>
+                                        <th md-column md-order-by="VehicleNumber"><span>Vehicle Number</span></th>
+                                        <th md-column md-order-by="TypeofPass"><span>Type of Pass</span></th>
+                                        <th md-column md-order-by="PassExpiryDate"><span>Pass Expiry Date</span></th>                                        
+                                    </tr>
+                                </thead>
+                                <tbody md-body>
+                                    <tr md-row md-select="rbcidata" md-on-select="logItem" md-auto-select="options.autoSelect" ng-disabled="rbcidata.calories.value > 400"
+                                        ng-if="PassExpiryCustomersListModel.length>0"
+                                        ng-repeat="rbcidata in PassExpiryCustomersListModel | filter: filterTable | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit">
+                                        <td md-cell>{{rbcidata.Name}}</td>
+                                        <td md-cell>{{rbcidata.PhoneNumber}}</td>
+                                        <td md-cell>{{rbcidata.VehicleType}}</td>
+                                        <td md-cell>{{rbcidata.VehicleNumber}}</td>
+                                        <td md-cell>{{rbcidata.TypeofPass}}</td>
+                                        <td md-cell>{{rbcidata.PassExpiryDate}}</td>
+                                    </tr>
+                                    
+                                    <tr md-row ng-if="PassExpiryCustomersListModel.length==0">
+                                        <td md-cell colspan="6" style="text-align: center;">No Data Available</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </md-table-container>
+                        <md-table-pagination ng-show="(PassExpiryCustomersListModel|filter:filterTable).length>0" md-limit="query.limit"
+                                             md-limit-options="limitOptions" md-page="query.page" md-total="{{(PassExpiryCustomersListModel|filter:filterTable).length}}"
+                                             md-page-select="options.pageSelect" md-boundary-links="options.boundaryLinks" md-on-paginate="logPagination">
+                        </md-table-pagination>
+                    </md-card>
+
+                    @*div for Print Start*@
+                    <div ng-show="isPrinting" id="printcontent">
+                        <div style="width: 100%; max-width: 595px; margin: 0 auto;">
+
+                            <!--header start-->
+                            <div>
+                                <div style="width:48%;padding: 5px 1%; float: left;">                                  
+                                    <img id="CompanyImg" style="padding-top:5px;width:80px; height: 72px;" alt="logo" />
+                                </div>
+                                <div style="width: 48%; padding: 10px 1%; float: left; text-align: left; color:#353535;">                                    
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{AccountModel.Address1}}<br />
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{AccountModel.Address2}}<br />
+                                    <strong style="font-family: pnbold;">
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GSTIN:
+                                    </strong> {{AccountModel.GSTNumber}}<br />
+                                    <strong style="font-family: pnbold;">
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ph:
+                                    </strong> +91 {{AccountModel.ContactNumber}} <br />
+                                    <strong style="font-family: pnbold;">
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Email:
+                                    </strong> {{AccountModel.SupportEmailID}}<br />
+                                </div>
+                                <div style="clear:both;"></div>
+                            </div>
+                            <!--header close-->
+                            <!--Title start-->
+                            <div>
+                                <div style="padding: 6px; background-color:#f1f1f1;">
+                                    <h4 style="color:#000000; font-weight:bold; font-size:16px; text-align: center; padding:0px; margin:0px; text-transform: uppercase; font-family: pnbold;">PASS EXPIRY CUSTOMERS REPORT</h4>
+                                </div>
+                            </div>
+                            <!--Title close-->
+                            <!--filtered by start-->
+                            <div style="margin: 10px 0px; color:#353535;">
+                                <div style="display: inline;">
+                                    <strong style="margin-right: 6px; font-family: pnbold;">Filtered By&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;</strong>
+                                    <span>{{ReportFilterModel.Duration}},{{SelectedItemModel.SelectedVehicle}}</span>                                   
+                                </div>
+                            </div>
+                            <!--filtered by close-->
+                            <!--from to generate dates start-->
+                          
+                            <div style="margin: 10px 0px; border-bottom:2px solid #f1f1f1; color:#353535;">
+                                <div style="display: inline;">
+                                    <strong style="margin-right: 6px; font-family: pnbold;">Generated On&nbsp;&nbsp;&nbsp;:&nbsp;</strong>
+                                    <span>{{TodayDate | date:"dd/MM/yyyy  h:mma"}}</span>
+                                </div>
+                                <div style="clear:both; margin-top: 7px;"></div>
+                            </div>
+                            <!--from to generate dates close-->
+                            <!--table start-->
+                            <table style="width: 100%; text-align: left; border-collapse: collapse;">
+                                <tr style="font-size:13px; font-weight: bold; background-color: #f1f1f1; font-family: pnbold;">
+                                    <th style=" border: 1px solid #000000;">Name</th>
+                                    <th style=" border: 1px solid #000000;">Phone Number</th>
+                                    <th style=" border: 1px solid #000000;">Vehicle Type</th>
+                                    <th style=" border: 1px solid #000000;">Vehicle Number</th>
+                                    <th style=" border: 1px solid #000000;">Type of Pass</th>
+                                    <th style=" border: 1px solid #000000;">Pass Expiry Date</th>
+                                </tr>
+                                <tr ng-repeat="item in PassExpiryCustomersListModel">
+                                    <td style=" border: 1px solid #000000;">{{item.Name}}</td>
+                                    <td style=" border: 1px solid #000000;">{{item.PhoneNumber}}</td>
+                                    <td style=" border: 1px solid #000000;">{{item.VehicleType}}</td>
+                                    <td style=" border: 1px solid #000000;">{{item.VehicleNumber}} </td>
+                                    <td style=" border: 1px solid #000000;">{{item.TypeofPass}}</td>
+                                    <td style=" border: 1px solid #000000;">{{item.PassExpiryDate}}</td>
+                                </tr>                                
+                            </table>
+                            <!--table close-->
+
+                        </div>
+                    </div>
+                    @*div for Print End*@
+
+                </article>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Hidden("GetActiveVehicleTypesList", Url.Action("GetActiveVehicleTypesList", "Parking"))
+@Html.Hidden("GetPassExpiredCustomersList", Url.Action("GetPassExpiredCustomersList", "OperationalReports"))
+@Html.Hidden("GetAccountDetails", Url.Action("GetAccountDetails", "CompanyInfo"))

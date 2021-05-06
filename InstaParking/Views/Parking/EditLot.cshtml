@@ -13,7 +13,7 @@
     /* Firefox */
     input[type=number] {
         -moz-appearance: textfield;
-    }   
+    }
 </style>
 <div class="page page-create-lot">
     <div data-ng-controller="ParkingCtrl">
@@ -33,13 +33,12 @@
 
                         <form name="formLot">
                             <div style="padding-bottom:20px;">
-
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="col-md-3">
                                             <md-input-container class="md-block">
                                                 <label>Location</label>
-                                                <md-select ng-model="LotsModel['LocationID']" aria-label="select" name="LocationID" class="type">
+                                                <md-select ng-model="LotsModel['LocationID']" aria-label="select" name="LocationID" class="type" ng-change="GetAvailableVehicleTypesByLocation(LotsModel.LocationID)">
                                                     <md-option ng-repeat="lotlocation in ActiveLocationsListModel" value="{{lotlocation.LocationID}}"> {{lotlocation.LocationName}} </md-option>
                                                 </md-select>
                                             </md-input-container>
@@ -66,7 +65,7 @@
                                                 <label>Latitude</label>
                                                 <input type="number" ng-model="LotsModel['Lattitude']" name="Lattitude" required
                                                        class="type" allow-decimal-numbers ng-min="0.1" ng-max="99.9999" step="any">
-                                                <div ng-messages="formLot.Lattitude.$error" role="alert" multiple >
+                                                <div ng-messages="formLot.Lattitude.$error" role="alert" multiple>
                                                     <div ng-message="max" class="my-message">
                                                         Lattitude have only two digits before the decimal.
                                                     </div>
@@ -100,15 +99,15 @@
                                                 </md-select>
                                             </md-input-container>
                                         </div>
-                                        <div class="col-md-3">
-                                            <md-input-container class="md-block">
-                                                <label>Vehicle Availability</label>
-                                                <md-select ng-model="LotsModel['LotVehicleAvailabilityID']" aria-label="select" name="LotVehicleAvailabilityID" 
-                                                           id="LotVehicleAvailabilityID" class="type" ng-change="GetLotVehicleAvailabilityText(LotVehicleAvailabilityID)">
-                                                    <md-option ng-repeat="availability in LotVehicleAvailabilityModel" value="{{availability.LotVehicleAvailabilityID}}"> {{availability.LotVehicleAvailabilityName}} </md-option>
-                                                </md-select>
-                                            </md-input-container>
-                                        </div>
+                                        @*<div class="col-md-3">
+                                                <md-input-container class="md-block">
+                                                    <label>Vehicle Availability</label>
+                                                    <md-select ng-model="LotsModel['LotVehicleAvailabilityID']" aria-label="select" name="LotVehicleAvailabilityID"
+                                                               id="LotVehicleAvailabilityID" class="type" ng-change="GetLotVehicleAvailabilityText(LotVehicleAvailabilityID)">
+                                                        <md-option ng-repeat="availability in LotVehicleAvailabilityModel" value="{{availability.LotVehicleAvailabilityID}}"> {{availability.LotVehicleAvailabilityName}} </md-option>
+                                                    </md-select>
+                                                </md-input-container>
+                                            </div>*@
                                         <div class="col-md-3">
                                             <md-input-container class="md-block">
                                                 <label>Phone Number</label>
@@ -128,13 +127,24 @@
                                             </md-input-container>
                                         </div>
                                         <div class="col-md-3">
-                                            <md-checkbox aria-label="Checkbox 1" style="margin-top: 20px;" ng-model="LotsModel['IsHoliday']" 
-                                                         ng-change="ChangeActiveCheckboxByHoliday(LotsModel.IsHoliday)" class="type"> Holiday </md-checkbox>
+                                            <md-checkbox aria-label="Checkbox 1" style="margin-top: 20px;" ng-model="LotsModel['IsHoliday']"
+                                                         ng-change="ChangeActiveCheckboxByHoliday(LotsModel.IsHoliday)" class="type">Holiday</md-checkbox>
                                         </div>
                                         <div class="col-md-3">
                                             <md-checkbox aria-label="Checkbox 1" style="margin-top: 20px;" ng-disabled="activeCheckboxDisabled"
-                                                         ng-model="LotsModel['IsActive']" class="type"> Active </md-checkbox>
+                                                         ng-model="LotsModel['IsActive']" class="type">Active</md-checkbox>
                                         </div>
+
+                                        <div class="col-md-12 col-lg-12" style="margin-top:22px;">
+                                            <label style="color:rgba(0,0,0,0.38);">Vehicle Types :</label>
+                                            <md-checkbox ng-repeat="vehType in ActiveVehicleTypeListModel"
+                                                         ng-model="vehType['selected']"
+                                                         value="vehType.VehicleTypeID"
+                                                         aria-label="Checkbox">
+                                                {{vehType.VehicleTypeCode}}
+                                            </md-checkbox>
+                                        </div>
+
                                     </div>
                                 </div>
 
@@ -460,7 +470,7 @@
                                 <div class="col-md-3 col-lg-2">
                                     <md-input-container class="md-block">
                                         <label>Vehicle Type</label>
-                                        <md-select ng-model="LotBaysModel['VehicleTypeID']" aria-label="select" name="VehicleTypeID" 
+                                        <md-select ng-model="LotBaysModel['VehicleTypeID']" aria-label="select" name="VehicleTypeID"
                                                    id="VehicleTypeID" required ng-change="GetParkingBayVehicleTypeName(VehicleTypeID)">
                                             <md-option ng-repeat="vehicle in ActiveVehicleTypesListModel" value="{{vehicle.VehicleTypeID}}"> {{vehicle.VehicleTypeName}} </md-option>
                                         </md-select>
@@ -567,6 +577,12 @@
 @Html.Hidden("DeleteLotBay", Url.Action("DeleteLotBay", "Parking"))
 
 @Html.Hidden("GetLotCapacityByVehicleType", Url.Action("GetLotCapacityByVehicleType", "Parking"))
+
+@Html.Hidden("GetVehicleTypesByLotID", Url.Action("GetVehicleTypesByLotID", "Parking"))@*26022021*@
+@Html.Hidden("CheckVehicleTypeExistforLot", Url.Action("CheckVehicleTypeExistforLot", "Parking"))@*26022021*@
+@Html.Hidden("GetAvailableVehTypesLocation", Url.Action("GetVehicleTypesByLocationID", "Parking"))@*01032021*@
+
+@Html.Hidden("CheckLocationStatus", Url.Action("CheckLocationStatus", "Parking"))
 
 <input type="hidden" id="hdnUpdateLotID" name="hdnUpdateLotID" />
 

@@ -38,7 +38,7 @@
                                             </md-select>
                                         </md-input-container>
                                     </div>
-                                    
+
                                     <div class="col-md-3">
                                         <md-button type="submit" class="md-button md-raised btn-w-md md-default custom-btn" style="min-width: 50px; margin:12px 0px;"
                                                    [disabled]="formAllocations.$valid" data-ng-click="formAllocations.$valid && GetAllocations()">Get</md-button>
@@ -82,6 +82,7 @@
                                         <th md-column md-order-by="LoginTime"><span>Login Time</span></th>
                                         <th md-column md-order-by="Role"><span>Role</span></th>
                                         <th md-column md-order-by="ReportsTo"><span>Reports To</span></th>
+                                        <th md-column></th>
                                     </tr>
                                 </thead>
                                 <tbody md-body>
@@ -95,9 +96,13 @@
                                         <td md-cell><span ng-class="{'allocationsfont-success': rbcidata.LoginTime!='', 'allocationsfont-danger': rbcidata.LoginTime==''}">{{rbcidata.LoginTime}}</span></td>
                                         <td md-cell><span ng-class="{'allocationsfont-success': rbcidata.LoginTime!='', 'allocationsfont-danger': rbcidata.LoginTime==''}">{{rbcidata.Role}}</span></td>
                                         <td md-cell><span ng-class="{'allocationsfont-success': rbcidata.LoginTime!='', 'allocationsfont-danger': rbcidata.LoginTime==''}">{{rbcidata.ReportsTo}}</span></td>
+                                        <td md-cell class="actions">
+                                            <a title="Logout" style="cursor:pointer;color:dodgerblue;" id="LogoutEmployee" ng-click="LogoutEmployee(rbcidata)">Logout
+                                            </a>
+                                        </td>
                                     </tr>
                                     <tr md-row ng-if="AllocationsListModel.length==0">
-                                        <td md-cell colspan="7" style="text-align: center;">No Data Available</td>
+                                        <td md-cell colspan="8" style="text-align: center;">No Data Available</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -115,3 +120,4 @@
 @Html.Hidden("GetActiveLocationsList", Url.Action("GetActiveLocationsList", "Employee"))
 @Html.Hidden("GetActiveLotssList", Url.Action("GetActiveLotssList", "Employee"))
 @Html.Hidden("GetAllAllocations", Url.Action("GetAllAllocations", "OperationalReports"))
+@Html.Hidden("LogoutEmployeeurl", Url.Action("LogoutEmployeeLot", "OperationalReports"))

@@ -40,8 +40,8 @@ namespace InstaParking.Models
         public string LotImageName3 { get; set; }
         public string LotImageType3 { get; set; }
 
-        public int LotVehicleAvailabilityID { get; set; }
-        public string LotVehicleAvailabilityName { get; set; }
+        //public int LotVehicleAvailabilityID { get; set; }
+        //public string LotVehicleAvailabilityName { get; set; }
         public bool IsHoliday { get; set; }
     }
 }

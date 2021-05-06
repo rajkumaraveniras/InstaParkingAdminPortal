@@ -15,10 +15,10 @@ namespace InstaParking.Models
         public String PassName { get; set; }
         public String StationAccess { get; set; }
         public String Duration { get; set; }
-        public String StartDate { get; set; }
-        public String EndDate { get; set; }
-        public bool NFCApplicable { get; set; }
-        public String NFCCardPrice { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+       // public bool NFCApplicable { get; set; }
+       // public String NFCCardPrice { get; set; }
         public int VehicleTypeID { get; set; }
         public string VehicleTypeName { get; set; }
         public decimal Price { get; set; }
@@ -27,5 +27,6 @@ namespace InstaParking.Models
         public bool IsDeleted { get; set; }
         public DateTime UpdatedOn { get; set; }
         public string UpdatedBy { get; set; }
+        public bool selected { get; set; }
     }
 }

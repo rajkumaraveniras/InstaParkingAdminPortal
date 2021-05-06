@@ -78,7 +78,8 @@
                                             <label style="visibility: hidden;">From Date</label>
                                             <md-datepicker ng-model="ReportFilterModel['FromDate']" md-placeholder="From Date" name="FromDate"
                                                            ng-disabled="disabled" ng-required="required"
-                                                           ng-change="ChangeToDate()" md-open-on-focus id="FromDate" required></md-datepicker>
+                                                           ng-change="ChangeToDate()" md-open-on-focus id="FromDate"
+                                                           required readonly md-max-date="TomaxDate"></md-datepicker>
                                         </md-input-container>
                                     </div>
                                     <div class="col-md-3" ng-if="ReportFilterModel.Duration!=''">
@@ -87,7 +88,7 @@
                                             <md-datepicker ng-model="ReportFilterModel['ToDate']" md-placeholder="To Date" name="ToDate"
                                                            ng-disabled="disabled" ng-required="required"
                                                            ng-change="AssignToDate()" id="ToDate"
-                                                           md-max-date="TomaxDate"></md-datepicker>
+                                                           md-max-date="TomaxDate" readonly></md-datepicker>
                                         </md-input-container>
                                     </div>
                                     <div class="col-md-3" ng-if="ReportFilterModel.Duration==''">
@@ -97,7 +98,7 @@
                                                            ng-disabled="disabled" ng-required="required"
                                                            md-min-date="ReportFilterModel.FromDate"
                                                            ng-change="AssignToDate()" id="ToDate"
-                                                           md-max-date="TomaxDate"></md-datepicker>
+                                                           md-max-date="TomaxDate" readonly></md-datepicker>
                                         </md-input-container>
                                     </div>
                                 </div>
@@ -200,7 +201,7 @@
                                         ng-repeat="rbpdata in ReportByPaymentTypeListModel | filter: filterTable | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit">
                                         <td md-cell>{{rbpdata.PaymentType}}</td>
                                         @*<td md-cell>{{rbpdata.In}}</td>
-                                            <td md-cell>{{rbpdata.Out}}</td>*@
+            <td md-cell>{{rbpdata.Out}}</td>*@
                                         <td md-cell style="text-align: right;">{{rbpdata.OperatorIn}}</td>
                                         <td md-cell style="text-align: right;">{{rbpdata.AppIn}}</td>
                                         <td md-cell style="text-align: right;">{{rbpdata.CallIn}}</td>
@@ -214,6 +215,13 @@
                                         <td md-cell>{{ReportByPaymentTypeListModel[0].CallInTotal}}</td>
                                         <td md-cell>{{GrandTotalforPaymentType}}</td>
                                     </tr>
+                                    @*<tr md-row class="gst-row" ng-if="ReportByPaymentTypeListModel.length>0">                                      
+                                        <td md-cell></td>
+                                        <td md-cell></td>
+                                        <td md-cell></td>
+                                        <td md-cell style="font-weight: bold; text-align: right !important;">GST</td>
+                                        <td md-cell style="font-weight: bold; text-align: right !important;">{{PaymentTypeGST}}</td>
+                                    </tr>*@
                                     <tr md-row ng-if="ReportByPaymentTypeListModel.length==0">
                                         <td md-cell colspan="5" style="text-align: center;">No Data Available</td>
                                     </tr>
@@ -232,27 +240,27 @@
 
                             <!--header start-->
                             <div>
-                                <div style="width: 48%; padding: 10px 1%; float: left;">
-                                    <img src="~/assets/images/Logo4.png" style="padding-top:15px;" alt="logo" />
+                                <div style="width:48%;padding: 5px 1%; float: left;">
+                                    @*<img src="~/assets/images/Logo4.png" style="padding-top:15px;" alt="logo" />*@
+                                    <img id="CompanyImg" style="padding-top:5px;width:80px; height: 72px;" alt="logo" />
                                 </div>
                                 <div style="width: 48%; padding: 10px 1%; float: left; text-align: left; color:#353535;">
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Unit #3A, Plot No:847, Pacific Towers,<br />
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    Madhapur, Hyderabad – 500081, TS<br />
+                                    @*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*@
+                                    @*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Unit #3A, Plot No:847, Pacific Towers,<br />*@
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{AccountModel.Address1}}<br />
+                                    @*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*@
+                                    @*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*@
+                                    @*Madhapur, Hyderabad – 500081, TS<br />*@
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{AccountModel.Address2}}<br />
                                     <strong style="font-family: pnbold;">
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GSTIN:
-                                    </strong> 36AABCT3518Q1ZX<br />
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GSTIN:
+                                    </strong> {{AccountModel.GSTNumber}}<br />
                                     <strong style="font-family: pnbold;">
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ph:
-                                    </strong> +91 8143143143 <br />
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ph:
+                                    </strong> +91 {{AccountModel.ContactNumber}} <br />
                                     <strong style="font-family: pnbold;">
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Email:
-                                    </strong> support@hmrl.com<br />
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Email:
+                                    </strong> {{AccountModel.SupportEmailID}}<br />
                                 </div>
                                 <div style="clear:both;"></div>
                             </div>
@@ -306,7 +314,7 @@
 
                                     <th style=" border: 1px solid #000000;">Payment Type</th>
                                     @*<th style=" border: 1px solid #000000;">In</th>
-                                        <th style=" border: 1px solid #000000;">Out</th>*@
+            <th style=" border: 1px solid #000000;">Out</th>*@
                                     <th style=" border: 1px solid #000000; text-align: right;">OperatorIn Amount</th>
                                     <th style=" border: 1px solid #000000; text-align: right;">AppIn Amount</th>
                                     <th style=" border: 1px solid #000000; text-align: right;">CallIn Amount</th>
@@ -315,7 +323,7 @@
                                 <tr ng-repeat="item in ReportByPaymentTypeListModel">
                                     <td style=" border: 1px solid #000000;">{{item.PaymentType}}</td>
                                     @*<td style=" border: 1px solid #000000;">{{item.In}} </td>
-                                        <td style=" border: 1px solid #000000;">{{item.Out}}</td>*@
+            <td style=" border: 1px solid #000000;">{{item.Out}}</td>*@
                                     <td style=" border: 1px solid #000000; text-align: right;">{{item.OperatorIn}}</td>
                                     <td style=" border: 1px solid #000000; text-align: right;">{{item.AppIn}}</td>
                                     <td style=" border: 1px solid #000000; text-align: right;">{{item.CallIn}}</td>
@@ -325,13 +333,22 @@
                                     @*<td style=" border: 1px solid #000000;">&nbsp;</td>*@
                                     @*<td style=" border: 1px solid #000000;">&nbsp;</td>*@
                                     @*<td style=" border: 1px solid #000000;">&nbsp;</td>
-                                        <td style=" border: 1px solid #000000;">&nbsp;</td>*@
+            <td style=" border: 1px solid #000000;">&nbsp;</td>*@
                                     <td style=" border: 1px solid #000000; font-size: 13px; font-weight: bold; text-align: right;">TOTAL:</td>
                                     <td style=" border: 1px solid #000000; font-size: 13px; font-weight: bold; text-align: right;">{{ReportByPaymentTypeListModel[0].OperatorInTotal}}</td>
                                     <td style=" border: 1px solid #000000; font-size: 13px; font-weight: bold; text-align: right;">{{ReportByPaymentTypeListModel[0].AppInTotal}}</td>
                                     <td style=" border: 1px solid #000000; font-size: 13px; font-weight: bold; text-align: right;">{{ReportByPaymentTypeListModel[0].CallInTotal}}</td>
                                     <td style=" border: 1px solid #000000;font-size: 13px; font-weight: bold; text-align: right;">{{GrandTotalforPaymentType}}</td>
                                 </tr>
+                                @*<tr style=" font-family: pnbold;">
+                                    <td style=" border: 1px solid #000000;">&nbsp;</td>
+                                    <td style=" border: 1px solid #000000;">&nbsp;</td>
+                                    <td style=" border: 1px solid #000000;">&nbsp;</td>
+                                    <td style=" border: 1px solid #000000; font-size: 13px; font-weight: bold; text-align: right !important;">GST</td>
+                                    <td style=" border: 1px solid #000000; font-size: 13px; font-weight: bold; text-align: right;">
+                                        {{PaymentTypeGST}}
+                                    </td>
+                                </tr>*@
                             </table>
                             <!--table close-->
 
@@ -351,3 +368,4 @@
 @Html.Hidden("GetActiveVehicleTypesList", Url.Action("GetActiveVehicleTypesList", "Parking"))
 @Html.Hidden("GetChannelListforPaymentType", Url.Action("GetChannelListforPaymentType", "RevenueReports"))
 @Html.Hidden("GetReportByPaymentType", Url.Action("GetReportByPaymentType", "RevenueReports"))
+@Html.Hidden("GetAccountDetails", Url.Action("GetAccountDetails", "CompanyInfo"))
